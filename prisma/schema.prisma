@@ -1,0 +1,96 @@
+// Downtime data model. SQLite for local development; switch the provider to
+// "postgresql" for production (all fields here are portable).
+//
+// Status-like fields are plain strings; the allowed values live in src/lib/constants.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        String    @id @default(cuid())
+  name      String
+  city      String
+  // PENDING | VERIFIED | REJECTED. Only VERIFIED companies can list publicly or book.
+  status    String    @default("PENDING")
+  createdAt DateTime  @default(now())
+  users     User[]
+  vehicles  Vehicle[]
+  bookings  Booking[] @relation("RenterBookings")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  // Normalised: trimmed and lowercased before every write and lookup.
+  email             String    @unique
+  name              String
+  passwordHash      String
+  // OWNER | FLEET_MANAGER | DRIVER
+  role              String    @default("OWNER")
+  // Downtime staff. An admin has no company.
+  isAdmin           Boolean   @default(false)
+  companyId         String?
+  company           Company?  @relation(fields: [companyId], references: [id])
+  bookingsRequested Booking[]
+  createdAt         DateTime  @default(now())
+}
+
+model Vehicle {
+  id             String           @id @default(cuid())
+  companyId      String
+  company        Company          @relation(fields: [companyId], references: [id])
+  name           String
+  // CARGO_VAN | PICKUP | BOX_TRUCK | PASSENGER_VAN | SEDAN
+  type           String
+  year           Int
+  // Comma-separated tags, e.g. "roof rack,liftgate".
+  equipment      String           @default("")
+  dailyRateCents Int
+  city           String
+  active         Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  windows        DowntimeWindow[]
+  bookings       Booking[]
+}
+
+// When a vehicle is idle and may be rented. A day is rentable only if some window covers it.
+model DowntimeWindow {
+  id        String    @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  // WEEKLY: the listed weekdays, optionally bounded by start/end.
+  // RANGE: every day from start to end (both required).
+  kind      String
+  // Comma-separated JS weekday numbers, 0 = Sunday. Only for WEEKLY.
+  weekdays  String    @default("")
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Booking {
+  id              String   @id @default(cuid())
+  vehicleId       String
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id])
+  renterCompanyId String
+  renterCompany   Company  @relation("RenterBookings", fields: [renterCompanyId], references: [id])
+  requestedById   String
+  requestedBy     User     @relation(fields: [requestedById], references: [id])
+  // Whole days, inclusive, stored as UTC midnight.
+  startDate       DateTime
+  endDate         DateTime
+  days            Int
+  // Price snapshot at request time.
+  subtotalCents   Int
+  renterFeeCents  Int
+  hostFeeCents    Int
+  // REQUESTED | CONFIRMED | DECLINED | CANCELLED
+  status          String   @default("REQUESTED")
+  note            String   @default("")
+  createdAt       DateTime @default(now())
+}
