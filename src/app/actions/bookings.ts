@@ -21,7 +21,7 @@ export async function requestBooking(_: ActionState, form: FormData): Promise<Ac
   if (start < today()) return { error: "The start date is in the past." };
 
   const vehicle = await db.vehicle.findFirst({
-    where: { id: form.get("vehicleId") as string, active: true, company: { status: "VERIFIED" } },
+    where: { id: form.get("vehicleId") as string, active: true, blocked: false, company: { status: "VERIFIED" } },
     include: { windows: true, bookings: { where: { status: "CONFIRMED" } } },
   });
   if (!vehicle) return { error: "That vehicle is no longer listed." };

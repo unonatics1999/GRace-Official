@@ -18,6 +18,7 @@ export const COMPANY_STATUS = {
   PENDING: "Pending verification",
   VERIFIED: "Verified",
   REJECTED: "Rejected",
+  SUSPENDED: "Suspended",
 } as const;
 
 export const BOOKING_STATUS = {

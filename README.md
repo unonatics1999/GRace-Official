@@ -24,7 +24,7 @@ demo data any time with `npm run db:seed`.
 | A renter | Frost Snow Removal |
 | A host | Green Thumb Landscaping (pickups idle all winter) or Fresh Plate Catering (van idle Mon–Wed) |
 | A company waiting for verification | Bloom Florist |
-| Downtime staff | the admin account (verification queue) |
+| Downtime staff | the admin account (admin console at `/admin`) |
 
 ## Commands
 
@@ -48,8 +48,10 @@ Next.js 15 (App Router, server actions) · TypeScript · Tailwind CSS 4 · Prism
 prisma/              schema, migrations, demo seed
 src/lib/             availability.ts (the core rule), session, dates, constants
 src/app/actions/     server actions: auth, team, vehicles, bookings, admin
+src/app/(public)/    landing page, /explore marketplace, /listing/[id] with the booking box
 src/app/(auth)/      log in, sign up
-src/app/(app)/       signed-in app: dashboard, fleet, find, bookings, team, admin
+src/app/(app)/       signed-in company app: dashboard, fleet, bookings, team
+src/app/admin/       admin console: overview, companies, vehicles, bookings, users
 src/components/      shared UI
 ```
 
@@ -66,7 +68,9 @@ a booking re-checks this inside a transaction.
 - [x] Downtime windows: weekly patterns and date ranges; 28-day availability calendar
 - [x] Search by type, city and dates, showing only vehicles idle for every requested day
 - [x] Booking request with a price quote (10% renter fee, 15% host fee); approve, decline, cancel
-- [x] Dashboard: earnings from idle days, open requests
+- [x] Dashboard: earnings from idle days, open requests, recent activity
+- [x] Public marketplace: browse without an account, listing pages with an availability calendar and live quote
+- [x] Admin console: marketplace metrics; verify, reject, suspend and reinstate companies; hide listings; cancel bookings; search users
 
 ## Next
 

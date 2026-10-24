@@ -25,6 +25,7 @@ const companyTone: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-800",
   VERIFIED: "bg-brand-100 text-brand-700",
   REJECTED: "bg-red-100 text-red-700",
+  SUSPENDED: "bg-stone-200 text-stone-700",
 };
 
 export function CompanyStatusBadge({ status }: { status: string }) {

@@ -90,6 +90,59 @@ async function main() {
     },
   });
 
+  const summitBuild = await db.company.create({
+    data: {
+      name: "Summit Build Co.",
+      city: "Aurora",
+      status: "VERIFIED",
+      users: { create: { email: "jo@summitbuild.test", name: "Jo Okafor", passwordHash, role: "OWNER" } },
+    },
+  });
+  await db.vehicle.create({
+    data: {
+      companyId: summitBuild.id,
+      name: "16ft Box Truck",
+      type: "BOX_TRUCK",
+      year: 2020,
+      equipment: "liftgate,moving blankets,ramp",
+      description: "16 ft box with a 2,500 lb liftgate. Free on weekends while our crews are off site.",
+      dailyRateCents: 14500,
+      city: "Aurora",
+      windows: { create: { kind: "WEEKLY", weekdays: "0,6" } },
+    },
+  });
+
+  const peakTransit = await db.company.create({
+    data: {
+      name: "Peak Student Transit",
+      city: "Denver",
+      status: "VERIFIED",
+      users: { create: { email: "rae@peaktransit.test", name: "Rae Lindqvist", passwordHash, role: "OWNER" } },
+    },
+  });
+  await db.vehicle.create({
+    data: {
+      companyId: peakTransit.id,
+      name: "15-Passenger Sprinter",
+      type: "PASSENGER_VAN",
+      year: 2023,
+      equipment: "15 seats,rear luggage space,wheelchair lift",
+      description: "Commercially maintained school-transport van. Free on Fridays and over school breaks.",
+      dailyRateCents: 16000,
+      city: "Denver",
+      windows: { create: { kind: "WEEKLY", weekdays: "5" } },
+    },
+  });
+
+  await db.vehicle.updateMany({
+    where: { companyId: greenThumb.id },
+    data: { description: "Half-ton pickup with a plow mount and tow hitch. Our landscaping season ends in October, so it's free all winter." },
+  });
+  await db.vehicle.updateMany({
+    where: { companyId: freshPlate.id },
+    data: { description: "Refrigerated cargo van with shelving. Our catering events run Thursday to Sunday, so it's free early in the week." },
+  });
+
   console.log(`Seeded demo data. Every demo account's password is "${DEMO_PASSWORD}".`);
 }
 

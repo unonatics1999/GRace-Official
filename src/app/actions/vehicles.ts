@@ -17,6 +17,7 @@ const vehicleSchema = z.object({
   year: z.coerce.number().int().min(1990, "Enter a year from 1990 on.").max(2030, "Enter a valid year."),
   city: z.string().trim().min(2, "Enter where the vehicle is picked up."),
   equipment: z.string().trim().max(200).default(""),
+  description: z.string().trim().max(1000, "Keep the description under 1,000 characters.").default(""),
   dailyRate: z.coerce.number().min(10, "The daily rate must be at least $10.").max(2000, "The daily rate is capped at $2,000."),
 });
 
@@ -40,7 +41,7 @@ export async function createVehicle(_: ActionState, form: FormData): Promise<Act
       companyId: me.companyId,
     },
   });
-  redirect(`/vehicles/${vehicle.id}`);
+  redirect(`/fleet/${vehicle.id}`);
 }
 
 async function ownVehicle(vehicleId: string) {
@@ -53,7 +54,7 @@ export async function toggleVehicleActive(vehicleId: string): Promise<void> {
   const vehicle = await ownVehicle(vehicleId);
   if (!vehicle) return;
   await db.vehicle.update({ where: { id: vehicle.id }, data: { active: !vehicle.active } });
-  revalidatePath(`/vehicles/${vehicle.id}`);
+  revalidatePath(`/fleet/${vehicle.id}`);
 }
 
 export async function addWindow(vehicleId: string, _: ActionState, form: FormData): Promise<ActionState> {
@@ -81,7 +82,7 @@ export async function addWindow(vehicleId: string, _: ActionState, form: FormDat
   } else {
     return { error: "Pick weekly or date range." };
   }
-  revalidatePath(`/vehicles/${vehicleId}`);
+  revalidatePath(`/fleet/${vehicleId}`);
   return { ok: "Downtime added." };
 }
 
@@ -89,5 +90,5 @@ export async function deleteWindow(windowId: string): Promise<void> {
   const window = await db.downtimeWindow.findUnique({ where: { id: windowId } });
   if (!window || !(await ownVehicle(window.vehicleId))) return;
   await db.downtimeWindow.delete({ where: { id: window.id } });
-  revalidatePath(`/vehicles/${window.vehicleId}`);
+  revalidatePath(`/fleet/${window.vehicleId}`);
 }

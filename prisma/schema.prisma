@@ -16,7 +16,7 @@ model Company {
   id        String    @id @default(cuid())
   name      String
   city      String
-  // PENDING | VERIFIED | REJECTED. Only VERIFIED companies can list publicly or book.
+  // PENDING | VERIFIED | REJECTED | SUSPENDED. Only VERIFIED companies can list publicly or book.
   status    String    @default("PENDING")
   createdAt DateTime  @default(now())
   users     User[]
@@ -50,9 +50,13 @@ model Vehicle {
   year           Int
   // Comma-separated tags, e.g. "roof rack,liftgate".
   equipment      String           @default("")
+  description    String           @default("")
   dailyRateCents Int
   city           String
+  // Host's own switch: paused listings don't show in search.
   active         Boolean          @default(true)
+  // Set by a Downtime admin; hides the listing whatever the host does.
+  blocked        Boolean          @default(false)
   createdAt      DateTime         @default(now())
   windows        DowntimeWindow[]
   bookings       Booking[]
