@@ -101,14 +101,14 @@ export function VehicleForm({ action, vehicle: v, defaultCity, submitLabel, extr
         <legend className="text-sm font-semibold text-stone-900">How renters can book it</legend>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-300 p-4 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
-            <input type="checkbox" name="selfDriveAllowed" defaultChecked={v?.selfDriveAllowed ?? true} className="mt-1 accent-[#1f5139]" />
+            <input type="checkbox" name="selfDriveAllowed" defaultChecked={v?.selfDriveAllowed ?? true} className="mt-1 accent-[#ff6a00]" />
             <span>
               <span className="block text-sm font-medium">Self-drive</span>
               <span className="text-xs text-stone-500">Renters with a valid licence drive it themselves.</span>
             </span>
           </label>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-300 p-4 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
-            <input type="checkbox" name="withDriverAllowed" defaultChecked={v?.withDriverAllowed ?? true} className="mt-1 accent-[#1f5139]" />
+            <input type="checkbox" name="withDriverAllowed" defaultChecked={v?.withDriverAllowed ?? true} className="mt-1 accent-[#ff6a00]" />
             <span>
               <span className="block text-sm font-medium">With driver (you)</span>
               <span className="text-xs text-stone-500">You drive. Needs an approved driver profile.</span>

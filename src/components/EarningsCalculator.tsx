@@ -64,7 +64,7 @@ function Slider({ label, value, min, max, step = 1, display, onChange }: SliderP
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-2 w-full accent-[#1f5139]"
+        className="mt-2 w-full accent-[#ff6a00]"
       />
     </label>
   );

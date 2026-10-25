@@ -10,7 +10,7 @@ import { BUSINESS_REQUIREMENTS, INDIVIDUAL_REQUIREMENTS, missingDocuments } from
 import { requireCompanyUser } from "@/lib/session";
 import { canManageTeam } from "@/lib/util";
 
-export const metadata = { title: "Account · GRace Car Rentals" };
+export const metadata = { title: "Account · GRace Car Rental" };
 
 const GOV_IDS = ["PhilSys National ID", "Passport", "Driver's licence", "UMID", "SSS ID", "Postal ID", "PRC ID"];
 

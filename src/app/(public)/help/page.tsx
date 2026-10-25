@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HelpAssistant } from "@/components/HelpAssistant";
 import { HELP_ARTICLES, HELP_CATEGORIES, searchHelp } from "@/lib/help-content";
 
-export const metadata = { title: "Help center · GRace Car Rentals" };
+export const metadata = { title: "Help center · GRace Car Rental" };
 
 export default async function HelpPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;

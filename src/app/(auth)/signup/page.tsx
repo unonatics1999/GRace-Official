@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignupForm } from "@/components/SignupForm";
 
-export const metadata = { title: "Create an account · GRace Car Rentals" };
+export const metadata = { title: "Create an account · GRace Car Rental" };
 
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ as?: string }> }) {
   const { as } = await searchParams;

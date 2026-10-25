@@ -11,7 +11,7 @@ import { DRIVER_REQUIREMENTS, VEHICLE_RULES } from "@/lib/requirements";
 import { requireOwner } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
 
-export const metadata = { title: "Driver profile · GRace Car Rentals" };
+export const metadata = { title: "Driver profile · GRace Car Rental" };
 
 const STATUS_TONE: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-800",
@@ -111,7 +111,7 @@ export default async function DriverPage() {
             <Field label="Years driving" name="yearsExperience" type="number" min={0} defaultValue={driver?.yearsExperience} required />
           </div>
           <label className="flex items-start gap-2 text-sm text-stone-600">
-            <input type="checkbox" required className="mt-1 accent-[#1f5139]" />
+            <input type="checkbox" required className="mt-1 accent-[#ff6a00]" />
             I hold an LTO <strong className="mx-1">Professional</strong> licence with the right restriction codes for the vehicles I&apos;ll drive.
           </label>
         </ActionForm>

@@ -10,29 +10,19 @@ export function Field({ label, ...input }: { label: string } & InputHTMLAttribut
   );
 }
 
-/** The G+Race mark: a G whose crossbar runs out as a racing line. Same artwork as public/brand/grace-mark.svg. */
-export function GraceMark({ className = "h-8 w-8" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
-      <rect width="64" height="64" rx="15" fill="#1f5139" />
-      <path d="M7 25.5h7M5 32h8M7 38.5h7" stroke="#c6f135" strokeWidth="2.6" strokeLinecap="round" opacity="0.55" />
-      <path d="M45.3 20.2 A16.5 16.5 0 1 0 50.6 34 H37.5" fill="none" stroke="#c6f135" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M50.6 34 L58 34" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2.2 3.2" />
-    </svg>
-  );
+/** The G+Race icon: orange G with RACE as its crossbar and four clock lines, on a black tile. */
+export function GraceMark({ className = "h-10 w-10" }: { className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element -- static brand SVG
+  return <img src="/brand/grace-mark.svg" alt="" aria-hidden="true" className={className} />;
 }
 
-/** Brand lockup: the G mark + "Race" (the logo), then "Car Rentals" as a plain word. */
+/** Brand lockup: the G+Race icon, with "Car Rental" underneath. */
 export function Logo({ className = "", tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
-  const dark = tone === "dark";
   return (
-    <span className={`inline-flex items-center gap-1.5 ${className}`} aria-label="GRace Car Rentals">
-      <GraceMark className="h-8 w-8 shrink-0" />
-      <span className={`text-[1.35em] font-extrabold italic leading-none tracking-tight ${dark ? "text-white" : "text-brand-900"}`}>
-        Race
-      </span>
-      <span className={`ml-1.5 hidden text-[0.62em] font-semibold uppercase tracking-[0.22em] sm:inline ${dark ? "text-brand-100" : "text-brand-700"}`}>
-        Car Rentals
+    <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rental">
+      <GraceMark className="h-10 w-10" />
+      <span className={`mt-1 text-[8px] font-semibold uppercase tracking-[0.3em] ${tone === "dark" ? "text-stone-300" : "text-stone-700"}`}>
+        Car Rental
       </span>
     </span>
   );

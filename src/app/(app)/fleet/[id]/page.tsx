@@ -230,11 +230,11 @@ export default async function FleetVehiclePage({
               <ActionForm action={addWindow.bind(null, vehicle.id)} submitLabel="Add availability" className="space-y-4">
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 p-3 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
-                    <input type="radio" name="kind" value="WEEKLY" defaultChecked className="accent-[#1f5139]" />
+                    <input type="radio" name="kind" value="WEEKLY" defaultChecked className="accent-[#ff6a00]" />
                     <span><span className="block font-medium">Weekly</span><span className="text-xs text-stone-500">e.g. every weekday</span></span>
                   </label>
                   <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-300 p-3 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
-                    <input type="radio" name="kind" value="RANGE" className="accent-[#1f5139]" />
+                    <input type="radio" name="kind" value="RANGE" className="accent-[#ff6a00]" />
                     <span><span className="block font-medium">Date range</span><span className="text-xs text-stone-500">e.g. while abroad</span></span>
                   </label>
                 </div>

@@ -5,7 +5,7 @@ import { Logo } from "@/components/ui";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 
-export const metadata = { title: "Admin · GRace Car Rentals" };
+export const metadata = { title: "Admin · GRace Car Rental" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();

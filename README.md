@@ -1,4 +1,4 @@
-# GRace Car Rentals
+# GRace Car Rental
 
 A Philippine car-rental marketplace. Verified owners list their cars for the days they don't use them;
 individuals and businesses rent them **self-drive** or **with the owner as driver**. GRace earns a

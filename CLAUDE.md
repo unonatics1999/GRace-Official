@@ -5,7 +5,7 @@ flow, verification rules, commission and the production checklist. Read it first
 
 ## What this is
 
-**GRace Car Rentals** ("G+Race"; the code and folder are still named `downtime`): a Philippine car-rental marketplace. Verified owners list cars for the days they don't use
+**GRace Car Rental** ("G+Race"; the code and folder are still named `downtime`): a Philippine car-rental marketplace. Verified owners list cars for the days they don't use
 them; individuals and businesses rent them self-drive or with the owner as driver. The platform earns a
 renter service fee plus a host commission on every booking. It is a standalone project, unrelated to any
 other repository on this machine.
@@ -56,7 +56,7 @@ other repository on this machine.
 5. Email and/or SMS provider (also needed for password reset).
 6. Payment window after approval (currently 24 h).
 7. LTFRB/DOT accreditation for rent-a-car with driver; NPC registration.
-8. Brand is GRace Car Rentals. A small "Grace Car Rental" already operates in Quezon City (Facebook): confirm the name is free on DTI BNRS and IPOPHL before registering.
+8. Brand is GRace Car Rental. A small "Grace Car Rental" already operates in Quezon City (Facebook): confirm the name is free on DTI BNRS and IPOPHL before registering.
 9. PayMongo test keys for live checkout testing.
 
 ## Brand

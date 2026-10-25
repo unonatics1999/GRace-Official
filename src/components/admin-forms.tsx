@@ -94,7 +94,7 @@ export function UserForm({
         <Select label="Role in the account" name="role" value={u?.role ?? "OWNER"} options={Object.entries(ROLES)} />
       </div>
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="isAdmin" defaultChecked={u?.isAdmin} className="accent-[#1f5139]" />
+        <input type="checkbox" name="isAdmin" defaultChecked={u?.isAdmin} className="accent-[#ff6a00]" />
         GRace admin (full access to this console)
       </label>
       <Field

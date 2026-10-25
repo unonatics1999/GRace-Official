@@ -3,18 +3,18 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-brand-50: #f1f8f3;
-  --color-brand-100: #dcefe1;
-  --color-brand-500: #2f855a;
-  --color-brand-600: #276749;
-  --color-brand-700: #1f5139;
-  --color-brand-900: #0f2a1d;
-  --color-lime: #c6f135;
+  --color-brand-50: #fff5ed;
+  --color-brand-100: #ffe3cf;
+  --color-brand-500: #ff7a1a;
+  --color-brand-600: #c24e00;
+  --color-brand-700: #111111;
+  --color-brand-900: #0b0b0b;
+  --color-lime: #ff6a00;
 }
 
 body {
-  background: #f7f8f6;
-  color: #1c2420;
+  background: #f7f7f6;
+  color: #161616;
 }
 
 @layer components {

@@ -30,7 +30,7 @@ export function SignupForm({ initial = "RENTER" }: { initial?: AccountType }) {
       <div className="flex gap-4 text-sm">
         {(["INDIVIDUAL", "BUSINESS"] as const).map((k) => (
           <label key={k} className="flex cursor-pointer items-center gap-2">
-            <input type="radio" checked={kind === k} onChange={() => setKind(k)} className="accent-[#1f5139]" />
+            <input type="radio" checked={kind === k} onChange={() => setKind(k)} className="accent-[#ff6a00]" />
             {k === "INDIVIDUAL" ? "As a person" : "As a business"}
           </label>
         ))}
@@ -53,7 +53,7 @@ export function SignupForm({ initial = "RENTER" }: { initial?: AccountType }) {
       <Input label="Password (10+ characters)" name="password" type="password" autoComplete="new-password" minLength={10} required />
 
       <label className="flex items-start gap-2 text-sm text-stone-600">
-        <input type="checkbox" name="terms" className="mt-1 accent-[#1f5139]" required />
+        <input type="checkbox" name="terms" className="mt-1 accent-[#ff6a00]" required />
         <span>
           I agree to the <Link href="/terms" className="font-medium text-brand-600 underline" target="_blank">Terms</Link> and{" "}
           <Link href="/privacy" className="font-medium text-brand-600 underline" target="_blank">Privacy Policy</Link>.
