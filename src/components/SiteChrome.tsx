@@ -8,7 +8,7 @@ export function SiteHeader({ user }: { user: SessionUser | null }) {
   const home = user ? homeFor(user) : "/login";
   return (
     <header className="sticky top-0 z-30 border-b border-stone-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
+      <div className="mx-auto flex h-20 max-w-7xl items-center gap-6 px-4 sm:px-6">
         <Link href="/" aria-label="GRace home">
           <Logo className="text-lg" />
         </Link>

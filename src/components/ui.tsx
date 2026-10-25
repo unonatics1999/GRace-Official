@@ -16,13 +16,13 @@ export function GraceMark({ className = "h-10 w-10" }: { className?: string }) {
   return <img src="/brand/grace-mark.svg" alt="" aria-hidden="true" className={className} />;
 }
 
-/** Brand lockup: the icon with "Car Rentals" underneath. */
+/** Brand lockup: the icon with "Car Rental" underneath. */
 export function Logo({ className = "", tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
   return (
-    <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rentals">
-      <GraceMark className="h-12 w-12" />
-      <span className={`-skew-x-[14deg] text-[10px] font-semibold uppercase tracking-[0.2em] ${tone === "dark" ? "text-white" : "text-[#111111]"}`}>
-        Car Rentals
+    <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rental">
+      <GraceMark className="h-16 w-16" />
+      <span className={`-mt-0.5 -skew-x-[14deg] text-[12px] font-semibold uppercase tracking-[0.2em] ${tone === "dark" ? "text-white" : "text-[#111111]"}`}>
+        Car Rental
       </span>
     </span>
   );

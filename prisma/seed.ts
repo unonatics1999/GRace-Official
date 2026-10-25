@@ -302,6 +302,16 @@ async function attachSeedPhotos() {
   }
 }
 
+// DEMO DATA ONLY: sample review text for the seeded history, never used in production.
+const DEMO_REVIEWS = [
+  "Car was spotless and the pick-up photos made the handover quick. Will book again.",
+  "Our driver knew every shortcut to NAIA. On time both ways, very professional.",
+  "Booked for a family trip to Tagaytay. Clean, cold aircon, smooth ride.",
+  "Used it for client visits all day. Easy booking, paid with GCash in a minute.",
+  "Owner was friendly and the car was exactly as listed. Return was hassle-free.",
+  "The L300 was perfect for moving our office things. Fair price.",
+];
+
 /**
  * About five months of finished, paid trips so the earnings report has something to show.
  * DEMO DATA ONLY: deterministic pseudo-random, marked "demo history" in each booking note.
@@ -341,7 +351,7 @@ async function seedBookingHistory() {
       const paidAt = manilaTen(start, -1 - Math.floor(rand() * 3));
       const payoutDay = new Date(end.getTime() + 5 * 86_400_000);
 
-      await db.booking.create({
+      const booking = await db.booking.create({
         data: {
           vehicleId: v.id,
           renterCompanyId: renter.id,
@@ -388,6 +398,18 @@ async function seedBookingHistory() {
               }),
         },
       });
+      if (!cancelled && rand() < 0.25) {
+        await db.review.create({
+          data: {
+            bookingId: booking.id,
+            authorId: renter.users[0].id,
+            vehicleRating: rand() < 0.8 ? 5 : 4,
+            driverRating: withDriver ? 5 : null,
+            comment: DEMO_REVIEWS[Math.floor(rand() * DEMO_REVIEWS.length)],
+            createdAt: manilaTen(end, 1),
+          },
+        });
+      }
       created++;
       offset += days; // the car is out until it's back
     }

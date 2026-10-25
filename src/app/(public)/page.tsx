@@ -2,7 +2,7 @@ import Link from "next/link";
 import { EarningsCalculator } from "@/components/EarningsCalculator";
 import { ListingCard, StarIcon, VerifiedIcon } from "@/components/ListingCard";
 import { SearchBar } from "@/components/SearchBar";
-import { VehicleArt } from "@/components/VehicleArt";
+import { Testimonials } from "@/components/Testimonials";
 import { getLiveListings } from "@/lib/listing-cache";
 
 const renterSteps = [
@@ -33,7 +33,6 @@ const faqs = [
 
 export default async function Home() {
   const featured = [...(await getLiveListings())].sort((a, b) => +b.createdAt - +a.createdAt).slice(0, 8);
-  const hero = featured.find((v) => v.type === "MPV") ?? featured[0];
 
   return (
     <>
@@ -59,21 +58,7 @@ export default async function Home() {
               <span>✓ GCash · Maya · Card</span>
             </div>
           </div>
-          {hero && (
-            <Link href={`/listing/${hero.id}`} className="group relative block">
-              <VehicleArt type={hero.type} seed={hero.id} colorHex={hero.colorHex} className="aspect-[4/3] rounded-[2rem] ring-1 ring-white/10 transition group-hover:scale-[1.01]" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl bg-white/95 px-4 py-3 text-stone-900 shadow-xl backdrop-blur">
-                <div>
-                  <p className="text-sm font-semibold">{hero.make} {hero.model} · {hero.color}</p>
-                  <p className="text-xs text-stone-500">{hero.seats} seats · {hero.city}</p>
-                </div>
-                <p className="text-right text-sm">
-                  <span className="font-semibold">₱{(hero.dailyRateCents / 100).toLocaleString()}</span>
-                  <span className="text-stone-500">/day</span>
-                </p>
-              </div>
-            </Link>
-          )}
+          <Testimonials />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 pb-14 sm:px-6">
           <div className="text-stone-900">

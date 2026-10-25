@@ -36,10 +36,10 @@ def ticks():
 
 race = f'  <text transform="translate(147 179) skewX(-12)" font-size="50" font-weight="800" letter-spacing="-2" fill="{INK}">RACE</text>\n'
 art = c_shape(ECHO, -8, 6) + c_shape(ORANGE) + ticks() + race
-head = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{}" role="img" aria-label="GRace Car Rentals">\n'
+head = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{}" role="img" aria-label="GRace Car Rental">\n'
 
 logo = (head.format("0 0 318 318") + STYLE + '  <rect width="318" height="318" fill="#ffffff"/>\n' + art
-        + f'  <text transform="translate(157 296) skewX(-14)" text-anchor="middle" font-size="22" font-weight="600" letter-spacing="5" fill="{INK}">CAR RENTALS</text>\n</svg>\n')
+        + f'  <text transform="translate(157 296) skewX(-14)" text-anchor="middle" font-size="22" font-weight="600" letter-spacing="5" fill="{INK}">CAR RENTAL</text>\n</svg>\n')
 icon = head.format("2 -12 290 290") + STYLE + art + "</svg>\n"
 
 for path, svg in (("public/brand/grace-logo.svg", logo), ("public/brand/grace-mark.svg", icon), ("src/app/icon.svg", icon)):

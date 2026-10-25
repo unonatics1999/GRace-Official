@@ -18,7 +18,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       <div className="relative hidden overflow-hidden bg-brand-900 lg:block">
         <div className="absolute inset-x-12 top-1/2 -translate-y-1/2 space-y-8 text-white">
           {/* eslint-disable-next-line @next/next/no-img-element -- static brand SVG */}
-          <img src="/brand/grace-logo.svg" alt="GRace Car Rentals" className="h-56 w-auto" />
+          <img src="/brand/grace-logo.svg" alt="GRace Car Rental" className="h-56 w-auto" />
           <div>
             <p className="text-3xl font-semibold tracking-tight">Rent a car, or the car and its driver.</p>
             <p className="mt-3 text-brand-100">

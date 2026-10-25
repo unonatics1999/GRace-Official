@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-stone-50">
       <header className="sticky top-0 z-30 border-b border-stone-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
+        <div className="mx-auto flex h-20 max-w-7xl items-center gap-6 px-4 sm:px-6">
           <Link href={homeFor(user)} aria-label="Home">
             <Logo />
           </Link>

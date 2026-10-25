@@ -1,7 +1,7 @@
 import { CredentialsForm } from "@/components/CredentialsForm";
 import { requireCompanyUser } from "@/lib/session";
 
-export const metadata = { title: "Email & password · GRace Car Rentals" };
+export const metadata = { title: "Email & password · GRace Car Rental" };
 
 export default async function SettingsPage() {
   const me = await requireCompanyUser();

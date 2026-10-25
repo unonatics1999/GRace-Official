@@ -7,7 +7,7 @@ import { buildReport, change, pickGranularity, resolveRange, type Breakdown } fr
 import { requireAdmin } from "@/lib/session";
 import { formatCents } from "@/lib/util";
 
-export const metadata = { title: "Earnings report · GRace Car Rentals" };
+export const metadata = { title: "Earnings report · GRace Car Rental" };
 
 const PRESETS: [string, string][] = [
   ["7d", "Last 7 days"],

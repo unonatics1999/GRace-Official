@@ -5,7 +5,7 @@ import { Logo } from "@/components/ui";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 
-export const metadata = { title: "Admin · GRace Car Rentals" };
+export const metadata = { title: "Admin · GRace Car Rental" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
@@ -35,7 +35,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen bg-stone-50 lg:grid lg:grid-cols-[240px_1fr]">
       <aside className="border-b border-stone-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
-        <div className="flex h-16 items-center justify-between px-5">
+        <div className="flex h-20 items-center justify-between px-5">
           <Link href="/admin/overview" className="flex items-center gap-2">
             <Logo />
             <span className="badge bg-stone-900 text-white">Admin</span>
