@@ -8,6 +8,7 @@ import { copyFile, mkdir, readFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { DEFAULT_COMMISSION, hostCommissionBps, priceBooking } from "../src/lib/commission";
 
 const db = new PrismaClient();
 const DEMO_PASSWORD = "downtime-demo";
@@ -247,6 +248,7 @@ async function main() {
   });
 
   await attachSeedPhotos();
+  await seedBookingHistory();
 
   console.log(`Seeded demo data. Every demo account's password is "${DEMO_PASSWORD}".`);
 }
@@ -298,6 +300,99 @@ async function attachSeedPhotos() {
       });
     }
   }
+}
+
+/**
+ * About five months of finished, paid trips so the earnings report has something to show.
+ * DEMO DATA ONLY: deterministic pseudo-random, marked "demo history" in each booking note.
+ */
+async function seedBookingHistory() {
+  let seed = 20261025;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+  const renters = await db.company.findMany({ where: { accountType: "RENTER" }, include: { users: true } });
+  const vehicles = await db.vehicle.findMany({ include: { driver: true } });
+  const manilaTen = (d: Date, offsetDays: number) => new Date(d.getTime() + offsetDays * 86_400_000 + 2 * 3_600_000);
+  const today = day(0);
+  let created = 0;
+
+  for (const v of vehicles) {
+    // Busier cars get booked more often.
+    const chance = v.type === "MPV" ? 0.16 : v.type === "VAN" ? 0.1 : 0.13;
+    for (let offset = -150; offset <= -4; offset++) {
+      if (rand() > chance) continue;
+      const days = 1 + Math.floor(rand() * 3);
+      const start = day(offset);
+      const end = day(offset + days - 1);
+      if (end >= today) break;
+      const withDriver = v.withDriverAllowed && v.driver !== null && (!v.selfDriveAllowed || rand() < 0.45);
+      const price = priceBooking({
+        days,
+        dailyRateCents: v.dailyRateCents,
+        driverDailyRateCents: v.driverDailyRateCents,
+        withDriver,
+        renterFeeBps: DEFAULT_COMMISSION.renterFeeBps,
+        hostCommissionBps: hostCommissionBps(DEFAULT_COMMISSION, v.type, withDriver ? v.driver : null),
+      });
+      const renter = renters[Math.floor(rand() * renters.length)];
+      const cancelled = rand() < 0.05;
+      const paidAt = manilaTen(start, -1 - Math.floor(rand() * 3));
+      const payoutDay = new Date(end.getTime() + 5 * 86_400_000);
+
+      await db.booking.create({
+        data: {
+          vehicleId: v.id,
+          renterCompanyId: renter.id,
+          requestedById: renter.users[0].id,
+          mode: withDriver ? "WITH_DRIVER" : "SELF_DRIVE",
+          driverId: withDriver ? v.driverId : null,
+          startDate: start,
+          endDate: end,
+          days,
+          vehicleCents: price.vehicleCents,
+          driverCents: price.driverCents,
+          renterFeeBps: price.renterFeeBps,
+          renterFeeCents: price.renterFeeCents,
+          hostCommissionBps: price.hostCommissionBps,
+          hostFeeCents: price.hostFeeCents,
+          status: cancelled ? "CANCELLED" : "COMPLETED",
+          note: "demo history",
+          approvedAt: new Date(paidAt.getTime() - 3_600_000),
+          paidAt,
+          pickedUpAt: cancelled ? null : manilaTen(start, 0),
+          returnedAt: cancelled ? null : manilaTen(end, 0),
+          payments: {
+            create: {
+              provider: "SIMULATED",
+              amountCents: price.renterTotalCents,
+              status: "PAID",
+              paidAt,
+              refundNeeded: cancelled,
+              refundedAt: cancelled ? new Date(paidAt.getTime() + 2 * 86_400_000) : null,
+            },
+          },
+          ...(cancelled
+            ? {}
+            : {
+                payout: {
+                  create: {
+                    companyId: v.companyId,
+                    amountCents: price.hostPayoutCents,
+                    status: payoutDay < today ? "PAID" : "PENDING",
+                    reference: payoutDay < today ? `GC-DEMO-${String(created + 1).padStart(4, "0")}` : "",
+                    paidAt: payoutDay < today ? payoutDay : null,
+                  },
+                },
+              }),
+        },
+      });
+      created++;
+      offset += days; // the car is out until it's back
+    }
+  }
+  console.log(`Seeded ${created} demo bookings of history.`);
 }
 
 main()

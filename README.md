@@ -61,6 +61,14 @@ One process tops out around 40 pages/s (≈ 2,400 page views a minute); latency 
 serve more, run several instances behind a load balancer on PostgreSQL. In-memory caches and the help-chat rate limit
 are per instance.
 
+## Earnings report
+
+Admin → Earnings report (`/admin/reports`): your earnings (renter service fees + owner commission) for a chosen
+period, with the change vs the period before, take rate, a chart over time, breakdowns by car, owner, category and
+self-drive vs with driver, the all-time money position (collected, refunded, paid out, owed, held) and a CSV export.
+Bookings count on the day the renter paid (Manila time); refunded bookings are excluded and listed separately. Logic
+and tests: `src/lib/reports.ts`. The demo seed includes about five months of history (marked "demo history").
+
 ## Car photos
 
 The five launch listings use representative photos of each model from Wikimedia Commons (CC BY-SA 4.0), stored in
