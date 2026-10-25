@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { EarningsCalculator } from "@/components/EarningsCalculator";
-import { ListingCard, StarIcon, VerifiedIcon } from "@/components/ListingCard";
+import { HeroCarousel } from "@/components/HeroCarousel";
+import { ListingCard, VerifiedIcon } from "@/components/ListingCard";
 import { SearchBar } from "@/components/SearchBar";
 import { Testimonials } from "@/components/Testimonials";
+import { VehicleImage } from "@/components/VehicleImage";
 import { getLiveListings } from "@/lib/listing-cache";
+import { formatCents } from "@/lib/util";
 
 const renterSteps = [
   ["Pick a car and your dates", "Sedans for the city, 7-seaters for the family, an L300 for the move."],
@@ -58,7 +61,23 @@ export default async function Home() {
               <span>✓ GCash · Maya · Card</span>
             </div>
           </div>
-          <Testimonials />
+          <HeroCarousel
+            slides={featured.map((v) => (
+              <Link key={v.id} href={`/listing/${v.id}`} className="group relative block h-full">
+                <VehicleImage vehicle={v} className="h-full rounded-[2rem] ring-1 ring-white/10" />
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl bg-white/95 px-4 py-3 text-stone-900 shadow-xl backdrop-blur">
+                  <div>
+                    <p className="text-sm font-semibold">{v.make} {v.model} · {v.color}</p>
+                    <p className="text-xs text-stone-500">{v.seats} seats · {v.city}</p>
+                  </div>
+                  <p className="text-right text-sm">
+                    <span className="font-semibold">{formatCents(v.dailyRateCents)}</span>
+                    <span className="text-stone-500">/day</span>
+                  </p>
+                </div>
+              </Link>
+            ))}
+          />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 pb-14 sm:px-6">
           <div className="text-stone-900">
@@ -83,45 +102,7 @@ export default async function Home() {
         </section>
       )}
 
-      {/* With driver */}
-      <section className="bg-stone-50 py-16">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
-          <div>
-            <p className="font-mono text-sm text-brand-600">WITH DRIVER</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">The best driver for a car is the person who owns it.</h2>
-            <p className="mt-3 text-stone-600">
-              Owners know their car, take care of it, and earn more when they drive well. Every driver on GRace holds an LTO Professional licence, has an NBI clearance on file, and carries a public rating from real trips.
-            </p>
-            <ul className="mt-6 space-y-3 text-sm text-stone-700">
-              <li className="flex gap-3"><span className="text-brand-600">●</span> Airport runs, out-of-town trips, events, client visits</li>
-              <li className="flex gap-3"><span className="text-brand-600">●</span> See the driver&apos;s rating and experience before you book</li>
-              <li className="flex gap-3"><span className="text-brand-600">●</span> Higher-rated drivers keep more of every booking, so they want five stars</li>
-            </ul>
-          </div>
-          <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-stone-900 text-xl font-semibold text-white">D</div>
-              <div>
-                <p className="font-semibold">Your driver</p>
-                <p className="flex items-center gap-1 text-sm text-stone-500"><StarIcon /> Rating shown on every listing</p>
-              </div>
-            </div>
-            <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
-              {[
-                ["Licence", "LTO Professional"],
-                ["Background", "NBI clearance"],
-                ["Experience", "2+ years required"],
-                ["Accountability", "Rated after every trip"],
-              ].map(([k, v]) => (
-                <div key={k} className="rounded-xl bg-stone-50 p-3">
-                  <dt className="text-xs text-stone-500">{k}</dt>
-                  <dd className="font-medium">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
-      </section>
+      <Testimonials />
 
       {/* How it works */}
       <section id="how" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6">

@@ -310,6 +310,12 @@ const DEMO_REVIEWS = [
   "Used it for client visits all day. Easy booking, paid with GCash in a minute.",
   "Owner was friendly and the car was exactly as listed. Return was hassle-free.",
   "The L300 was perfect for moving our office things. Fair price.",
+  "First time renting self-drive. ID check was fast and the Vios drove like new.",
+  "We needed a 7-seater for a wedding in Batangas. The Veloz was comfortable and our driver was courteous.",
+  "Transparent pricing, no surprise charges at return. That alone makes me come back.",
+  "Booked a car with driver for my parents' check-up in the city. Patient driver and very safe.",
+  "The photo checklist gave me peace of mind. Both of us agreed on the car's condition in two minutes.",
+  "Rented the Avanza for a weekend in Pampanga. Fuel-efficient and roomy for the barkada.",
 ];
 
 /**
@@ -327,6 +333,7 @@ async function seedBookingHistory() {
   const manilaTen = (d: Date, offsetDays: number) => new Date(d.getTime() + offsetDays * 86_400_000 + 2 * 3_600_000);
   const today = day(0);
   let created = 0;
+  let reviews = 0;
 
   for (const v of vehicles) {
     // Busier cars get booked more often.
@@ -405,7 +412,7 @@ async function seedBookingHistory() {
             authorId: renter.users[0].id,
             vehicleRating: rand() < 0.8 ? 5 : 4,
             driverRating: withDriver ? 5 : null,
-            comment: DEMO_REVIEWS[Math.floor(rand() * DEMO_REVIEWS.length)],
+            comment: DEMO_REVIEWS[reviews++ % DEMO_REVIEWS.length],
             createdAt: manilaTen(end, 1),
           },
         });

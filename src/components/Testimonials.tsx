@@ -1,12 +1,12 @@
 import { StarIcon } from "@/components/ListingCard";
 import { db } from "@/lib/db";
 
-/** Real renter reviews with a comment, newest first. Shown on the home page hero. */
+/** Real renter reviews with a comment, newest first. Shown on the home page above How it works. */
 async function loadTestimonials() {
   return db.review.findMany({
     where: { comment: { not: "" }, vehicleRating: { gte: 4 } },
     orderBy: { createdAt: "desc" },
-    take: 3,
+    take: 9,
     select: {
       id: true,
       vehicleRating: true,
@@ -27,34 +27,37 @@ function shortName(name: string) {
 export async function Testimonials() {
   const reviews = await loadTestimonials();
 
-  if (reviews.length === 0) {
-    return (
-      <div className="rounded-[2rem] bg-white/5 p-8 ring-1 ring-white/10">
-        <p className="font-mono text-sm text-lime">WHAT CLIENTS SAY</p>
-        <p className="mt-4 text-2xl font-semibold">Reviews from our first renters will appear here.</p>
-        <p className="mt-3 text-stone-300">Every review comes from a completed, paid trip, so you can trust what you read.</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <p className="font-mono text-sm text-lime">WHAT CLIENTS SAY</p>
-      <ul className="mt-4 space-y-4">
-        {reviews.map((r) => (
-          <li key={r.id} className="rounded-2xl bg-white/95 p-5 text-stone-900 shadow-xl">
-            <div className="flex gap-0.5" aria-label={`${r.vehicleRating} out of 5 stars`}>
-              {Array.from({ length: r.vehicleRating }, (_, i) => <StarIcon key={i} className="h-4 w-4 text-amber-500" />)}
-            </div>
-            <blockquote className="mt-2 text-[15px] leading-relaxed">&ldquo;{r.comment}&rdquo;</blockquote>
-            <p className="mt-3 text-sm text-stone-500">
-              <span className="font-semibold text-stone-900">{shortName(r.author.name)}</span>
-              {r.booking.renterCompany.city && <> · {r.booking.renterCompany.city}</>} · {r.booking.vehicle.make} {r.booking.vehicle.model}
-              {r.booking.mode === "WITH_DRIVER" ? " with driver" : " self-drive"}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <section id="reviews" className="scroll-mt-20 bg-stone-50 py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <p className="font-mono text-sm text-brand-600">WHAT CLIENTS SAY</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Trusted by renters across Metro Manila</h2>
+        {reviews.length === 0 ? (
+          <p className="mt-4 text-stone-600">Reviews from our first renters will appear here. Every review comes from a completed, paid trip.</p>
+        ) : (
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {reviews.map((r) => (
+              <li key={r.id} className="flex flex-col rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+                <div className="flex gap-0.5" aria-label={`${r.vehicleRating} out of 5 stars`}>
+                  {Array.from({ length: r.vehicleRating }, (_, i) => <StarIcon key={i} className="h-4 w-4 text-amber-500" />)}
+                </div>
+                <blockquote className="mt-3 flex-1 text-[15px] leading-relaxed text-stone-800">&ldquo;{r.comment}&rdquo;</blockquote>
+                <div className="mt-5 flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-50 font-semibold text-brand-600">{r.author.name.trim()[0]?.toUpperCase()}</span>
+                  <div className="text-sm">
+                    <p className="font-semibold text-stone-900">{shortName(r.author.name)}</p>
+                    <p className="text-stone-500">
+                      {r.booking.renterCompany.city && <>{r.booking.renterCompany.city} · </>}
+                      {r.booking.vehicle.make} {r.booking.vehicle.model}
+                      {r.booking.mode === "WITH_DRIVER" ? " with driver" : " self-drive"}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
   );
 }
