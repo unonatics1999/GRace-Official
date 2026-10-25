@@ -25,7 +25,7 @@ const comparison = [
 ];
 
 const faqs = [
-  ["Who can rent?", "Anyone 21 or older with a verified account: individuals with a government ID, and registered businesses. Self-drive also needs a valid driver's licence on your account."],
+  ["Who can rent?", "Anyone with an account and a mobile number can book a car with a driver, with no ID needed. To drive yourself, verify your government ID and add a valid driver's licence. Businesses can book too."],
   ["Who drives if I book with a driver?", "The car's owner or their approved driver. Every driver holds an LTO Professional licence and has submitted an NBI clearance, and you can see their rating before you book."],
   ["How do I pay?", "After the owner approves your request, you pay through PayMongo with GCash, Maya, cards or QR Ph. Your booking is confirmed the moment payment goes through."],
   ["What if something gets damaged?", "Both sides photograph the car at pick-up and return, and the other side confirms. If something's wrong, report it in the booking and Downtime support steps in. The owner's payout is held until it's resolved."],
@@ -61,7 +61,7 @@ export default async function Home() {
             </p>
             <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-300">
               <span>✓ LTO papers and CTPL checked</span>
-              <span>✓ Pro-licensed drivers</span>
+              <span>✓ With driver: no ID needed</span>
               <span>✓ GCash · Maya · Card</span>
             </div>
           </div>

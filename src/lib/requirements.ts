@@ -39,6 +39,7 @@ export const DRIVER_REQUIREMENTS: Requirement[] = [
   { doc: "DRUG_TEST", required: false, hint: "From a DOH-accredited clinic, within the last 6 months." },
 ];
 
+// Needed only to drive yourself or to list a car; booking with a driver needs none of these.
 export const INDIVIDUAL_REQUIREMENTS: Requirement[] = [
   { doc: "GOV_ID", required: true, hint: "Passport, UMID, PhilSys National ID or driver's licence." },
   { doc: "SELFIE_WITH_ID", required: true, hint: "Your face and the ID in one clear photo." },

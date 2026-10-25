@@ -11,6 +11,7 @@ import { ACCOUNT_KINDS, FUEL_TYPES, TRANSMISSIONS, VEHICLE_TYPES, type AccountKi
 import { formatDay, parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { describeDowntime, driverBookable, equipmentTags, listableWhere, listingInclude, photoUrl, vehicleTitle } from "@/lib/listings";
+import { bookingEligibility } from "@/lib/eligibility";
 import { currentUser } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
 import { canManageFleet, formatCents } from "@/lib/util";
@@ -44,14 +45,17 @@ export default async function ListingPage({
   const isOwn = user?.companyId === vehicle.companyId;
   const memberSince = vehicle.company.createdAt.toLocaleDateString("en-PH", { month: "long", year: "numeric" });
 
-  // Self-drive needs a licence on the renter's account that's valid through the rental.
+  // With a driver needs no ID; self-drive needs a verified ID and licence (re-checked on the server
+  // against the actual return date).
   const renter = user?.company;
-  const licenceValid = !!renter?.licenceNo && !!renter.licenceExpiry && renter.licenceExpiry >= today();
+  const selfCheck = renter ? bookingEligibility(renter, "SELF_DRIVE", today()) : null;
+  const driverCheck = renter ? bookingEligibility(renter, "WITH_DRIVER", today()) : null;
   const selfDrive = {
     offered: vehicle.selfDriveAllowed,
-    eligible: licenceValid,
-    reason: renter?.licenceNo ? "Your driver's licence on file has expired." : "Self-drive needs a valid driver's licence on your account.",
+    eligible: selfCheck?.ok ?? false,
+    reason: selfCheck && !selfCheck.ok ? selfCheck.reason : undefined,
   };
+  const blocked = renter && (renter.status === "SUSPENDED" || renter.status === "REJECTED");
 
   const facts = [
     ["Type", VEHICLE_TYPES[vehicle.type as VehicleType]],
@@ -187,16 +191,14 @@ export default async function ListingPage({
                 </div>
               ) : !user ? (
                 <div className="space-y-3 text-sm text-stone-600">
-                  <p>Log in with a verified account to request this vehicle.</p>
+                  <p>{withDriver ? "Log in to book. With a driver, no ID is needed." : "Log in to request this vehicle."}</p>
                   <Link href="/login" className="btn-primary w-full py-3">Log in to book</Link>
                   <Link href="/signup" className="btn-secondary w-full">Create an account</Link>
                 </div>
               ) : !user.company ? (
                 <p className="text-sm text-stone-600">Admin accounts can&apos;t book vehicles.</p>
-              ) : user.company.status !== "VERIFIED" ? (
-                <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                  Booking unlocks once Downtime verifies your account. <Link href="/account" className="font-medium underline">Check your verification</Link>
-                </p>
+              ) : blocked ? (
+                <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{selfCheck && !selfCheck.ok ? selfCheck.reason : ""}</p>
               ) : !canManageFleet(user.role) ? (
                 <p className="text-sm text-stone-600">Ask an owner or fleet manager on your account to book.</p>
               ) : (
@@ -206,7 +208,11 @@ export default async function ListingPage({
                   driverDailyRateCents={vehicle.driverDailyRateCents}
                   renterFeeBps={settings.renterFeeBps}
                   selfDrive={selfDrive}
-                  withDriver={{ offered: withDriver, driverName: driver?.user.name }}
+                  withDriver={{
+                    offered: withDriver,
+                    driverName: driver?.user.name,
+                    reason: driverCheck && !driverCheck.ok ? driverCheck.reason : undefined,
+                  }}
                   minDate={formatDay(today())}
                   defaultStart={parseDay(query.start) ? query.start : undefined}
                   defaultEnd={parseDay(query.end) ? query.end : undefined}

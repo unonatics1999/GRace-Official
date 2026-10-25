@@ -16,7 +16,7 @@ export function SignupForm() {
       <div className="grid grid-cols-2 gap-2">
         {(
           [
-            ["INDIVIDUAL", "Personal", "Rent for yourself or list your own car"],
+            ["INDIVIDUAL", "Personal", "Rent with a driver, drive yourself, or list your car"],
             ["BUSINESS", "Business", "Company account with invoicing and a team"],
           ] as const
         ).map(([value, label, hint]) => (

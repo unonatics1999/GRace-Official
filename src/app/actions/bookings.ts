@@ -6,6 +6,7 @@ import { BLOCKING_STATUSES, checkAvailability, isBlocking, overlaps } from "@/li
 import { hostCommissionBps, priceBooking } from "@/lib/commission";
 import { parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { bookingEligibility } from "@/lib/eligibility";
 import { env, paymentsSimulated } from "@/lib/env";
 import { canApproveOrDecline, canPay, canRenterCancel, paymentDeadline } from "@/lib/lifecycle";
 import { lockVehicle } from "@/lib/locks";
@@ -18,9 +19,6 @@ import { canManageFleet, formatCents, type ActionState } from "@/lib/util";
 
 export async function requestBooking(_: ActionState, form: FormData): Promise<ActionState> {
   const me = await requireCompanyUser();
-  if (me.company.status !== "VERIFIED") {
-    return { error: "Your account must be verified before you can book." };
-  }
   if (!canManageFleet(me.role)) return { error: "Ask an owner or fleet manager to book." };
 
   const start = parseDay(form.get("start") as string);
@@ -39,12 +37,10 @@ export async function requestBooking(_: ActionState, form: FormData): Promise<Ac
   if (vehicle.companyId === me.companyId) return { error: "You can't book your own vehicle." };
 
   if (mode === "WITH_DRIVER" && !driverBookable(vehicle)) return { error: "This vehicle isn't available with a driver." };
-  if (mode === "SELF_DRIVE") {
-    if (!vehicle.selfDriveAllowed) return { error: "This vehicle is only available with a driver." };
-    const licence = me.company.licenceExpiry;
-    if (!me.company.licenceNo || !licence) return { error: "Add a valid driver's licence to your account to book self-drive." };
-    if (licence < end) return { error: "Your driver's licence expires before the return date." };
-  }
+  if (mode === "SELF_DRIVE" && !vehicle.selfDriveAllowed) return { error: "This vehicle is only available with a driver." };
+  // With a driver needs no ID; self-drive needs a verified ID and a valid licence.
+  const eligible = bookingEligibility(me.company, mode, end);
+  if (!eligible.ok) return { error: eligible.reason };
   // Registration and insurance must stay valid for the whole rental.
   if (vehicle.registrationExpiry < end || vehicle.insuranceExpiry < end) {
     return { error: "This vehicle's registration or insurance lapses before your return date. Pick earlier dates." };

@@ -30,7 +30,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <div className="rounded-2xl bg-brand-900 p-6 text-white">
           <p className="text-lg font-semibold">Welcome to Downtime, {me.name.split(" ")[0]}.</p>
           <p className="mt-1 text-sm text-brand-100">
-            Complete your profile and upload the documents below. We review accounts within one business day, and you can book or list as soon as you&apos;re verified.
+            You can already book a car with a driver: just add your mobile number below. To drive yourself or list your own car, upload your ID and we&apos;ll verify you within one business day.
           </p>
         </div>
       )}
@@ -44,9 +44,9 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
       </div>
 
       <ol className="grid gap-3 sm:grid-cols-3">
-        <Step done={profileComplete} n={1} text="Complete your profile" />
-        <Step done={missing.length === 0} n={2} text="Upload required documents" />
-        <Step done={c.status === "VERIFIED"} n={3} text="Downtime verifies you" />
+        <Step done={Boolean(c.phone)} n={1} text="Add your mobile number: book with a driver" />
+        <Step done={missing.length === 0 && profileComplete} n={2} text="Upload your ID and details" />
+        <Step done={c.status === "VERIFIED"} n={3} text="Verified: self-drive and listing unlocked" />
       </ol>
 
       <section className="card p-6">
@@ -99,7 +99,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
       <section className="card p-6">
         <h2 className="font-semibold">Verification documents</h2>
         <p className="mt-1 text-sm text-stone-500">
-          {individual ? "Proves you are who you say you are." : "Proves your business is registered."} Clear photos or PDF scans.
+          Only needed to drive yourself or to list a car. Booking with a driver needs no ID. Clear photos or PDF scans.
         </p>
         <div className="mt-5">
           <DocumentChecklist requirements={requirements} uploaded={documents} upload={uploadAccountDocument} canUpload={isOwner} />

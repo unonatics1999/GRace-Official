@@ -80,7 +80,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-2.5 text-sm text-amber-900 sm:px-6">
             <CompanyStatusBadge status={status} />
             {status === "PENDING"
-              ? <>Finish verification to book and list. <Link href="/account" className="font-medium underline">Go to your account</Link></>
+              ? <>You can book with a driver now, no ID needed. Verify your ID to unlock self-drive and listing your car. <Link href="/account" className="font-medium underline">Verify</Link></>
               : status === "SUSPENDED"
                 ? "Your account is suspended: listings are hidden and booking is paused. Contact Downtime support."
                 : "We couldn't verify your account. Check your documents or contact Downtime support."}

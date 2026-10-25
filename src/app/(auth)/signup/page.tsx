@@ -8,7 +8,7 @@ export default function SignupPage() {
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
       <p className="mt-1 text-sm text-stone-500">
-        One account to rent cars, hire a driver, or list your own car and earn. We verify everyone before their first booking.
+        Book a car with a driver right away, no ID needed. Verify your ID later to drive yourself or list your own car.
       </p>
       <SignupForm />
       <p className="mt-6 text-sm text-stone-500">

@@ -14,7 +14,7 @@ type Props = {
   driverDailyRateCents: number;
   renterFeeBps: number;
   selfDrive: { offered: boolean; eligible: boolean; reason?: string };
-  withDriver: { offered: boolean; driverName?: string };
+  withDriver: { offered: boolean; driverName?: string; reason?: string };
   minDate: string;
   defaultStart?: string;
   defaultEnd?: string;
@@ -49,6 +49,7 @@ export function BookingBox(props: Props) {
         })
       : null;
   const selfDriveBlocked = mode === "SELF_DRIVE" && !props.selfDrive.eligible;
+  const driverBlocked = mode === "WITH_DRIVER" && !!props.withDriver.reason;
 
   return (
     <form action={action} className="space-y-4">
@@ -72,13 +73,17 @@ export function BookingBox(props: Props) {
       {mode === "WITH_DRIVER" && props.withDriver.driverName && (
         <p className="text-sm text-stone-600">
           Driven by <span className="font-medium text-stone-900">{props.withDriver.driverName}</span>, +{money(props.driverDailyRateCents)}/day.
+          No ID needed.
+        </p>
+      )}
+      {driverBlocked && (
+        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+          {props.withDriver.reason} <Link href="/account" className="font-medium underline">Add it</Link>
         </p>
       )}
       {selfDriveBlocked && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-          {props.selfDrive.reason}{" "}
-          <Link href="/account" className="font-medium underline">Add your licence</Link>
-          {props.withDriver.offered && " or book with a driver."}
+          {props.selfDrive.reason} <Link href="/account" className="font-medium underline">Go to your account</Link>
         </p>
       )}
 
@@ -120,7 +125,7 @@ export function BookingBox(props: Props) {
         placeholder={mode === "WITH_DRIVER" ? "Pick-up point, destination and itinerary" : "What's the trip for? (optional)"}
       />
 
-      <Submit disabled={selfDriveBlocked} />
+      <Submit disabled={selfDriveBlocked || driverBlocked} />
       <p className="text-center text-xs text-stone-500">The owner confirms first. You pay by GCash, Maya or card after that.</p>
 
       {state?.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{state.error}</p>}

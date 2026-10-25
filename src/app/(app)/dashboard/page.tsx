@@ -81,7 +81,7 @@ export default async function DashboardPage() {
           <div className="card">
             <h2 className="font-semibold">Getting started</h2>
             <ul className="mt-3 space-y-3 text-sm text-stone-600">
-              <Tip done={me.company.status === "VERIFIED"} text="Get your account verified" href="/account" />
+              <Tip done={me.company.status === "VERIFIED"} text="Verify your ID for self-drive and listing" href="/account" />
               <Tip done={vehicles > 0} text="List your first vehicle" href="/fleet/new" />
               <Tip done={listed > 0} text="Get a vehicle approved and live" href="/fleet" />
             </ul>

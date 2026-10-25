@@ -13,7 +13,8 @@ other repository on this machine.
 ## Product decisions (from the owner)
 
 - **Market:** Philippines first. Pesos (centavos in the DB), Manila calendar (`src/lib/dates.ts`).
-- **Renters:** individuals and businesses, both verified before booking.
+- **Renters:** individuals and businesses. Booking **with a driver needs no ID**, only a mobile number.
+  Self-drive needs a verified ID and a valid licence. Rule: `src/lib/eligibility.ts`. Hosts must be verified.
 - **Owners:** a mix of the platform owner's own cars and partner owners. The owner applies with their car
   and themselves as its driver; admin reviews PH documents (`src/lib/requirements.ts`).
 - **Launch fleet:** Toyota Vios black, Vios metallic blue, Avanza black, Veloz black, Mitsubishi L300.

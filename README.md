@@ -26,7 +26,7 @@ any time with `npm run db:seed`.
 | Your own fleet: Vios black, L300 | Downtime Fleet |
 | Partner owner: Avanza, Veloz | Reyes Transport Services |
 | Owner-driver: Vios metallic blue | Carlo Mendoza |
-| Applicant waiting for review | Paolo Garcia |
+| Unverified renter: can book with driver, not self-drive | Paolo Garcia |
 | Downtime staff | admin account → `/admin` |
 
 Without PayMongo keys, payments are **simulated** in development: "Pay" confirms the booking at once.
@@ -50,8 +50,8 @@ Defined in [`src/lib/requirements.ts`](src/lib/requirements.ts) and reviewed und
 | --- | --- | --- |
 | Vehicle | LTO OR and CR, CTPL (comprehensive optional), 3+ photos | 10 years old or newer; listing pauses when registration or CTPL lapses |
 | Driver | LTO Professional licence (front/back), NBI clearance (drug test optional) | 2+ years' experience |
-| Individual | Government ID, selfie with ID (licence for self-drive) | |
-| Business | DTI/SEC/CDA registration, mayor's permit (BIR 2303 optional) | |
+| Individual | Government ID, selfie with ID, licence | Only for self-drive or listing; with-driver bookings need no ID |
+| Business | DTI/SEC/CDA registration, mayor's permit (BIR 2303 optional) | Same: only for self-drive or listing |
 
 ## Commission
 
