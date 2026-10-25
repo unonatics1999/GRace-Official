@@ -61,7 +61,7 @@ other repository on this machine.
 
 ## Brand
 
-The logo is the owner's own artwork, used as-is: `public/brand/grace-logo.png` (also `src/app/icon.png`), rendered by `GraceMark` and `Logo` in `src/components/ui.tsx`. Do not redraw it. It is only 108x107 px; replace it with the owner's high-resolution original when available.
+The logo is the owner's own artwork, recoloured only (white background, black lettering and clock lines, orange unchanged): `public/brand/grace-logo.png` (also `src/app/icon.png`), rendered by `GraceMark` and `Logo` in `src/components/ui.tsx`. Do not redraw it. It is only 108x107 px; replace it with the owner's high-resolution original when available.
 
 ## Not built yet
 
