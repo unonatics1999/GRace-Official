@@ -40,32 +40,34 @@ export default async function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#0b0b0b] text-white">
-        <div className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-brand-600/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-48 -left-24 h-[420px] w-[420px] rounded-full bg-lime/10 blur-3xl" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-14 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:pt-20">
+      <section className="bg-[#0b0b0b] text-white">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-12 pt-16 sm:px-6 lg:grid-cols-2 lg:pt-20">
           <div>
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-lime ring-1 ring-white/15">
-              <VerifiedIcon className="h-3.5 w-3.5 text-lime" /> Every owner and driver verified
+            <p className="inline-flex items-center gap-2 text-sm font-medium text-lime">
+              <VerifiedIcon className="h-4 w-4 text-lime" /> Every owner and driver verified
             </p>
-            <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-6xl">
-              Rent a car, <span className="text-lime">or the car and its driver.</span>
+            <h1 className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+              Rent a car,
+              <br />
+              <span className="text-lime">or the car and its driver.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-stone-300">
-              Book cars from verified owners across Metro Manila on the days they don&apos;t need them. Drive it yourself, or ride with
-              the owner behind the wheel.
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-stone-400">
+              Cars from verified owners across Metro Manila. Drive it yourself, or ride with the owner behind the wheel.
             </p>
-            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-300">
-              <span>✓ LTO papers and CTPL checked</span>
-              <span>✓ With driver: no ID needed</span>
-              <span>✓ GCash · Maya · Card</span>
-            </div>
+            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-stone-300">
+              {["Papers and CTPL checked", "With driver: no ID needed", "GCash, Maya or card"].map((item) => (
+                <li key={item} className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lime/15 text-[11px] text-lime">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
           <HeroCarousel
             slides={featured.map((v) => (
               <Link key={v.id} href={`/listing/${v.id}`} className="group relative block h-full">
-                <VehicleImage vehicle={v} className="h-full rounded-[2rem] ring-1 ring-white/10" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl bg-white/95 px-4 py-3 text-stone-900 shadow-xl backdrop-blur">
+                <VehicleImage vehicle={v} className="h-full rounded-3xl" />
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-stone-900 shadow-lg">
                   <div>
                     <p className="text-sm font-semibold">{v.make} {v.model} · {v.color}</p>
                     <p className="text-xs text-stone-500">{v.seats} seats · {v.city}</p>
@@ -79,7 +81,7 @@ export default async function Home() {
             ))}
           />
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
           <div className="text-stone-900">
             <SearchBar />
           </div>

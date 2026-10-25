@@ -318,6 +318,12 @@ const DEMO_REVIEWS = [
   "Rented the Avanza for a weekend in Pampanga. Fuel-efficient and roomy for the barkada.",
 ];
 
+/** Picks sample text that fits the trip: driver comments only on trips with a driver, self-drive ones only without. */
+function demoReview(withDriver: boolean, n: number) {
+  const fits = DEMO_REVIEWS.filter((t) => (/driver/i.test(t) ? withDriver : /self-drive/i.test(t) ? !withDriver : true));
+  return fits[n % fits.length];
+}
+
 /**
  * About five months of finished, paid trips so the earnings report has something to show.
  * DEMO DATA ONLY: deterministic pseudo-random, marked "demo history" in each booking note.
@@ -412,7 +418,7 @@ async function seedBookingHistory() {
             authorId: renter.users[0].id,
             vehicleRating: rand() < 0.8 ? 5 : 4,
             driverRating: withDriver ? 5 : null,
-            comment: DEMO_REVIEWS[reviews++ % DEMO_REVIEWS.length],
+            comment: demoReview(withDriver, reviews++),
             createdAt: manilaTen(end, 1),
           },
         });

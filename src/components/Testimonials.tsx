@@ -1,4 +1,5 @@
 import { StarIcon } from "@/components/ListingCard";
+import { ReviewRotator } from "@/components/ReviewRotator";
 import { db } from "@/lib/db";
 
 /** Real renter reviews with a comment, newest first. Shown on the home page above How it works. */
@@ -6,7 +7,7 @@ async function loadTestimonials() {
   return db.review.findMany({
     where: { comment: { not: "" }, vehicleRating: { gte: 4 } },
     orderBy: { createdAt: "desc" },
-    take: 9,
+    take: 12,
     select: {
       id: true,
       vehicleRating: true,
@@ -35,9 +36,10 @@ export async function Testimonials() {
         {reviews.length === 0 ? (
           <p className="mt-4 text-stone-600">Reviews from our first renters will appear here. Every review comes from a completed, paid trip.</p>
         ) : (
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {reviews.map((r) => (
-              <li key={r.id} className="flex flex-col rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <div className="mt-8">
+            <ReviewRotator
+              cards={reviews.map((r) => (
+              <article key={r.id} className="flex w-full flex-col rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
                 <div className="flex gap-0.5" aria-label={`${r.vehicleRating} out of 5 stars`}>
                   {Array.from({ length: r.vehicleRating }, (_, i) => <StarIcon key={i} className="h-4 w-4 text-amber-500" />)}
                 </div>
@@ -53,9 +55,10 @@ export async function Testimonials() {
                     </p>
                   </div>
                 </div>
-              </li>
-            ))}
-          </ul>
+              </article>
+              ))}
+            />
+          </div>
         )}
       </div>
     </section>

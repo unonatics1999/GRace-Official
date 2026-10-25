@@ -48,3 +48,8 @@ body {
     @apply text-2xl font-semibold tracking-tight text-stone-900;
   }
 }
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
