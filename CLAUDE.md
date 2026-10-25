@@ -61,7 +61,7 @@ other repository on this machine.
 
 ## Brand
 
-The logo is the owner's own artwork, recoloured only (white background, black lettering and clock lines, orange unchanged): `public/brand/grace-logo.png` (also `src/app/icon.png`), rendered by `GraceMark` and `Logo` in `src/components/ui.tsx`. Do not redraw it. It is only 108x107 px; replace it with the owner's high-resolution original when available.
+The logo is traced from the owner's own artwork (a 108 px image) and drawn as SVG by `scripts/brand-logo.py`, which writes `public/brand/grace-logo.svg`, `public/brand/grace-mark.svg` and `src/app/icon.svg`. Keep the owner's geometry: orange C whose lower arm ends in a flat cut just under RACE, four black clock lines just outside the C (3 o'clock above the E), white background, black RACE and italic CAR RENTALS. Change the script, not the SVGs. `GraceMark` and `Logo` are in `src/components/ui.tsx`.
 
 ## Not built yet
 
