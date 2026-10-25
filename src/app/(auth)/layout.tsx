@@ -18,11 +18,11 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       </div>
       <div className="relative hidden overflow-hidden bg-brand-900 lg:block">
         <div className="absolute inset-x-12 top-1/2 -translate-y-1/2 space-y-8 text-white">
-          <VehicleArt type="CARGO_VAN" seed="auth" className="aspect-[2/1] rounded-3xl" />
+          <VehicleArt type="MPV" seed="auth" colorHex="#16181c" className="aspect-[2/1] rounded-3xl" />
           <div>
-            <p className="text-3xl font-semibold tracking-tight">One business&apos;s downtime is another business&apos;s peak.</p>
+            <p className="text-3xl font-semibold tracking-tight">Rent a car, or the car and its driver.</p>
             <p className="mt-3 text-brand-100">
-              Rent idle vans, trucks and pickups to verified businesses — or rent one for your next job.
+              Verified owners, pro-licensed drivers, and a photo record of every handoff.
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkAvailability, dayInDowntime, quote, type BookingLike, type WindowLike } from "./availability";
+import { checkAvailability, dayInDowntime, isBlocking, type BookingLike, type WindowLike } from "./availability";
 import { parseDay } from "./dates";
 
 const d = (s: string) => parseDay(s)!;
@@ -77,15 +77,22 @@ describe("checkAvailability", () => {
   });
 });
 
-describe("quote", () => {
-  it("splits fees: 10% renter, 15% host", () => {
-    expect(quote(9000, 3)).toEqual({
-      days: 3,
-      subtotalCents: 27000,
-      renterFeeCents: 2700,
-      hostFeeCents: 4050,
-      renterTotalCents: 29700,
-      hostPayoutCents: 22950,
-    });
+describe("isBlocking", () => {
+  const now = new Date("2026-11-01T00:00:00Z");
+  const base = { startDate: d("2026-12-01"), endDate: d("2026-12-02") };
+
+  it("holds dates while an approved booking is inside its payment window", () => {
+    expect(isBlocking({ ...base, status: "AWAITING_PAYMENT", paymentDueAt: new Date("2026-11-01T12:00:00Z") }, now)).toBe(true);
+  });
+
+  it("releases dates once the payment window lapses", () => {
+    expect(isBlocking({ ...base, status: "AWAITING_PAYMENT", paymentDueAt: new Date("2026-10-31T23:59:00Z") }, now)).toBe(false);
+  });
+
+  it("holds paid and in-progress bookings, not requests", () => {
+    expect(isBlocking({ ...base, status: "CONFIRMED" }, now)).toBe(true);
+    expect(isBlocking({ ...base, status: "IN_PROGRESS" }, now)).toBe(true);
+    expect(isBlocking({ ...base, status: "REQUESTED" }, now)).toBe(false);
+    expect(isBlocking({ ...base, status: "COMPLETED" }, now)).toBe(false);
   });
 });

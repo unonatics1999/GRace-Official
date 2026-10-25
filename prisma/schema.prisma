@@ -1,7 +1,9 @@
-// Downtime data model. SQLite for local development; switch the provider to
-// "postgresql" for production (all fields here are portable).
+// Downtime data model.
 //
-// Status-like fields are plain strings; the allowed values live in src/lib/constants.ts.
+// Local development runs on SQLite. Production runs on PostgreSQL: change the provider below,
+// point DATABASE_URL at Postgres and create a fresh baseline migration (see README).
+// Everything here is portable; status-like fields are plain strings whose allowed values live in
+// src/lib/constants.ts. Money is integer centavos (PHP). Rates are basis points (1500 = 15%).
 
 generator client {
   provider = "prisma-client-js"
@@ -12,89 +14,330 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// A renter or host account: a person (INDIVIDUAL) or a registered business (BUSINESS).
+// Named Company for history; the UI calls it an account.
 model Company {
-  id        String    @id @default(cuid())
-  name      String
-  city      String
-  // PENDING | VERIFIED | REJECTED | SUSPENDED. Only VERIFIED companies can list publicly or book.
-  status    String    @default("PENDING")
-  createdAt DateTime  @default(now())
-  users     User[]
-  vehicles  Vehicle[]
-  bookings  Booking[] @relation("RenterBookings")
+  id             String     @id @default(cuid())
+  // INDIVIDUAL | BUSINESS
+  kind           String     @default("BUSINESS")
+  name           String
+  city           String
+  // PENDING | VERIFIED | REJECTED | SUSPENDED. Only VERIFIED accounts can book or list.
+  status         String     @default("PENDING")
+  phone          String     @default("")
+  address        String     @default("")
+  // BUSINESS: DTI, SEC or CDA registration number and BIR TIN.
+  registrationNo String     @default("")
+  tin            String     @default("")
+  // INDIVIDUAL: government ID used for verification.
+  govIdType      String     @default("")
+  govIdNumber    String     @default("")
+  // Renter's own licence, needed for self-drive bookings.
+  licenceNo      String     @default("")
+  licenceExpiry  DateTime?
+  // Where host payouts go, e.g. "GCash 0917 123 4567" or a bank account.
+  payoutDetails  String     @default("")
+  createdAt      DateTime   @default(now())
+  users          User[]
+  vehicles       Vehicle[]
+  bookings       Booking[]  @relation("RenterBookings")
+  payouts        Payout[]
+  documents      Document[]
 }
 
 model User {
-  id                String    @id @default(cuid())
+  id                String       @id @default(cuid())
   // Normalised: trimmed and lowercased before every write and lookup.
-  email             String    @unique
+  email             String       @unique
   name              String
   passwordHash      String
   // OWNER | FLEET_MANAGER | DRIVER
-  role              String    @default("OWNER")
-  // Downtime staff. An admin has no company.
-  isAdmin           Boolean   @default(false)
+  role              String       @default("OWNER")
+  // Downtime staff. An admin has no account of their own.
+  isAdmin           Boolean      @default(false)
   companyId         String?
-  company           Company?  @relation(fields: [companyId], references: [id])
+  company           Company?     @relation(fields: [companyId], references: [id])
+  driver            Driver?
   bookingsRequested Booking[]
-  createdAt         DateTime  @default(now())
+  inspections       Inspection[] @relation("InspectionCreatedBy")
+  confirmations     Inspection[] @relation("InspectionConfirmedBy")
+  reviews           Review[]
+  auditLogs         AuditLog[]
+  createdAt         DateTime     @default(now())
+}
+
+// A person approved to drive for hire. Rating drives their commission tier.
+model Driver {
+  id              String     @id @default(cuid())
+  userId          String     @unique
+  user            User       @relation(fields: [userId], references: [id])
+  licenceNo       String
+  // PROFESSIONAL is required to drive for hire in the Philippines.
+  licenceType     String     @default("PROFESSIONAL")
+  licenceExpiry   DateTime
+  yearsExperience Int
+  // PENDING | APPROVED | REJECTED | SUSPENDED
+  status          String     @default("PENDING")
+  ratingSum       Int        @default(0)
+  ratingCount     Int        @default(0)
+  reviewNote      String     @default("")
+  createdAt       DateTime   @default(now())
+  vehicles        Vehicle[]
+  bookings        Booking[]
+  documents       Document[]
 }
 
 model Vehicle {
-  id             String           @id @default(cuid())
-  companyId      String
-  company        Company          @relation(fields: [companyId], references: [id])
-  name           String
-  // CARGO_VAN | PICKUP | BOX_TRUCK | PASSENGER_VAN | SEDAN
-  type           String
-  year           Int
-  // Comma-separated tags, e.g. "roof rack,liftgate".
-  equipment      String           @default("")
-  description    String           @default("")
-  dailyRateCents Int
-  city           String
+  id                   String           @id @default(cuid())
+  companyId            String
+  company              Company          @relation(fields: [companyId], references: [id])
+  // SEDAN | MPV | SUV | VAN | PICKUP: also the commission category.
+  type                 String
+  make                 String
+  model                String
+  year                 Int
+  color                String
+  // Hex shade used for the vehicle's artwork until photos are uploaded.
+  colorHex             String           @default("#1c1c1c")
+  plateNumber          String
+  seats                Int
+  // AT | MT
+  transmission         String           @default("AT")
+  // GASOLINE | DIESEL | HYBRID | ELECTRIC
+  fuelType             String           @default("GASOLINE")
+  equipment            String           @default("")
+  description          String           @default("")
+  city                 String
+  // LTO registration and CTPL insurance; listing is refused once either has lapsed.
+  registrationExpiry   DateTime
+  insuranceExpiry      DateTime
+  dailyRateCents       Int
+  selfDriveAllowed     Boolean          @default(true)
+  withDriverAllowed    Boolean          @default(true)
+  driverDailyRateCents Int              @default(0)
+  driverId             String?
+  driver               Driver?          @relation(fields: [driverId], references: [id])
+  // Application review: DRAFT | SUBMITTED | APPROVED | REJECTED
+  reviewStatus         String           @default("DRAFT")
+  reviewNote           String           @default("")
   // Host's own switch: paused listings don't show in search.
-  active         Boolean          @default(true)
-  // Set by a Downtime admin; hides the listing whatever the host does.
-  blocked        Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  windows        DowntimeWindow[]
-  bookings       Booking[]
+  active               Boolean          @default(true)
+  // Set by an admin; hides the listing whatever the host does.
+  blocked              Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  windows              DowntimeWindow[]
+  bookings             Booking[]
+  photos               VehiclePhoto[]
+  documents            Document[]
+
+  @@index([companyId])
 }
 
-// When a vehicle is idle and may be rented. A day is rentable only if some window covers it.
+model VehiclePhoto {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  storageKey  String
+  contentType String
+  sizeBytes   Int
+  // Lowest first; position 0 is the cover photo.
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+// Verification paperwork: OR/CR, CTPL, licences, NBI clearance, IDs, business permits.
+model Document {
+  id          String    @id @default(cuid())
+  // Exactly one owner is set.
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  vehicleId   String?
+  vehicle     Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driverId    String?
+  driver      Driver?   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  // See DOCUMENT_TYPES in src/lib/requirements.ts.
+  docType     String
+  storageKey  String
+  contentType String
+  sizeBytes   Int
+  // PENDING | APPROVED | REJECTED
+  status      String    @default("PENDING")
+  reviewNote  String    @default("")
+  createdAt   DateTime  @default(now())
+}
+
+// When a vehicle is free to rent. A day is rentable only if some window covers it.
 model DowntimeWindow {
   id        String    @id @default(cuid())
   vehicleId String
   vehicle   Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  // WEEKLY: the listed weekdays, optionally bounded by start/end.
-  // RANGE: every day from start to end (both required).
+  // WEEKLY: the listed weekdays, optionally bounded by start/end. RANGE: every day start..end.
   kind      String
   // Comma-separated JS weekday numbers, 0 = Sunday. Only for WEEKLY.
   weekdays  String    @default("")
   startDate DateTime?
   endDate   DateTime?
   createdAt DateTime  @default(now())
+
+  @@index([vehicleId])
 }
 
 model Booking {
-  id              String   @id @default(cuid())
-  vehicleId       String
-  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id])
-  renterCompanyId String
-  renterCompany   Company  @relation("RenterBookings", fields: [renterCompanyId], references: [id])
-  requestedById   String
-  requestedBy     User     @relation(fields: [requestedById], references: [id])
-  // Whole days, inclusive, stored as UTC midnight.
-  startDate       DateTime
-  endDate         DateTime
-  days            Int
-  // Price snapshot at request time.
-  subtotalCents   Int
-  renterFeeCents  Int
-  hostFeeCents    Int
-  // REQUESTED | CONFIRMED | DECLINED | CANCELLED
-  status          String   @default("REQUESTED")
-  note            String   @default("")
-  createdAt       DateTime @default(now())
+  id                String       @id @default(cuid())
+  vehicleId         String
+  vehicle           Vehicle      @relation(fields: [vehicleId], references: [id])
+  renterCompanyId   String
+  renterCompany     Company      @relation("RenterBookings", fields: [renterCompanyId], references: [id])
+  requestedById     String
+  requestedBy       User         @relation(fields: [requestedById], references: [id])
+  // SELF_DRIVE | WITH_DRIVER
+  mode              String       @default("SELF_DRIVE")
+  driverId          String?
+  driver            Driver?      @relation(fields: [driverId], references: [id])
+  // Whole days, inclusive, stored as UTC midnight of the Manila calendar date.
+  startDate         DateTime
+  endDate           DateTime
+  days              Int
+  // Price and commission snapshot at request time.
+  vehicleCents      Int
+  driverCents       Int          @default(0)
+  renterFeeBps      Int
+  renterFeeCents    Int
+  hostCommissionBps Int
+  hostFeeCents      Int
+  // See BOOKING_STATUS in src/lib/constants.ts for the lifecycle.
+  status            String       @default("REQUESTED")
+  note              String       @default("")
+  approvedAt        DateTime?
+  // An approved booking holds the dates until this moment; unpaid after it, it expires.
+  paymentDueAt      DateTime?
+  paidAt            DateTime?
+  pickedUpAt        DateTime?
+  returnedAt        DateTime?
+  // A problem either side raised; open until an admin resolves it.
+  issue             String       @default("")
+  issueOpenedAt     DateTime?
+  issueResolvedAt   DateTime?
+  createdAt         DateTime     @default(now())
+  payments          Payment[]
+  inspections       Inspection[]
+  payout            Payout?
+  review            Review?
+
+  @@index([vehicleId, status])
+  @@index([renterCompanyId])
+}
+
+model Payment {
+  id                String    @id @default(cuid())
+  bookingId         String
+  booking           Booking   @relation(fields: [bookingId], references: [id])
+  // PAYMONGO, or SIMULATED in development when no PayMongo key is configured.
+  provider          String
+  checkoutSessionId String?   @unique
+  checkoutUrl       String    @default("")
+  amountCents       Int
+  // PENDING | PAID
+  status            String    @default("PENDING")
+  // Paid for a booking that was cancelled or expired: refund it from the PayMongo dashboard.
+  refundNeeded      Boolean   @default(false)
+  refundedAt        DateTime?
+  paidAt            DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([bookingId])
+}
+
+// What Downtime owes a host for a completed booking. Paid out by bank transfer or GCash.
+model Payout {
+  id          String    @id @default(cuid())
+  bookingId   String    @unique
+  booking     Booking   @relation(fields: [bookingId], references: [id])
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  amountCents Int
+  // PENDING | ON_HOLD (an issue is open) | PAID
+  status      String    @default("PENDING")
+  reference   String    @default("")
+  paidAt      DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// The photo checklist at pick-up and return, confirmed by the other party.
+model Inspection {
+  id            String    @id @default(cuid())
+  bookingId     String
+  booking       Booking   @relation(fields: [bookingId], references: [id])
+  // PICKUP | RETURN
+  phase         String
+  odometerKm    Int
+  // Quarters of a tank: 0 = empty, 4 = full.
+  fuelQuarters  Int
+  notes         String    @default("")
+  createdById   String
+  createdBy     User      @relation("InspectionCreatedBy", fields: [createdById], references: [id])
+  confirmedById String?
+  confirmedBy   User?     @relation("InspectionConfirmedBy", fields: [confirmedById], references: [id])
+  confirmedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  photos        Photo[]
+
+  @@unique([bookingId, phase])
+}
+
+model Photo {
+  id           String     @id @default(cuid())
+  inspectionId String
+  inspection   Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  // FRONT | REAR | LEFT | RIGHT | DASHBOARD | INTERIOR
+  angle        String
+  storageKey   String
+  contentType  String
+  sizeBytes    Int
+  createdAt    DateTime   @default(now())
+}
+
+// The renter's rating after a completed booking.
+model Review {
+  id            String   @id @default(cuid())
+  bookingId     String   @unique
+  booking       Booking  @relation(fields: [bookingId], references: [id])
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  vehicleRating Int
+  // Only for WITH_DRIVER bookings.
+  driverRating  Int?
+  comment       String   @default("")
+  createdAt     DateTime @default(now())
+}
+
+// Admin-editable settings, one JSON value per key (see src/lib/settings.ts).
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String
+  targetType String
+  targetId   String
+  details    String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([ip, createdAt])
 }

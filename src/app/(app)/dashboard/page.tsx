@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookingStatusBadge, EmptyState, Stat } from "@/components/ui";
 import { displayDay } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { listableWhere, vehicleTitle } from "@/lib/listings";
 import { requireCompanyUser } from "@/lib/session";
 import { formatCents } from "@/lib/util";
 
@@ -11,13 +12,10 @@ export default async function DashboardPage() {
 
   const [vehicles, listed, incoming, outgoing, earned, recent] = await Promise.all([
     db.vehicle.count({ where: { companyId } }),
-    db.vehicle.count({ where: { companyId, active: true, blocked: false, windows: { some: {} } } }),
+    db.vehicle.count({ where: { companyId, ...listableWhere() } }),
     db.booking.count({ where: { status: "REQUESTED", vehicle: { companyId } } }),
-    db.booking.count({ where: { status: { in: ["REQUESTED", "CONFIRMED"] }, renterCompanyId: companyId } }),
-    db.booking.aggregate({
-      where: { status: "CONFIRMED", vehicle: { companyId } },
-      _sum: { subtotalCents: true, hostFeeCents: true },
-    }),
+    db.booking.count({ where: { status: { in: ["REQUESTED", "AWAITING_PAYMENT", "CONFIRMED", "IN_PROGRESS"] }, renterCompanyId: companyId } }),
+    db.payout.aggregate({ where: { companyId }, _sum: { amountCents: true } }),
     db.booking.findMany({
       where: { OR: [{ vehicle: { companyId } }, { renterCompanyId: companyId }] },
       include: { vehicle: { include: { company: true } }, renterCompany: true },
@@ -25,7 +23,7 @@ export default async function DashboardPage() {
       take: 6,
     }),
   ]);
-  const earnedCents = (earned._sum.subtotalCents ?? 0) - (earned._sum.hostFeeCents ?? 0);
+  const earnedCents = earned._sum.amountCents ?? 0;
 
   return (
     <div className="space-y-8">
@@ -36,15 +34,15 @@ export default async function DashboardPage() {
         </div>
         <div className="flex gap-2">
           <Link href="/explore" className="btn-secondary">Find a vehicle</Link>
-          <Link href="/fleet/new" className="btn-primary">Add a vehicle</Link>
+          <Link href="/fleet/new" className="btn-primary">List a vehicle</Link>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Earned from idle days" value={formatCents(earnedCents)} hint="Confirmed bookings, after fees" />
-        <Stat label="Live listings" value={`${listed} of ${vehicles}`} hint="Vehicles with downtime that renters can see" />
+        <Stat label="Earned from idle days" value={formatCents(earnedCents)} hint="Completed trips, after commission" />
+        <Stat label="Live listings" value={`${listed} of ${vehicles}`} hint="Approved and visible to renters" />
         <Stat label="Requests waiting on you" value={incoming} hint={incoming > 0 ? "Answer them in Bookings" : "You're all caught up"} />
-        <Stat label="Your rentals" value={outgoing} hint="Requested or confirmed" />
+        <Stat label="Your rentals" value={outgoing} hint="Requested, approved or on the road" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -62,17 +60,17 @@ export default async function DashboardPage() {
               {recent.map((b) => {
                 const hosting = b.vehicle.companyId === companyId;
                 return (
-                  <li key={b.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                  <li key={b.id}><Link href={`/bookings/${b.id}`} className="flex items-center justify-between gap-3 py-3 text-sm hover:bg-stone-50">
                     <div>
                       <p className="font-medium text-stone-900">
-                        {hosting ? `${b.renterCompany.name} → your ${b.vehicle.name}` : `You → ${b.vehicle.name}`}
+                        {hosting ? `${b.renterCompany.name} → your ${vehicleTitle(b.vehicle)}` : `You → ${vehicleTitle(b.vehicle)}`}
                       </p>
                       <p className="text-stone-500">
                         {displayDay(b.startDate)} – {displayDay(b.endDate)} · {hosting ? "hosting" : `from ${b.vehicle.company.name}`}
                       </p>
                     </div>
                     <BookingStatusBadge status={b.status} />
-                  </li>
+                  </Link></li>
                 );
               })}
             </ul>
@@ -81,16 +79,16 @@ export default async function DashboardPage() {
 
         <section className="space-y-4">
           <div className="card">
-            <h2 className="font-semibold">Grow your earnings</h2>
+            <h2 className="font-semibold">Getting started</h2>
             <ul className="mt-3 space-y-3 text-sm text-stone-600">
-              <Tip done={vehicles > 0} text="Add your first vehicle" href="/fleet/new" />
-              <Tip done={listed > 0} text="Mark when a vehicle is idle" href="/fleet" />
-              <Tip done={me.company.status === "VERIFIED"} text="Get your company verified" />
+              <Tip done={me.company.status === "VERIFIED"} text="Get your account verified" href="/account" />
+              <Tip done={vehicles > 0} text="List your first vehicle" href="/fleet/new" />
+              <Tip done={listed > 0} text="Get a vehicle approved and live" href="/fleet" />
             </ul>
           </div>
           <div className="rounded-xl bg-brand-900 p-5 text-white">
             <p className="text-sm text-brand-100">Need a vehicle for a job?</p>
-            <p className="mt-1 font-semibold">Rent from a verified business nearby.</p>
+            <p className="mt-1 font-semibold">Rent a car, with or without a driver.</p>
             <Link href="/explore" className="mt-4 inline-flex rounded-lg bg-lime px-4 py-2 text-sm font-semibold text-brand-900">
               Explore vehicles
             </Link>

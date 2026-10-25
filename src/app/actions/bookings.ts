@@ -2,87 +2,197 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { checkAvailability, overlaps, quote } from "@/lib/availability";
+import { BLOCKING_STATUSES, checkAvailability, isBlocking, overlaps } from "@/lib/availability";
+import { hostCommissionBps, priceBooking } from "@/lib/commission";
 import { parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { env, paymentsSimulated } from "@/lib/env";
+import { canApproveOrDecline, canPay, canRenterCancel, paymentDeadline } from "@/lib/lifecycle";
+import { lockVehicle } from "@/lib/locks";
+import { createCheckoutSession } from "@/lib/paymongo";
+import { expireOverdueBookings, markPaymentPaid } from "@/lib/payments";
+import { driverBookable, listableWhere, vehicleTitle } from "@/lib/listings";
 import { requireCompanyUser } from "@/lib/session";
-import { canManageFleet, type ActionState } from "@/lib/util";
+import { getCommissionSettings } from "@/lib/settings";
+import { canManageFleet, formatCents, type ActionState } from "@/lib/util";
 
 export async function requestBooking(_: ActionState, form: FormData): Promise<ActionState> {
   const me = await requireCompanyUser();
   if (me.company.status !== "VERIFIED") {
-    return { error: "Your company must be verified before it can book." };
+    return { error: "Your account must be verified before you can book." };
   }
   if (!canManageFleet(me.role)) return { error: "Ask an owner or fleet manager to book." };
 
   const start = parseDay(form.get("start") as string);
   const end = parseDay(form.get("end") as string);
-  if (!start || !end) return { error: "Pick a start and end date." };
-  if (start < today()) return { error: "The start date is in the past." };
+  if (!start || !end) return { error: "Pick a pick-up and return date." };
+  if (start < today()) return { error: "The pick-up date is in the past." };
 
+  const mode = form.get("mode") === "WITH_DRIVER" ? "WITH_DRIVER" : "SELF_DRIVE";
+
+  await expireOverdueBookings();
   const vehicle = await db.vehicle.findFirst({
-    where: { id: form.get("vehicleId") as string, active: true, blocked: false, company: { status: "VERIFIED" } },
-    include: { windows: true, bookings: { where: { status: "CONFIRMED" } } },
+    where: { id: form.get("vehicleId") as string, ...listableWhere() },
+    include: { windows: true, driver: true, bookings: { where: { status: { in: BLOCKING_STATUSES } } } },
   });
   if (!vehicle) return { error: "That vehicle is no longer listed." };
   if (vehicle.companyId === me.companyId) return { error: "You can't book your own vehicle." };
 
+  if (mode === "WITH_DRIVER" && !driverBookable(vehicle)) return { error: "This vehicle isn't available with a driver." };
+  if (mode === "SELF_DRIVE") {
+    if (!vehicle.selfDriveAllowed) return { error: "This vehicle is only available with a driver." };
+    const licence = me.company.licenceExpiry;
+    if (!me.company.licenceNo || !licence) return { error: "Add a valid driver's licence to your account to book self-drive." };
+    if (licence < end) return { error: "Your driver's licence expires before the return date." };
+  }
+  // Registration and insurance must stay valid for the whole rental.
+  if (vehicle.registrationExpiry < end || vehicle.insuranceExpiry < end) {
+    return { error: "This vehicle's registration or insurance lapses before your return date. Pick earlier dates." };
+  }
+
   const availability = checkAvailability(vehicle.windows, vehicle.bookings, start, end);
   if (!availability.ok) return { error: availability.reason };
 
-  const price = quote(vehicle.dailyRateCents, availability.days);
-  await db.booking.create({
+  const settings = await getCommissionSettings();
+  const withDriver = mode === "WITH_DRIVER";
+  const price = priceBooking({
+    days: availability.days,
+    dailyRateCents: vehicle.dailyRateCents,
+    driverDailyRateCents: vehicle.driverDailyRateCents,
+    withDriver,
+    renterFeeBps: settings.renterFeeBps,
+    hostCommissionBps: hostCommissionBps(settings, vehicle.type, withDriver ? vehicle.driver : null),
+  });
+  const booking = await db.booking.create({
     data: {
       vehicleId: vehicle.id,
       renterCompanyId: me.companyId,
       requestedById: me.id,
+      mode,
+      driverId: withDriver ? vehicle.driverId : null,
       startDate: start,
       endDate: end,
       days: price.days,
-      subtotalCents: price.subtotalCents,
+      vehicleCents: price.vehicleCents,
+      driverCents: price.driverCents,
+      renterFeeBps: price.renterFeeBps,
       renterFeeCents: price.renterFeeCents,
+      hostCommissionBps: price.hostCommissionBps,
       hostFeeCents: price.hostFeeCents,
       note: String(form.get("note") ?? "").trim().slice(0, 500),
     },
   });
-  redirect("/bookings?sent=1");
+  redirect(`/bookings/${booking.id}?sent=1`);
 }
 
-/** Host approves or declines a request on one of their vehicles. */
-export async function respondToBooking(bookingId: string, decision: "CONFIRMED" | "DECLINED"): Promise<void> {
+/** Host approves (dates are held while the renter pays) or declines a request. */
+export async function respondToBooking(bookingId: string, decision: "APPROVE" | "DECLINE"): Promise<void> {
   const me = await requireCompanyUser();
   if (!canManageFleet(me.role)) return;
 
-  const booking = await db.booking.findFirst({
-    where: { id: bookingId, status: "REQUESTED", vehicle: { companyId: me.companyId } },
-  });
-  if (!booking) return;
+  const booking = await db.booking.findFirst({ where: { id: bookingId, vehicle: { companyId: me.companyId } } });
+  if (!booking || !canApproveOrDecline(booking)) return;
 
-  if (decision === "CONFIRMED") {
-    const confirmed = await db.$transaction(async (tx) => {
-      // Re-check inside the transaction: another request may have been confirmed since.
-      const clashes = await tx.booking.findMany({
-        where: { vehicleId: booking.vehicleId, status: "CONFIRMED" },
+  if (decision === "DECLINE") {
+    await db.booking.update({ where: { id: booking.id }, data: { status: "DECLINED" } });
+  } else {
+    await expireOverdueBookings();
+    const approved = await db.$transaction(async (tx) => {
+      await lockVehicle(tx, booking.vehicleId);
+      const others = await tx.booking.findMany({
+        where: { vehicleId: booking.vehicleId, id: { not: booking.id }, status: { in: BLOCKING_STATUSES } },
       });
-      if (clashes.some((b) => overlaps(b.startDate, b.endDate, booking.startDate, booking.endDate))) {
+      if (others.some((o) => isBlocking(o) && overlaps(o.startDate, o.endDate, booking.startDate, booking.endDate))) {
         return false;
       }
-      await tx.booking.update({ where: { id: booking.id }, data: { status: "CONFIRMED" } });
+      const now = new Date();
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: { status: "AWAITING_PAYMENT", approvedAt: now, paymentDueAt: paymentDeadline(now, booking.startDate) },
+      });
       return true;
     });
-    if (!confirmed) redirect("/bookings?error=clash");
-  } else {
-    await db.booking.update({ where: { id: booking.id }, data: { status: "DECLINED" } });
+    if (!approved) redirect(`/bookings/${booking.id}?error=clash`);
   }
   revalidatePath("/bookings");
+  revalidatePath(`/bookings/${booking.id}`);
 }
 
-/** Renter withdraws a request that hasn't been answered yet. */
+/** Sends the renter to PayMongo's hosted checkout (GCash, Maya, cards, QR Ph). */
+export async function payForBooking(bookingId: string): Promise<void> {
+  const me = await requireCompanyUser();
+  await expireOverdueBookings();
+  const booking = await db.booking.findFirst({
+    where: { id: bookingId, renterCompanyId: me.companyId },
+    include: { vehicle: true },
+  });
+  if (!booking || !canPay(booking)) redirect(`/bookings/${bookingId}?error=payment`);
+
+  const amountCents = booking.vehicleCents + booking.driverCents + booking.renterFeeCents;
+
+  if (paymentsSimulated()) {
+    // Development without PayMongo keys: record the payment as if checkout succeeded.
+    const payment = await db.payment.create({ data: { bookingId: booking.id, provider: "SIMULATED", amountCents } });
+    await markPaymentPaid(payment.id);
+    redirect(`/bookings/${booking.id}?paid=1`);
+  }
+
+  const { APP_URL, PAYMONGO_SECRET_KEY } = env();
+  const session = await createCheckoutSession({
+    secretKey: PAYMONGO_SECRET_KEY!,
+    amountCents,
+    name: `${vehicleTitle(booking.vehicle)} · ${booking.days} day${booking.days === 1 ? "" : "s"}${booking.mode === "WITH_DRIVER" ? " with driver" : ""}`,
+    description: `Downtime booking ${booking.id} (${formatCents(amountCents)})`,
+    referenceNumber: booking.id,
+    successUrl: `${APP_URL}/bookings/${booking.id}?paid=1`,
+    cancelUrl: `${APP_URL}/bookings/${booking.id}`,
+    metadata: { bookingId: booking.id },
+  });
+  await db.payment.create({
+    data: {
+      bookingId: booking.id,
+      provider: "PAYMONGO",
+      checkoutSessionId: session.id,
+      checkoutUrl: session.checkoutUrl,
+      amountCents,
+    },
+  });
+  redirect(session.checkoutUrl);
+}
+
+/** Renter withdraws. A paid booking is flagged so support refunds it. */
 export async function cancelBooking(bookingId: string): Promise<void> {
   const me = await requireCompanyUser();
-  await db.booking.updateMany({
-    where: { id: bookingId, renterCompanyId: me.companyId, status: "REQUESTED" },
-    data: { status: "CANCELLED" },
-  });
+  const booking = await db.booking.findFirst({ where: { id: bookingId, renterCompanyId: me.companyId } });
+  if (!booking || !canRenterCancel(booking)) return;
+
+  await db.$transaction([
+    db.booking.update({ where: { id: booking.id }, data: { status: "CANCELLED" } }),
+    db.payment.updateMany({ where: { bookingId: booking.id, status: "PAID" }, data: { refundNeeded: true } }),
+  ]);
   revalidatePath("/bookings");
+  revalidatePath(`/bookings/${booking.id}`);
+}
+
+/** Either side raises a problem (damage, late return, no-show). Holds the host payout until resolved. */
+export async function reportIssue(bookingId: string, _: ActionState, form: FormData): Promise<ActionState> {
+  const me = await requireCompanyUser();
+  const issue = String(form.get("issue") ?? "").trim();
+  if (issue.length < 10) return { error: "Describe the problem in a sentence or two." };
+
+  const booking = await db.booking.findFirst({
+    where: { id: bookingId, OR: [{ renterCompanyId: me.companyId }, { vehicle: { companyId: me.companyId } }] },
+  });
+  if (!booking) return { error: "Booking not found." };
+
+  const stamped = `${booking.issue ? `${booking.issue}\n\n` : ""}[${me.company.name}, ${me.name}] ${issue.slice(0, 1000)}`;
+  await db.$transaction([
+    db.booking.update({
+      where: { id: booking.id },
+      data: { issue: stamped, issueOpenedAt: booking.issueOpenedAt ?? new Date(), issueResolvedAt: null },
+    }),
+    db.payout.updateMany({ where: { bookingId: booking.id, status: "PENDING" }, data: { status: "ON_HOLD" } }),
+  ]);
+  revalidatePath(`/bookings/${booking.id}`);
+  return { ok: "Reported. Downtime support will contact both companies." };
 }

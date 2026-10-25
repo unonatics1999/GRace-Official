@@ -3,16 +3,13 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Company, User } from "@prisma/client";
 import { db } from "./db";
+import { env } from "./env";
 
 const COOKIE = "dt_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 function secret(): Uint8Array {
-  const value = process.env.SESSION_SECRET;
-  if (!value || value.length < 32) {
-    throw new Error("SESSION_SECRET must be set to at least 32 characters (see .env.example).");
-  }
-  return new TextEncoder().encode(value);
+  return new TextEncoder().encode(env().SESSION_SECRET);
 }
 
 export async function createSession(userId: string): Promise<void> {

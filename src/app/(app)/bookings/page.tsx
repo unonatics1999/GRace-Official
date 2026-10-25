@@ -1,120 +1,100 @@
-import { cancelBooking, respondToBooking } from "@/app/actions/bookings";
+import type { Prisma } from "@prisma/client";
+import Link from "next/link";
 import { BookingStatusBadge, EmptyState } from "@/components/ui";
+import { VehicleImage } from "@/components/VehicleImage";
 import { displayDay } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { vehicleTitle } from "@/lib/listings";
+import { expireOverdueBookings } from "@/lib/payments";
 import { requireCompanyUser } from "@/lib/session";
-import { canManageFleet, formatCents } from "@/lib/util";
+import { formatCents } from "@/lib/util";
 
-export default async function BookingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ sent?: string; error?: string }>;
-}) {
+export const metadata = { title: "Bookings · Downtime" };
+
+const ACTIVE = ["REQUESTED", "AWAITING_PAYMENT", "CONFIRMED", "IN_PROGRESS"];
+
+export default async function BookingsPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   const me = await requireCompanyUser();
-  const { sent, error } = await searchParams;
-  const canRespond = canManageFleet(me.role);
+  const { view } = await searchParams;
+  const hosting = view === "hosting";
+  await expireOverdueBookings();
 
-  const [incoming, outgoing] = await Promise.all([
-    db.booking.findMany({
-      where: { vehicle: { companyId: me.companyId } },
-      include: { vehicle: true, renterCompany: true, requestedBy: true },
-      orderBy: { createdAt: "desc" },
-    }),
-    db.booking.findMany({
-      where: { renterCompanyId: me.companyId },
-      include: { vehicle: { include: { company: true } } },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
+  const bookings = await db.booking.findMany({
+    where: hosting ? { vehicle: { companyId: me.companyId } } : { renterCompanyId: me.companyId },
+    include: { vehicle: { include: { company: true, photos: { orderBy: { position: "asc" }, take: 1 } } }, renterCompany: true },
+    orderBy: { createdAt: "desc" },
+  });
+  const active = bookings.filter((b) => ACTIVE.includes(b.status));
+  const past = bookings.filter((b) => !ACTIVE.includes(b.status));
+  const needsYou = active.filter((b) => (hosting ? b.status === "REQUESTED" : b.status === "AWAITING_PAYMENT")).length;
 
   return (
-    <div className="space-y-8">
-      <h1 className="page-title">Bookings</h1>
-      {sent && (
-        <p className="rounded-lg bg-brand-50 p-3 text-sm text-brand-700">
-          Request sent. The host will approve or decline it.
-        </p>
-      )}
-      {error === "clash" && (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-          Couldn&apos;t confirm: another booking for those days was confirmed first. Decline this one.
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h1 className="page-title">Bookings</h1>
+        <div className="flex gap-1 rounded-xl bg-stone-200/60 p-1 text-sm">
+          <Tab href="/bookings" active={!hosting}>My trips</Tab>
+          <Tab href="/bookings?view=hosting" active={hosting}>Hosting</Tab>
+        </div>
+      </div>
+
+      {needsYou > 0 && (
+        <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+          {needsYou} booking{needsYou === 1 ? "" : "s"} {hosting ? "waiting for your approval" : "waiting for your payment"}.
         </p>
       )}
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Requests for your vehicles</h2>
-        {incoming.length === 0 ? (
-          <EmptyState>No requests yet. Vehicles with downtime set show up in search for verified businesses.</EmptyState>
-        ) : (
-          <div className="space-y-3">
-            {incoming.map((b) => (
-              <div key={b.id} className="card flex flex-wrap items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{b.renterCompany.name}</p>
-                    <BookingStatusBadge status={b.status} />
-                  </div>
-                  <p className="text-sm text-stone-500">
-                    {b.vehicle.name} · {displayDay(b.startDate)} – {displayDay(b.endDate)} ({b.days} day
-                    {b.days === 1 ? "" : "s"}) · requested by {b.requestedBy.name}
-                  </p>
-                  {b.note && <p className="text-sm italic text-stone-600">&ldquo;{b.note}&rdquo;</p>}
-                </div>
-                <div className="flex items-center gap-3">
-                  <p className="text-right text-sm">
-                    <span className="font-semibold">{formatCents(b.subtotalCents - b.hostFeeCents)}</span>
-                    <span className="block text-xs text-stone-500">your payout</span>
-                  </p>
-                  {b.status === "REQUESTED" && canRespond && (
-                    <>
-                      <form action={respondToBooking.bind(null, b.id, "DECLINED")}>
-                        <button className="btn-danger">Decline</button>
-                      </form>
-                      <form action={respondToBooking.bind(null, b.id, "CONFIRMED")}>
-                        <button className="btn-primary">Approve</button>
-                      </form>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Vehicles you&apos;re renting</h2>
-        {outgoing.length === 0 ? (
-          <EmptyState>You haven&apos;t requested any vehicles.</EmptyState>
-        ) : (
-          <div className="space-y-3">
-            {outgoing.map((b) => (
-              <div key={b.id} className="card flex flex-wrap items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{b.vehicle.name}</p>
-                    <BookingStatusBadge status={b.status} />
-                  </div>
-                  <p className="text-sm text-stone-500">
-                    from {b.vehicle.company.name} · {displayDay(b.startDate)} – {displayDay(b.endDate)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <p className="text-right text-sm">
-                    <span className="font-semibold">{formatCents(b.subtotalCents + b.renterFeeCents)}</span>
-                    <span className="block text-xs text-stone-500">total</span>
-                  </p>
-                  {b.status === "REQUESTED" && (
-                    <form action={cancelBooking.bind(null, b.id)}>
-                      <button className="btn-secondary">Cancel request</button>
-                    </form>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <List title="Active" items={active} hosting={hosting} empty={hosting ? "No active bookings on your vehicles." : "No active trips."} />
+      {past.length > 0 && <List title="Past" items={past} hosting={hosting} />}
     </div>
+  );
+}
+
+type Item = Prisma.BookingGetPayload<{ include: { vehicle: { include: { company: true; photos: true } }; renterCompany: true } }>;
+
+function List({ title, items, hosting, empty }: { title: string; items: Item[]; hosting: boolean; empty?: string }) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500">{title}</h2>
+      {items.length === 0 ? (
+        <EmptyState>
+          {empty}
+          {!hosting && <div className="mt-3"><Link href="/explore" className="btn-primary">Find a vehicle</Link></div>}
+        </EmptyState>
+      ) : (
+        <div className="space-y-3">
+          {items.map((b) => {
+            const base = b.vehicleCents + b.driverCents;
+            return (
+              <Link key={b.id} href={`/bookings/${b.id}`} className="card flex items-center gap-4 p-4 transition hover:shadow-md">
+                <VehicleImage vehicle={b.vehicle} className="aspect-[4/3] w-24 shrink-0 rounded-lg" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium text-stone-900">{vehicleTitle(b.vehicle)}</p>
+                    <BookingStatusBadge status={b.status} />
+                  </div>
+                  <p className="text-sm text-stone-500">
+                    {displayDay(b.startDate)} – {displayDay(b.endDate)} · {b.mode === "WITH_DRIVER" ? "with driver" : "self-drive"} ·{" "}
+                    {hosting ? b.renterCompany.name : b.vehicle.company.name}
+                  </p>
+                </div>
+                <p className="shrink-0 text-right text-sm">
+                  <span className="font-semibold">{formatCents(hosting ? base - b.hostFeeCents : base + b.renterFeeCents)}</span>
+                  <span className="block text-xs text-stone-500">{hosting ? "your payout" : "total"}</span>
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Tab({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link href={href} className={`rounded-lg px-4 py-1.5 ${active ? "bg-white font-medium shadow-sm" : "text-stone-600 hover:text-stone-900"}`}>
+      {children}
+    </Link>
   );
 }

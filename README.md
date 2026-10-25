@@ -1,13 +1,13 @@
 # Downtime
 
-Businesses rent their idle vans, trucks and pickups to other **verified businesses** — only on the
-days those vehicles would otherwise sit parked. One business's downtime is another business's peak.
-
-Product spec: [Downtime — B2B Idle Fleet Rental MVP](https://claude.ai/artifact/P6wdjxDNk2YiQZgwaGN8FA)
+A Philippine car-rental marketplace. Verified owners list their cars for the days they don't use them;
+individuals and businesses rent them **self-drive** or **with the owner as driver**. Downtime earns a
+renter service fee plus a host commission on every booking, and the commission drops as the driver's
+rating rises.
 
 ## Quick start
 
-Needs Node 20+. No Docker: local development uses a SQLite file.
+Needs Node 20+. Local development uses a SQLite file, so there is nothing else to install.
 
 ```bash
 npm install
@@ -16,68 +16,95 @@ npm run setup               # creates the database and loads demo data
 npm run dev                 # http://localhost:3000
 ```
 
-Demo accounts and their shared password are listed in [`prisma/seed.ts`](prisma/seed.ts). Reset the
-demo data any time with `npm run db:seed`.
+Demo accounts and their shared password are in [`prisma/seed.ts`](prisma/seed.ts). Reset the demo data
+any time with `npm run db:seed`.
 
-| Try this as | Account |
+| Try it as | Account |
 | --- | --- |
-| A renter | Frost Snow Removal |
-| A host | Green Thumb Landscaping (pickups idle all winter) or Fresh Plate Catering (van idle Mon–Wed) |
-| A company waiting for verification | Bloom Florist |
-| Downtime staff | the admin account (admin console at `/admin`) |
+| Renter with a licence (self-drive) | Ana Santos |
+| Business renter | Mabilis Logistics Inc. |
+| Your own fleet: Vios black, L300 | Downtime Fleet |
+| Partner owner: Avanza, Veloz | Reyes Transport Services |
+| Owner-driver: Vios metallic blue | Carlo Mendoza |
+| Applicant waiting for review | Paolo Garcia |
+| Downtime staff | admin account → `/admin` |
+
+Without PayMongo keys, payments are **simulated** in development: "Pay" confirms the booking at once.
+
+## How a booking works
+
+1. **Request.** The renter picks dates and self-drive or with driver. Price and commission are snapshotted.
+2. **Approve.** The owner approves; the dates are held for 24 hours (never past midnight before pick-up).
+3. **Pay.** PayMongo hosted checkout (GCash, Maya, cards, QR Ph). The webhook confirms the booking.
+4. **Pick-up checklist.** One side photographs five angles and records odometer and fuel; the other confirms.
+5. **Return checklist.** Same again. Confirming it completes the booking and creates the owner's payout.
+6. **Rate.** The renter rates the car and the driver. Ratings set the driver's commission tier.
+
+Either side can report an issue at any point; it holds the payout until an admin resolves it.
+
+## Who gets verified, with what
+
+Defined in [`src/lib/requirements.ts`](src/lib/requirements.ts) and reviewed under **Admin → Applications**.
+
+| | Documents | Rules |
+| --- | --- | --- |
+| Vehicle | LTO OR and CR, CTPL (comprehensive optional), 3+ photos | 10 years old or newer; listing pauses when registration or CTPL lapses |
+| Driver | LTO Professional licence (front/back), NBI clearance (drug test optional) | 2+ years' experience |
+| Individual | Government ID, selfie with ID (licence for self-drive) | |
+| Business | DTI/SEC/CDA registration, mayor's permit (BIR 2303 optional) | |
+
+## Commission
+
+Set under **Admin → Commission**, saved in the database, and applied to new requests only.
+
+- Renter service fee, default **10%**.
+- Host commission per vehicle category, default **15%** (vans and pickups **18%**).
+- Rating discounts, defaults: **−2 pts** at 4.0★ with 3+ trips, **−4** at 4.5★ with 5+, **−6** at 4.8★ with 10+; floor **5%**.
 
 ## Commands
 
 | Command | Does |
 | --- | --- |
 | `npm run dev` | Dev server |
-| `npm test` | Unit tests (the availability rule and pricing) |
-| `npm run typecheck` | TypeScript |
-| `npm run lint` | ESLint |
-| `npm run build` | Production build |
+| `npm test` | Unit tests: availability, commission, booking lifecycle, webhook signatures |
+| `npm run typecheck` / `npm run lint` | TypeScript / ESLint |
+| `npm run build` | Production build (standalone output) |
 | `npm run db:migrate` | Create a migration after editing `prisma/schema.prisma` |
 
-## Stack
+## Going to production
 
-Next.js 15 (App Router, server actions) · TypeScript · Tailwind CSS 4 · Prisma 6 · SQLite in development
-(PostgreSQL in production) · `jose` signed session cookies · bcrypt · Zod · Vitest.
+1. **Database: PostgreSQL.** In `prisma/schema.prisma` set `provider = "postgresql"`, point `DATABASE_URL` at
+   Postgres, delete `prisma/migrations`, and run `npx prisma migrate dev --name init` once to create a
+   Postgres baseline. (`docker compose up -d` starts a local Postgres on port 5433.) The booking lock in
+   `src/lib/locks.ts` switches to a Postgres advisory lock automatically.
+2. **Environment.** `APP_URL`, `SESSION_SECRET`, `PAYMONGO_SECRET_KEY`, `PAYMONGO_WEBHOOK_SECRET` are required.
+   The app refuses to start without them ([`src/lib/env.ts`](src/lib/env.ts)).
+3. **PayMongo webhook.** Create one for `<APP_URL>/api/webhooks/paymongo`, event `checkout_session.payment.paid`.
+4. **File storage.** Photos and documents are written to `STORAGE_DIR`. Use a persistent volume, or replace
+   the two functions in [`src/lib/storage.ts`](src/lib/storage.ts) with S3-compatible storage.
+5. **Run.** `docker build -t downtime .` then run with your env file; migrations run on start. Health check:
+   `GET /api/health`.
+6. **Before launch.** Have counsel finish `/terms` and `/privacy` (both marked as drafts), register with the
+   National Privacy Commission if required, and confirm whether rent-a-car with driver needs LTFRB/DOT accreditation.
 
-## How it's organised
+## Built-in safeguards
+
+- Passwords: bcrypt; login lockout after 5 failed attempts per email (20 per IP) in 15 minutes.
+- Sessions: signed, HTTP-only cookies.
+- Uploads: real file type checked from the bytes, size-limited, served only to the owner, the other booking party or admins.
+- Bookings: a per-vehicle lock stops two approvals or payments for the same dates.
+- Payments: webhook signatures verified (HMAC-SHA256); handling is idempotent.
+- Admin: every admin decision and money action goes to an append-only audit log.
+- Security headers: frame denial, nosniff, referrer and permissions policies, HSTS in production.
+
+## Project layout
 
 ```
 prisma/              schema, migrations, demo seed
-src/lib/             availability.ts (the core rule), session, dates, constants
-src/app/actions/     server actions: auth, team, vehicles, bookings, admin
-src/app/(public)/    landing page, /explore marketplace, /listing/[id] with the booking box
-src/app/(auth)/      log in, sign up
-src/app/(app)/       signed-in company app: dashboard, fleet, bookings, team
-src/app/admin/       admin console: overview, companies, vehicles, bookings, users
-src/components/      shared UI
+src/lib/             availability, commission, lifecycle, payments/PayMongo, requirements, storage, session
+src/app/actions/     server actions: auth, account, vehicles, driver, bookings, inspections, reviews, admin
+src/app/(public)/    home, /explore, /listing/[id], terms, privacy
+src/app/(app)/       dashboard, bookings (+ detail with handoff), fleet, driver, account, team
+src/app/admin/       overview, applications, bookings & issues, payouts & refunds, commission, audit
+src/app/api/         files (access-checked), PayMongo webhook, health
 ```
-
-**The core rule** (`src/lib/availability.ts`): a vehicle can be booked for a period only if every
-day falls inside one of the host's downtime windows **and** no confirmed booking overlaps it. Confirming
-a booking re-checks this inside a transaction.
-
-## What's built (MVP sprints 1–3)
-
-- [x] Company sign-up, log in, log out; roles: Owner, Fleet manager, Driver
-- [x] Team management (owner adds members with a temporary password)
-- [x] Admin verification queue; only verified companies list publicly or book
-- [x] Vehicles with equipment tags and daily rate; pause / resume a listing
-- [x] Downtime windows: weekly patterns and date ranges; 28-day availability calendar
-- [x] Search by type, city and dates, showing only vehicles idle for every requested day
-- [x] Booking request with a price quote (10% renter fee, 15% host fee); approve, decline, cancel
-- [x] Dashboard: earnings from idle days, open requests, recent activity
-- [x] Public marketplace: browse without an account, listing pages with an availability calendar and live quote
-- [x] Admin console: marketplace metrics; verify, reject, suspend and reinstate companies; hide listings; cancel bookings; search users
-
-## Next
-
-- [ ] Payments and weekly payouts (Stripe Connect)
-- [ ] Photo check-out / check-in checklist, signed by both sides
-- [ ] Reviews; instant-book for trusted renters
-- [ ] Net-30 invoices with PO numbers
-- [ ] Email notifications for booking events
-- [ ] Insurance quote attached to each booking
-- [ ] Switch to PostgreSQL and deploy

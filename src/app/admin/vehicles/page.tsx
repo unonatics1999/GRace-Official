@@ -4,15 +4,16 @@ import { ActionButton, AdminHeader, FilterTabs, Table, Td } from "@/components/a
 import { VehicleArt } from "@/components/VehicleArt";
 import { VEHICLE_TYPES, type VehicleType } from "@/lib/constants";
 import { db } from "@/lib/db";
-import { describeDowntime } from "@/lib/listings";
+import { describeDowntime, listableWhere, vehicleTitle } from "@/lib/listings";
 import { requireAdmin } from "@/lib/session";
 import { formatCents } from "@/lib/util";
 
 const FILTERS = {
-  LIVE: { active: true, blocked: false, company: { status: "VERIFIED" }, windows: { some: {} } },
-  HIDDEN: { blocked: true },
-  PAUSED: { active: false },
-} as const;
+  LIVE: () => listableWhere(),
+  REVIEW: () => ({ reviewStatus: "SUBMITTED" }),
+  HIDDEN: () => ({ blocked: true }),
+  PAUSED: () => ({ active: false }),
+};
 
 export default async function AdminVehicles({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   await requireAdmin();
@@ -20,7 +21,7 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
   const filter = status && status in FILTERS ? (status as keyof typeof FILTERS) : undefined;
 
   const vehicles = await db.vehicle.findMany({
-    where: filter ? FILTERS[filter] : {},
+    where: filter ? FILTERS[filter]() : {},
     include: { company: true, windows: true, _count: { select: { bookings: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -34,21 +35,22 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
         options={[
           { label: "All" },
           { value: "LIVE", label: "Live" },
+          { value: "REVIEW", label: "Under review" },
           { value: "PAUSED", label: "Paused by host" },
           { value: "HIDDEN", label: "Hidden by admin" },
         ]}
       />
       <Table head={["Vehicle", "Host", "Rate", "Downtime", "Bookings", "State", ""]} empty={vehicles.length === 0}>
         {vehicles.map((v) => {
-          const live = v.active && !v.blocked && v.company.status === "VERIFIED" && v.windows.length > 0;
+          const live = v.reviewStatus === "APPROVED" && v.active && !v.blocked && v.company.status === "VERIFIED" && v.windows.length > 0;
           return (
             <tr key={v.id} className="hover:bg-stone-50/60">
               <Td>
                 <div className="flex items-center gap-3">
-                  <VehicleArt type={v.type} seed={v.id} className="h-10 w-14 shrink-0 rounded-md" />
+                  <VehicleArt type={v.type} seed={v.id} colorHex={v.colorHex} className="h-10 w-14 shrink-0 rounded-md" />
                   <div>
-                    <p className="font-medium text-stone-900">{v.name}</p>
-                    <p className="text-xs text-stone-500">{v.year} {VEHICLE_TYPES[v.type as VehicleType]} · {v.city}</p>
+                    <p className="font-medium text-stone-900">{vehicleTitle(v)}</p>
+                    <p className="text-xs text-stone-500">{v.color} · {v.plateNumber} · {VEHICLE_TYPES[v.type as VehicleType]} · {v.city}</p>
                   </div>
                 </div>
               </Td>

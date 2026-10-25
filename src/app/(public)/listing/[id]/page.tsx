@@ -2,13 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { BookingBox } from "@/components/BookingBox";
-import { VerifiedIcon } from "@/components/ListingCard";
+import { Gallery } from "@/components/Gallery";
+import { StarIcon, VerifiedIcon } from "@/components/ListingCard";
 import { VehicleArt } from "@/components/VehicleArt";
-import { VEHICLE_TYPES, type VehicleType } from "@/lib/constants";
+import { BLOCKING_STATUSES } from "@/lib/availability";
+import { averageRating } from "@/lib/commission";
+import { ACCOUNT_KINDS, FUEL_TYPES, TRANSMISSIONS, VEHICLE_TYPES, type AccountKind, type VehicleType } from "@/lib/constants";
 import { formatDay, parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
-import { describeDowntime, equipmentTags, LISTABLE } from "@/lib/listings";
+import { describeDowntime, driverBookable, equipmentTags, listableWhere, listingInclude, photoUrl, vehicleTitle } from "@/lib/listings";
 import { currentUser } from "@/lib/session";
+import { getCommissionSettings } from "@/lib/settings";
 import { canManageFleet, formatCents } from "@/lib/util";
 
 export default async function ListingPage({
@@ -20,36 +24,72 @@ export default async function ListingPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const user = await currentUser();
+  const [user, settings] = await Promise.all([currentUser(), getCommissionSettings()]);
 
   const vehicle = await db.vehicle.findFirst({
-    where: { id, ...LISTABLE },
+    where: { id, ...listableWhere() },
     include: {
+      ...listingInclude,
       company: { include: { _count: { select: { vehicles: true } } } },
-      windows: true,
-      bookings: { where: { status: "CONFIRMED" } },
+      bookings: { where: { status: { in: BLOCKING_STATUSES } } },
     },
   });
   if (!vehicle) notFound();
 
+  const title = vehicleTitle(vehicle);
   const tags = equipmentTags(vehicle.equipment);
-  const typeLabel = VEHICLE_TYPES[vehicle.type as VehicleType];
+  const withDriver = driverBookable(vehicle);
+  const driver = vehicle.driver;
+  const rating = driver ? averageRating(driver.ratingSum, driver.ratingCount) : null;
   const isOwn = user?.companyId === vehicle.companyId;
-  const memberSince = vehicle.company.createdAt.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const memberSince = vehicle.company.createdAt.toLocaleDateString("en-PH", { month: "long", year: "numeric" });
+
+  // Self-drive needs a licence on the renter's account that's valid through the rental.
+  const renter = user?.company;
+  const licenceValid = !!renter?.licenceNo && !!renter.licenceExpiry && renter.licenceExpiry >= today();
+  const selfDrive = {
+    offered: vehicle.selfDriveAllowed,
+    eligible: licenceValid,
+    reason: renter?.licenceNo ? "Your driver's licence on file has expired." : "Self-drive needs a valid driver's licence on your account.",
+  };
+
+  const facts = [
+    ["Type", VEHICLE_TYPES[vehicle.type as VehicleType]],
+    ["Seats", String(vehicle.seats)],
+    ["Transmission", TRANSMISSIONS[vehicle.transmission as keyof typeof TRANSMISSIONS]],
+    ["Fuel", FUEL_TYPES[vehicle.fuelType as keyof typeof FUEL_TYPES]],
+    ["Colour", vehicle.color],
+    ["Availability", describeDowntime(vehicle.windows)],
+  ];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Link href="/explore" className="text-sm text-stone-500 hover:text-stone-900">← All vehicles</Link>
 
-      <div className="mt-4">
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{vehicle.name}</h1>
-        <p className="mt-1 flex flex-wrap items-center gap-x-2 text-stone-600">
-          <span>{vehicle.year} {typeLabel}</span>·<span>{vehicle.city}</span>·
-          <span className="inline-flex items-center gap-1"><VerifiedIcon /> {vehicle.company.name}</span>
-        </p>
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{title}</h1>
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-stone-600">
+            <span>{vehicle.color}</span>·<span>{vehicle.city}</span>·
+            <span className="inline-flex items-center gap-1"><VerifiedIcon /> {vehicle.company.name}</span>
+            {rating !== null && (
+              <>·<span className="inline-flex items-center gap-1"><StarIcon /> {rating.toFixed(1)} ({driver!.ratingCount} trips rated)</span></>
+            )}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {vehicle.selfDriveAllowed && <span className="badge bg-stone-100 px-3 py-1 text-stone-700">Self-drive</span>}
+          {withDriver && <span className="badge bg-stone-900 px-3 py-1 text-white">With driver</span>}
+        </div>
       </div>
 
-      <VehicleArt type={vehicle.type} seed={vehicle.id} className="mt-6 aspect-[16/7] rounded-3xl" />
+      <div className="mt-6">
+        {vehicle.photos.length > 0 ? (
+          <Gallery photos={vehicle.photos.map((p) => ({ id: p.id, url: photoUrl(p.id) }))} alt={title} />
+        ) : (
+          <VehicleArt type={vehicle.type} seed={vehicle.id} colorHex={vehicle.colorHex} className="aspect-[16/7] rounded-3xl ring-1 ring-black/5" />
+        )}
+      </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
         <div className="space-y-10">
@@ -58,19 +98,41 @@ export default async function ListingPage({
               {vehicle.company.name[0]}
             </div>
             <div>
-              <p className="font-semibold">Hosted by {vehicle.company.name}</p>
+              <p className="font-semibold">Owned by {vehicle.company.name}</p>
               <p className="text-sm text-stone-500">
-                Verified business · {vehicle.company.city} · on Downtime since {memberSince} ·{" "}
+                Verified {ACCOUNT_KINDS[vehicle.company.kind as AccountKind].toLowerCase()} · on Downtime since {memberSince} ·{" "}
                 {vehicle.company._count.vehicles} vehicle{vehicle.company._count.vehicles === 1 ? "" : "s"}
               </p>
             </div>
           </section>
 
-          <section className="grid gap-4 sm:grid-cols-3">
-            <Fact label="Type" value={typeLabel} />
-            <Fact label="Year" value={String(vehicle.year)} />
-            <Fact label="Availability" value={describeDowntime(vehicle.windows)} />
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {facts.map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-stone-200 p-4">
+                <p className="text-xs uppercase tracking-wide text-stone-500">{label}</p>
+                <p className="mt-1 font-medium text-stone-900">{value}</p>
+              </div>
+            ))}
           </section>
+
+          {withDriver && driver && (
+            <section className="rounded-2xl border border-stone-200 p-6">
+              <h2 className="text-lg font-semibold">Your driver</h2>
+              <div className="mt-4 flex items-center gap-4">
+                <div className="grid h-14 w-14 place-items-center rounded-full bg-stone-900 text-xl font-semibold text-white">
+                  {driver.user.name[0]}
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-stone-900">{driver.user.name}</p>
+                  <p className="text-stone-500">
+                    LTO professional licence · {driver.yearsExperience} years driving
+                    {rating !== null ? ` · ${rating.toFixed(1)}★ from ${driver.ratingCount} trips` : " · new on Downtime"}
+                  </p>
+                  <p className="mt-1 text-stone-500">NBI clearance checked by Downtime.</p>
+                </div>
+              </div>
+            </section>
+          )}
 
           {vehicle.description && (
             <section>
@@ -81,12 +143,10 @@ export default async function ListingPage({
 
           {tags.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold">Equipment</h2>
+              <h2 className="text-lg font-semibold">Features</h2>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                  <li key={tag} className="rounded-full border border-stone-300 px-3 py-1 text-sm capitalize text-stone-700">
-                    {tag}
-                  </li>
+                  <li key={tag} className="rounded-full border border-stone-300 px-3 py-1 text-sm capitalize text-stone-700">{tag}</li>
                 ))}
               </ul>
             </section>
@@ -94,20 +154,21 @@ export default async function ListingPage({
 
           <section>
             <h2 className="text-lg font-semibold">When it&apos;s free</h2>
-            <p className="mt-1 text-sm text-stone-500">
-              The host only rents this vehicle on days their own business doesn&apos;t need it.
-            </p>
+            <p className="mt-1 text-sm text-stone-500">The owner rents it only on days they don&apos;t need it themselves.</p>
             <div className="mt-4 max-w-xl">
               <AvailabilityCalendar windows={vehicle.windows} bookings={vehicle.bookings} audience="renter" />
             </div>
           </section>
 
           <section className="rounded-2xl bg-stone-50 p-6">
-            <h2 className="font-semibold">Booking with Downtime</h2>
-            <ul className="mt-3 space-y-2 text-sm text-stone-600">
-              <li>· Both companies are verified businesses.</li>
-              <li>· The host confirms every request; you&apos;re not charged until then.</li>
-              <li>· Pick-up and return are arranged with the host at {vehicle.city}.</li>
+            <h2 className="font-semibold">Checked by Downtime</h2>
+            <ul className="mt-3 grid gap-2 text-sm text-stone-600 sm:grid-cols-2">
+              <li>✓ LTO OR/CR matches plate</li>
+              <li>✓ Registration and CTPL insurance current</li>
+              <li>✓ Owner identity verified</li>
+              {withDriver && <li>✓ Professional licence and NBI clearance</li>}
+              <li>✓ Photo checklist at pick-up and return</li>
+              <li>✓ Pay securely by GCash, Maya or card</li>
             </ul>
           </section>
         </div>
@@ -117,6 +178,7 @@ export default async function ListingPage({
             <p className="text-2xl font-semibold">
               {formatCents(vehicle.dailyRateCents)} <span className="text-base font-normal text-stone-500">/ day</span>
             </p>
+            {withDriver && <p className="text-sm text-stone-500">Driver +{formatCents(vehicle.driverDailyRateCents)} / day</p>}
             <div className="mt-5">
               {isOwn ? (
                 <div className="space-y-3 text-sm text-stone-600">
@@ -125,22 +187,26 @@ export default async function ListingPage({
                 </div>
               ) : !user ? (
                 <div className="space-y-3 text-sm text-stone-600">
-                  <p>Log in with a verified company account to request this vehicle.</p>
+                  <p>Log in with a verified account to request this vehicle.</p>
                   <Link href="/login" className="btn-primary w-full py-3">Log in to book</Link>
-                  <Link href="/signup" className="btn-secondary w-full">Create a company account</Link>
+                  <Link href="/signup" className="btn-secondary w-full">Create an account</Link>
                 </div>
               ) : !user.company ? (
                 <p className="text-sm text-stone-600">Admin accounts can&apos;t book vehicles.</p>
               ) : user.company.status !== "VERIFIED" ? (
                 <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-                  Booking unlocks once Downtime verifies {user.company.name}.
+                  Booking unlocks once Downtime verifies your account. <Link href="/account" className="font-medium underline">Check your verification</Link>
                 </p>
               ) : !canManageFleet(user.role) ? (
-                <p className="text-sm text-stone-600">Ask an owner or fleet manager at your company to book.</p>
+                <p className="text-sm text-stone-600">Ask an owner or fleet manager on your account to book.</p>
               ) : (
                 <BookingBox
                   vehicleId={vehicle.id}
                   dailyRateCents={vehicle.dailyRateCents}
+                  driverDailyRateCents={vehicle.driverDailyRateCents}
+                  renterFeeBps={settings.renterFeeBps}
+                  selfDrive={selfDrive}
+                  withDriver={{ offered: withDriver, driverName: driver?.user.name }}
                   minDate={formatDay(today())}
                   defaultStart={parseDay(query.start) ? query.start : undefined}
                   defaultEnd={parseDay(query.end) ? query.end : undefined}
@@ -150,15 +216,6 @@ export default async function ListingPage({
           </div>
         </aside>
       </div>
-    </div>
-  );
-}
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-stone-200 p-4">
-      <p className="text-xs uppercase tracking-wide text-stone-500">{label}</p>
-      <p className="mt-1 font-medium text-stone-900">{value}</p>
     </div>
   );
 }

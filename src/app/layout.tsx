@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Downtime — rent idle business vehicles",
-  description: "Businesses rent their idle vans and trucks to other verified businesses.",
+  title: "Downtime — rent a car, or the car and its driver",
+  description: "Rent cars from verified owners in Metro Manila, self-drive or with the owner as driver. Pay with GCash, Maya or card.",
 };
 
 export default function RootLayout({

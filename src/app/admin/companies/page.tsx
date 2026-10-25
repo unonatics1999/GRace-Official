@@ -1,7 +1,7 @@
 import { setCompanyStatus } from "@/app/actions/admin";
 import { ActionButton, AdminHeader, FilterTabs, Table, Td } from "@/components/admin";
 import { CompanyStatusBadge } from "@/components/ui";
-import { COMPANY_STATUS } from "@/lib/constants";
+import { ACCOUNT_KINDS, COMPANY_STATUS, type AccountKind } from "@/lib/constants";
 import { displayDay } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
@@ -28,8 +28,8 @@ export default async function AdminCompanies({ searchParams }: { searchParams: P
   return (
     <>
       <AdminHeader
-        title="Companies"
-        description="Check registration and insurance before verifying. Only verified companies can list and book."
+        title="Accounts"
+        description="Every renter and host account. New applications are reviewed under Applications."
       />
       <FilterTabs
         base="/admin/companies"
@@ -39,12 +39,12 @@ export default async function AdminCompanies({ searchParams }: { searchParams: P
           ...Object.entries(COMPANY_STATUS).map(([value, label]) => ({ value, label, count: count(value) })),
         ]}
       />
-      <Table head={["Company", "Owner", "Members", "Vehicles", "Rentals", "Joined", "Status", ""]} empty={companies.length === 0}>
+      <Table head={["Account", "Owner", "Members", "Vehicles", "Rentals", "Joined", "Status", ""]} empty={companies.length === 0}>
         {companies.map((c) => (
           <tr key={c.id} className="hover:bg-stone-50/60">
             <Td>
               <p className="font-medium text-stone-900">{c.name}</p>
-              <p className="text-xs text-stone-500">{c.city}</p>
+              <p className="text-xs text-stone-500">{ACCOUNT_KINDS[c.kind as AccountKind]} · {c.city}</p>
             </Td>
             <Td className="text-stone-600">{c.users[0]?.email ?? "—"}</Td>
             <Td>{c._count.users}</Td>

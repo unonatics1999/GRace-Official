@@ -17,7 +17,7 @@ export function SiteHeader({ user }: { user: SessionUser | null }) {
             Explore vehicles
           </Link>
           <Link href="/#hosts" className="rounded-lg px-3 py-1.5 text-stone-600 hover:bg-stone-100 hover:text-stone-900">
-            List your fleet
+            List your car
           </Link>
           <Link href="/#how" className="rounded-lg px-3 py-1.5 text-stone-600 hover:bg-stone-100 hover:text-stone-900">
             How it works
@@ -50,7 +50,7 @@ export function SiteHeader({ user }: { user: SessionUser | null }) {
           </summary>
           <div className="absolute right-0 mt-2 w-60 space-y-1 rounded-xl border border-stone-200 bg-white p-2 shadow-lg">
             <Link href="/explore" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">Explore vehicles</Link>
-            <Link href="/#hosts" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">List your fleet</Link>
+            <Link href="/#hosts" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">List your car</Link>
             <Link href="/#how" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">How it works</Link>
             <div className="border-t border-stone-100 pt-2">
               {user ? (
@@ -76,28 +76,30 @@ export function SiteFooter() {
         <div className="space-y-3">
           <Logo />
           <p className="text-sm text-stone-500">
-            The business-to-business marketplace for idle work vehicles. Every company is verified.
+            Rent cars, with or without the owner as driver. Every owner and driver is verified.
           </p>
         </div>
         <FooterColumn
           title="Renters"
           links={[
             ["Explore vehicles", "/explore"],
-            ["Create a company account", "/signup"],
+            ["Create an account", "/signup"],
           ]}
         />
         <FooterColumn
-          title="Hosts"
+          title="Owners"
           links={[
             ["Earnings calculator", "/#hosts"],
-            ["List your fleet", "/signup"],
+            ["List your car", "/signup"],
           ]}
         />
         <FooterColumn
-          title="Company"
+          title="Downtime"
           links={[
             ["How it works", "/#how"],
             ["FAQ", "/#faq"],
+            ["Terms", "/terms"],
+            ["Privacy", "/privacy"],
           ]}
         />
       </div>

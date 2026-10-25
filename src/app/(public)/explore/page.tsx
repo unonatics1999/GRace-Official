@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { ListingCard } from "@/components/ListingCard";
 import { SearchBar } from "@/components/SearchBar";
-import { checkAvailability, quote } from "@/lib/availability";
+import { BLOCKING_STATUSES, checkAvailability } from "@/lib/availability";
+import { priceBooking } from "@/lib/commission";
 import { VEHICLE_TYPES } from "@/lib/constants";
 import { formatDay, parseDay } from "@/lib/dates";
 import { db } from "@/lib/db";
-import { LISTABLE } from "@/lib/listings";
+import { listableWhere, listingInclude } from "@/lib/listings";
+import { expireOverdueBookings } from "@/lib/payments";
 import { currentUser } from "@/lib/session";
+import { getCommissionSettings } from "@/lib/settings";
 
 type Search = { type?: string; city?: string; start?: string; end?: string };
 
@@ -21,14 +24,16 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   const end = parseDay(query.end);
   const dated = Boolean(start && end && end >= start);
 
+  await expireOverdueBookings();
+  const settings = await getCommissionSettings();
   const vehicles = await db.vehicle.findMany({
     where: {
-      ...LISTABLE,
+      ...listableWhere(),
       ...(type ? { type } : {}),
       ...(city ? { city: { contains: city } } : {}),
       ...(user?.companyId ? { companyId: { not: user.companyId } } : {}),
     },
-    include: { company: true, windows: true, bookings: { where: { status: "CONFIRMED" } } },
+    include: { ...listingInclude, bookings: { where: { status: { in: BLOCKING_STATUSES } } } },
     orderBy: { dailyRateCents: "asc" },
   });
 
@@ -37,7 +42,14 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
     if (!dated) return [{ vehicle: v }];
     const availability = checkAvailability(v.windows, v.bookings, start!, end!);
     if (!availability.ok) return [];
-    const price = quote(v.dailyRateCents, availability.days);
+    const price = priceBooking({
+      days: availability.days,
+      dailyRateCents: v.dailyRateCents,
+      driverDailyRateCents: v.driverDailyRateCents,
+      withDriver: false,
+      renterFeeBps: settings.renterFeeBps,
+      hostCommissionBps: 0,
+    });
     return [{ vehicle: v, totalCents: price.renterTotalCents, days: price.days }];
   });
   const carry = dated ? `start=${formatDay(start!)}&end=${formatDay(end!)}` : undefined;
@@ -68,7 +80,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
       <div className="mt-8 flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-xl font-semibold tracking-tight">
           {results.length} vehicle{results.length === 1 ? "" : "s"}
-          {dated ? " free for every day you picked" : " from verified businesses"}
+          {dated ? " free for every day you picked" : " from verified owners"}
         </h1>
         {!dated && <p className="text-sm text-stone-500">Add dates to see only vehicles free on those days, with totals.</p>}
       </div>

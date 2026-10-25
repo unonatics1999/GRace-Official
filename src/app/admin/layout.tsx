@@ -9,14 +9,25 @@ export const metadata = { title: "Admin · Downtime" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
-  const pending = await db.company.count({ where: { status: "PENDING" } });
+  const [accounts, vehicles, drivers, payouts, refunds, issues] = await Promise.all([
+    db.company.count({ where: { status: "PENDING" } }),
+    db.vehicle.count({ where: { reviewStatus: "SUBMITTED" } }),
+    db.driver.count({ where: { status: "PENDING" } }),
+    db.payout.count({ where: { status: "PENDING" } }),
+    db.payment.count({ where: { refundNeeded: true, refundedAt: null } }),
+    db.booking.count({ where: { issueOpenedAt: { not: null }, issueResolvedAt: null } }),
+  ]);
 
   const links = [
     { href: "/admin/overview", label: "Overview" },
-    { href: "/admin/companies", label: "Companies", count: pending },
+    { href: "/admin/applications", label: "Applications", count: accounts + vehicles + drivers },
+    { href: "/admin/bookings", label: "Bookings", count: issues },
+    { href: "/admin/payouts", label: "Payouts & refunds", count: payouts + refunds },
+    { href: "/admin/commission", label: "Commission" },
+    { href: "/admin/companies", label: "Accounts" },
     { href: "/admin/vehicles", label: "Vehicles" },
-    { href: "/admin/bookings", label: "Bookings" },
     { href: "/admin/users", label: "Users" },
+    { href: "/admin/audit", label: "Audit log" },
   ];
 
   return (

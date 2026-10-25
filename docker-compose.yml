@@ -1,0 +1,24 @@
+# Local PostgreSQL for development only. Production uses a managed database.
+name: downtime
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: downtime-postgres
+    environment:
+      POSTGRES_DB: downtime
+      POSTGRES_USER: downtime
+      POSTGRES_PASSWORD: downtime
+    # 5433 so it doesn't clash with another Postgres on the default port.
+    ports:
+      - "5433:5432"
+    volumes:
+      - downtime-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U downtime -d downtime"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  downtime-pgdata:

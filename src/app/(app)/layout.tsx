@@ -7,9 +7,10 @@ import { requireUser } from "@/lib/session";
 
 const COMPANY_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/fleet", label: "My fleet" },
   { href: "/bookings", label: "Bookings" },
-  { href: "/team", label: "Team" },
+  { href: "/fleet", label: "My fleet" },
+  { href: "/driver", label: "Driver" },
+  { href: "/account", label: "Account" },
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -60,6 +61,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                     <Link href="/admin" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">Admin console</Link>
                   )}
                 </div>
+                {user.company?.kind === "BUSINESS" && (
+                  <Link href="/team" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">Team</Link>
+                )}
                 <Link href="/explore" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">Find a vehicle</Link>
                 <Link href="/" className="block rounded-lg px-3 py-2 text-sm hover:bg-stone-100">Downtime home</Link>
                 <form action={logout} className="border-t border-stone-100 pt-1">
@@ -76,10 +80,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-2.5 text-sm text-amber-900 sm:px-6">
             <CompanyStatusBadge status={status} />
             {status === "PENDING"
-              ? "Set up your fleet now. Your listings go live, and you can book, once we verify your company."
+              ? <>Finish verification to book and list. <Link href="/account" className="font-medium underline">Go to your account</Link></>
               : status === "SUSPENDED"
-                ? "Your company is suspended: listings are hidden and booking is paused. Contact Downtime support."
-                : "We couldn't verify your company. Contact Downtime support."}
+                ? "Your account is suspended: listings are hidden and booking is paused. Contact Downtime support."
+                : "We couldn't verify your account. Check your documents or contact Downtime support."}
           </div>
         </div>
       )}
