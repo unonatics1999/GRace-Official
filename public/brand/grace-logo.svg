@@ -6,7 +6,7 @@
   <line x1="120.0" y1="34.0" x2="120.0" y2="22.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
   <line x1="120.0" y1="214.0" x2="120.0" y2="226.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
   <line x1="30.0" y1="124.0" x2="18.0" y2="124.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
-  <line x1="256.0" y1="124.0" x2="268.0" y2="124.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
+  <line x1="227.0" y1="124.0" x2="252.0" y2="124.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
   <text transform="translate(122 139) skewX(-10)" font-size="42" font-weight="800" letter-spacing="-1" fill="#111111">RACE</text>
   <text transform="translate(153 272) skewX(-10)" text-anchor="middle" font-size="22" font-weight="600" letter-spacing="6" fill="#111111">CAR RENTALS</text>
 </svg>
