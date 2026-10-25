@@ -28,6 +28,9 @@ other repository on this machine.
   "representative photo" label, and only with the owner's go-ahead.
 - **Logins:** Renter and Car owner on `/login`; admins only on the unlinked `/staff-login`; `/admin` 404s for others.
 - **Admin CRUD:** accounts, users, vehicles. Bookings and payments are never hard-deleted (audit trail).
+- **Earnings report (`/admin/reports`):** cash basis, counted when the renter pays (Manila day); earnings =
+  service fee + commission, gross of PayMongo fees; not VAT-registered, so no VAT split (revisit if that changes).
+  Refunded bookings excluded. Logic in `src/lib/reports.ts`.
 - **Help center:** `/help`, AI answers grounded only in `src/lib/help-content.ts` (keep it in sync with policy).
 
 ## Conventions
