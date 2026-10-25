@@ -16,14 +16,12 @@ export function GraceMark({ className = "h-10 w-10" }: { className?: string }) {
   return <img src="/brand/grace-mark.svg" alt="" aria-hidden="true" className={className} />;
 }
 
-/** Brand lockup: the G+Race icon, with "Car Rental" underneath. */
-export function Logo({ className = "", tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
+/** Brand lockup: the G+Race icon with "Car Rental" underneath, together on one black badge. */
+export function Logo({ className = "" }: { className?: string; tone?: "light" | "dark" }) {
   return (
-    <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rental">
-      <GraceMark className="h-10 w-10" />
-      <span className={`mt-1 text-[10px] font-bold uppercase tracking-[0.2em] ${tone === "dark" ? "text-stone-300" : "text-stone-700"}`}>
-        Car Rental
-      </span>
+    <span className={`inline-flex flex-col items-center rounded-md bg-[#0b0b0b] px-2.5 pt-1 pb-1.5 leading-none ${className}`} aria-label="GRace Car Rental">
+      <GraceMark className="h-9 w-9" />
+      <span className="mt-0.5 border-t border-[#ff6a00] pt-1 text-[8px] font-semibold uppercase tracking-[0.28em] text-white">Car Rental</span>
     </span>
   );
 }
