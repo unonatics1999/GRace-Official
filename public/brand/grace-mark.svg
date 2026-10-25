@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="GRace Car Rental">
-  <rect width="256" height="256" rx="56" fill="#111111"/>
+  <rect width="256" height="256" fill="#111111"/>
   <path d="M180.0 93.0 A66 66 0 1 0 180.0 163.0" transform="translate(-7 -5)" fill="none" stroke="#7a3300" stroke-width="32" stroke-linecap="round"/>
   <path d="M180.0 93.0 A66 66 0 1 0 180.0 163.0" fill="none" stroke="#ff6a00" stroke-width="32" stroke-linecap="round"/>
   <line x1="124.0" y1="38.0" x2="124.0" y2="26.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>

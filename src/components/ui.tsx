@@ -21,7 +21,7 @@ export function Logo({ className = "", tone = "light" }: { className?: string; t
   return (
     <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rental">
       <GraceMark className="h-10 w-10" />
-      <span className={`mt-1 text-[8px] font-semibold uppercase tracking-[0.3em] ${tone === "dark" ? "text-stone-300" : "text-stone-700"}`}>
+      <span className={`mt-1 text-[10px] font-bold uppercase tracking-[0.2em] ${tone === "dark" ? "text-stone-300" : "text-stone-700"}`}>
         Car Rental
       </span>
     </span>

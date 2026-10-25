@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 284" role="img" aria-label="GRace Car Rental">
-  <rect width="260" height="284" rx="36" fill="#111111"/>
-  <path d="M180.0 87.0 A66 66 0 1 0 180.0 157.0" transform="translate(-7 -5)" fill="none" stroke="#7a3300" stroke-width="32" stroke-linecap="round"/>
-  <path d="M180.0 87.0 A66 66 0 1 0 180.0 157.0" fill="none" stroke="#ff6a00" stroke-width="32" stroke-linecap="round"/>
-  <line x1="124.0" y1="32.0" x2="124.0" y2="20.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
-  <line x1="124.0" y1="212.0" x2="124.0" y2="224.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
-  <line x1="34.0" y1="122.0" x2="22.0" y2="122.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
-  <text x="124" y="136" textLength="106" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="900" font-style="italic" fill="#ffffff">RACE</text>
-  <text x="130" y="262" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="16" font-weight="600" letter-spacing="6.5" fill="#e6e6e6">CAR RENTAL</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-label="GRace Car Rental">
+  <rect width="300" height="300" fill="#111111"/>
+  <path d="M196.0 87.0 A66 66 0 1 0 196.0 157.0" transform="translate(-7 -5)" fill="none" stroke="#7a3300" stroke-width="32" stroke-linecap="round"/>
+  <path d="M196.0 87.0 A66 66 0 1 0 196.0 157.0" fill="none" stroke="#ff6a00" stroke-width="32" stroke-linecap="round"/>
+  <line x1="140.0" y1="32.0" x2="140.0" y2="20.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <line x1="140.0" y1="212.0" x2="140.0" y2="224.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <line x1="50.0" y1="122.0" x2="38.0" y2="122.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <text x="140" y="136" textLength="106" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="900" font-style="italic" fill="#ffffff">RACE</text>
+  <text x="150" y="278" text-anchor="middle" textLength="236" lengthAdjust="spacing" font-family="'Segoe UI', Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff">CAR RENTAL</text>
 </svg>

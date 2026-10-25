@@ -61,8 +61,8 @@ other repository on this machine.
 
 ## Brand
 
-Logo files in `public/brand/` (mark, light and dark lockups); `GraceMark` and `Logo` in `src/components/ui.tsx`;
-browser icon `src/app/icon.svg`. Deep green `#1f5139` / `#0f2a1d` with lime `#c6f135`.
+Logo files in `public/brand/`: `grace-logo.svg` (square, mark with CAR RENTAL below) and `grace-mark.svg` (icon); `GraceMark` and `Logo` in `src/components/ui.tsx`;
+browser icon `src/app/icon.svg`. Black `#111111` with orange `#ff6a00`; white RACE and CAR RENTAL.
 
 ## Not built yet
 
