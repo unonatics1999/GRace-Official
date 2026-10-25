@@ -10,18 +10,18 @@ export function Field({ label, ...input }: { label: string } & InputHTMLAttribut
   );
 }
 
-/** The G+Race icon: orange C closed into a G by RACE, on black. */
+/** The G+Race icon: orange C closed into a G by RACE. */
 export function GraceMark({ className = "h-10 w-10" }: { className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element -- static brand SVG
   return <img src="/brand/grace-mark.svg" alt="" aria-hidden="true" className={className} />;
 }
 
-/** Brand lockup: the icon with "Car Rental" underneath, together on one black badge. */
-export function Logo({ className = "" }: { className?: string; tone?: "light" | "dark" }) {
+/** Brand lockup: the icon with "Car Rentals" underneath. */
+export function Logo({ className = "", tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
   return (
-    <span className={`inline-flex flex-col items-center bg-[#111111] px-2 pt-0.5 pb-1.5 leading-none ${className}`} aria-label="GRace Car Rental">
-      <GraceMark className="h-12 w-12" />
-      <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white">Car Rental</span>
+    <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rentals">
+      <GraceMark className="h-14 w-14" />
+      <span className={`-mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${tone === "dark" ? "text-white" : "text-[#111111]"}`}>Car Rentals</span>
     </span>
   );
 }

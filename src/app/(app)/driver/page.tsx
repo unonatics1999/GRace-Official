@@ -11,7 +11,7 @@ import { DRIVER_REQUIREMENTS, VEHICLE_RULES } from "@/lib/requirements";
 import { requireOwner } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
 
-export const metadata = { title: "Driver profile · GRace Car Rental" };
+export const metadata = { title: "Driver profile · GRace Car Rentals" };
 
 const STATUS_TONE: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-800",

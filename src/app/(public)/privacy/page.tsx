@@ -1,6 +1,6 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Privacy · GRace Car Rental" };
+export const metadata = { title: "Privacy · GRace Car Rentals" };
 
 export default function PrivacyPage() {
   return (

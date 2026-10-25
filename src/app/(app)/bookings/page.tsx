@@ -9,7 +9,7 @@ import { expireOverdueBookings } from "@/lib/payments";
 import { requireCompanyUser } from "@/lib/session";
 import { formatCents } from "@/lib/util";
 
-export const metadata = { title: "Bookings · GRace Car Rental" };
+export const metadata = { title: "Bookings · GRace Car Rentals" };
 
 const ACTIVE = ["REQUESTED", "AWAITING_PAYMENT", "CONFIRMED", "IN_PROGRESS"];
 

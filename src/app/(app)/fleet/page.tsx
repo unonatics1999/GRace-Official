@@ -8,7 +8,7 @@ import { describeDowntime, vehicleTitle } from "@/lib/listings";
 import { requireOwner } from "@/lib/session";
 import { canManageFleet, formatCents } from "@/lib/util";
 
-export const metadata = { title: "My fleet · GRace Car Rental" };
+export const metadata = { title: "My fleet · GRace Car Rentals" };
 
 export default async function FleetPage() {
   const me = await requireOwner();

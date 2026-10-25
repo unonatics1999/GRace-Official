@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { becomeOwner } from "@/app/actions/auth";
 import { requireCompanyUser } from "@/lib/session";
 
-export const metadata = { title: "List your car · GRace Car Rental" };
+export const metadata = { title: "List your car · GRace Car Rentals" };
 
 export default async function BecomeOwnerPage() {
   const me = await requireCompanyUser();

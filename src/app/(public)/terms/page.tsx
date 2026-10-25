@@ -1,6 +1,6 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Terms · GRace Car Rental" };
+export const metadata = { title: "Terms · GRace Car Rentals" };
 
 export default function TermsPage() {
   return (

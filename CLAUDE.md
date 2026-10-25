@@ -5,7 +5,7 @@ flow, verification rules, commission and the production checklist. Read it first
 
 ## What this is
 
-**GRace Car Rental** ("G+Race"; the code and folder are still named `downtime`): a Philippine car-rental marketplace. Verified owners list cars for the days they don't use
+**GRace Car Rentals** ("G+Race"; the code and folder are still named `downtime`): a Philippine car-rental marketplace. Verified owners list cars for the days they don't use
 them; individuals and businesses rent them self-drive or with the owner as driver. The platform earns a
 renter service fee plus a host commission on every booking. It is a standalone project, unrelated to any
 other repository on this machine.
@@ -56,13 +56,13 @@ other repository on this machine.
 5. Email and/or SMS provider (also needed for password reset).
 6. Payment window after approval (currently 24 h).
 7. LTFRB/DOT accreditation for rent-a-car with driver; NPC registration.
-8. Brand is GRace Car Rental. A small "Grace Car Rental" already operates in Quezon City (Facebook): confirm the name is free on DTI BNRS and IPOPHL before registering.
+8. Brand is GRace Car Rentals. A small "Grace Car Rental" already operates in Quezon City (Facebook): confirm the name is free on DTI BNRS and IPOPHL before registering.
 9. PayMongo test keys for live checkout testing.
 
 ## Brand
 
 Logo files in `public/brand/`: `grace-logo.svg` (square, mark with CAR RENTAL below) and `grace-mark.svg` (icon); `GraceMark` and `Logo` in `src/components/ui.tsx`;
-browser icon `src/app/icon.svg`. Black `#111111` square; orange `#ff6a00` C with a darker echo, closed into a G by white RACE; white CAR RENTAL below (matches the owner's reference sketch). Text uses the embedded Geist font (OFL).
+browser icon `src/app/icon.svg`. White background; orange `#ff6a00` C with a light-orange echo, closed into a G by black RACE; black CAR RENTALS below. Matches the owner's reference sketch, no clock lines. Text uses the embedded Geist font (OFL).
 
 ## Not built yet
 

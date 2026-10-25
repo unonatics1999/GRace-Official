@@ -6,7 +6,7 @@ import { VEHICLE_RULES } from "@/lib/requirements";
 import { requireOwner } from "@/lib/session";
 import { canManageFleet } from "@/lib/util";
 
-export const metadata = { title: "List a vehicle · GRace Car Rental" };
+export const metadata = { title: "List a vehicle · GRace Car Rentals" };
 
 export default async function NewVehiclePage() {
   const me = await requireOwner();
