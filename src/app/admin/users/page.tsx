@@ -26,7 +26,7 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
           <button className="btn-secondary">Search</button>
         </form>
       </AdminHeader>
-      <Table head={["Name", "Email", "Company", "Role", "Joined"]} empty={users.length === 0}>
+      <Table head={["Name", "Email", "Company", "Role", "Joined", ""]} empty={users.length === 0}>
         {users.map((u) => (
           <tr key={u.id} className="hover:bg-stone-50/60">
             <Td>
@@ -44,6 +44,13 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
             </Td>
             <Td>{u.isAdmin ? <span className="badge bg-stone-900 text-white">Admin</span> : ROLES[u.role as Role]}</Td>
             <Td className="whitespace-nowrap text-stone-600">{displayDay(u.createdAt)}</Td>
+            <Td>
+              {!u.isAdmin && (
+                <Link href={`/admin/messages?to=${encodeURIComponent(u.email)}`} className="text-sm font-medium text-brand-600 hover:underline">
+                  Message
+                </Link>
+              )}
+            </Td>
           </tr>
         ))}
       </Table>

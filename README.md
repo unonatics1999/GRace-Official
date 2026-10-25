@@ -13,7 +13,7 @@ Needs Node 20+. Local development uses a SQLite file, so there is nothing else t
 npm install
 cp .env.example .env        # then set SESSION_SECRET (the file says how)
 npm run setup               # creates the database and loads demo data
-npm run dev                 # http://localhost:3000
+npm run dev                 # http://localhost:3100 (Turbopack)
 ```
 
 Demo accounts and their shared password are in [`prisma/seed.ts`](prisma/seed.ts). Reset the demo data
@@ -36,7 +36,12 @@ Without PayMongo keys, payments are **simulated** in development: "Pay" confirms
 - **Renter** and **Car owner** sign in on `/login` (two tabs) and land on their own home and menu. Sign-up asks
   "Rent a car" or "List my car"; a renter can switch to owner any time.
 - **Admin** signs in only at `/staff-login`, which nothing links to. `/admin` returns 404 to everyone else.
-- Change email or password: menu → Email & password (admins: Admin → My sign-in).
+- Change email or password: menu → Email & password (admins: Admin → My sign-in). A new password signs out other devices.
+- Forgot password: **Forgot password?** on either log-in page sends a one-time link (30 minutes) by email or SMS.
+- Admin → **Messages**: email and/or text any user; every message, including password resets, is logged there.
+- Email goes through Resend and SMS through Semaphore (`RESEND_API_KEY`, `SEMAPHORE_API_KEY` in `.env`). Without keys,
+  development simulates sending (logged to the console, shown as Simulated, and the reset page shows the link);
+  production marks the message Failed instead, so set both keys before going live.
 - Production admin: `ADMIN_EMAIL=… ADMIN_PASSWORD=… npm run admin:create` (creates or resets one).
 
 ## Help center
@@ -111,7 +116,7 @@ Set under **Admin → Commission**, saved in the database, and applied to new re
 
 | Command | Does |
 | --- | --- |
-| `npm run dev` | Dev server |
+| `npm run dev` | Dev server (Turbopack, port 3100) |
 | `npm test` | Unit tests: availability, commission, booking lifecycle, webhook signatures |
 | `npm run typecheck` / `npm run lint` | TypeScript / ESLint |
 | `npm run build` | Production build (standalone output) |

@@ -28,20 +28,26 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/companies", label: "Accounts" },
     { href: "/admin/vehicles", label: "Vehicles" },
     { href: "/admin/users", label: "Users" },
+    { href: "/admin/messages", label: "Messages" },
     { href: "/admin/audit", label: "Audit log" },
     { href: "/admin/settings", label: "My sign-in" },
+    { href: "/help", label: "Help center" },
   ];
 
   return (
     <div className="min-h-screen bg-stone-50 lg:grid lg:grid-cols-[240px_1fr]">
-      <aside className="border-b border-stone-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
+      <aside className="border-b border-stone-200 bg-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:border-r">
         <div className="flex h-20 items-center justify-between px-5">
           <Link href="/admin/overview" className="flex items-center gap-2">
             <Logo />
             <span className="badge bg-stone-900 text-white">Admin</span>
           </Link>
+          {/* Small screens: Log out sits in the top bar. */}
+          <form action={logout} className="lg:hidden">
+            <button className="btn-secondary px-3 py-1.5 text-xs">Log out</button>
+          </form>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:pb-0">
+        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-1 lg:flex-col lg:overflow-y-auto">
           {links.map((l) => (
             <NavLink key={l.href} href={l.href} variant="side">
               <span className="flex-1 whitespace-nowrap">{l.label}</span>
@@ -49,7 +55,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </NavLink>
           ))}
         </nav>
-        <div className="hidden border-t border-stone-100 p-4 text-sm lg:absolute lg:bottom-0 lg:block lg:w-full">
+        <div className="hidden border-t border-stone-100 p-4 text-sm lg:block">
           <p className="font-medium">{admin.name}</p>
           <p className="truncate text-xs text-stone-500">{admin.email}</p>
           <div className="mt-3 flex gap-2">

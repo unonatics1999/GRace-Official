@@ -127,7 +127,21 @@ export const HELP_ARTICLES: HelpArticle[] = [
     id: "change-password",
     category: "Your account",
     question: "How do I change my email or password?",
-    answer: "Open the menu at the top right and choose Email & password. You'll need your current password to save changes.",
+    answer: "Open the menu at the top right and choose Email & password. You'll need your current password to save changes. A new password signs you out on your other devices.",
+  },
+  {
+    id: "forgot-password",
+    category: "Your account",
+    question: "I forgot my password. How do I get back in?",
+    answer:
+      "On the log-in page, choose Forgot password? and enter your account email. We'll send a reset link by email, or by text message to the mobile number on your account. The link works once and expires after 30 minutes. Setting a new password signs you out on every other device.",
+  },
+  {
+    id: "messages-from-grace",
+    category: "Your account",
+    question: "Will GRace contact me by email or text?",
+    answer:
+      "Yes, about your account and bookings, and for password resets. Messages come from GRace Car Rental, and texts start with \"GRace:\". We never ask for your password or card details by email or text.",
   },
   {
     id: "renter-to-owner",

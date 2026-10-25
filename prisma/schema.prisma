@@ -65,6 +65,11 @@ model User {
   confirmations     Inspection[] @relation("InspectionConfirmedBy")
   reviews           Review[]
   auditLogs         AuditLog[]
+  passwordResets    PasswordReset[]
+  messagesReceived  Message[]    @relation("MessageTo")
+  messagesSent      Message[]    @relation("MessageFrom")
+  // Sessions issued before this moment are rejected (set when the password changes).
+  sessionsValidAfter DateTime?
   createdAt         DateTime     @default(now())
 }
 
@@ -347,4 +352,42 @@ model LoginAttempt {
 
   @@index([email, createdAt])
   @@index([ip, createdAt])
+}
+
+// One-time password reset link. Only a SHA-256 hash of the token is stored.
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// Every email or SMS GRace sends (admin messages and password resets), with its delivery result.
+model Message {
+  id        String   @id @default(cuid())
+  toUserId  String
+  toUser    User     @relation("MessageTo", fields: [toUserId], references: [id])
+  // The admin who sent it; null for automatic messages such as password resets.
+  sentById  String?
+  sentBy    User?    @relation("MessageFrom", fields: [sentById], references: [id])
+  // EMAIL | SMS
+  channel   String
+  // Email address or phone number it went to.
+  address   String
+  subject   String   @default("")
+  body      String
+  // ADMIN | PASSWORD_RESET
+  kind      String   @default("ADMIN")
+  // SENT | FAILED | SIMULATED (no provider configured, development only)
+  status    String
+  error     String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([toUserId, createdAt])
+  @@index([createdAt])
 }

@@ -41,7 +41,10 @@ export async function currentUser(): Promise<SessionUser | null> {
   try {
     const { payload } = await jwtVerify(token, secret());
     if (!payload.sub) return null;
-    return await db.user.findUnique({ where: { id: payload.sub }, include: { company: true } });
+    const user = await db.user.findUnique({ where: { id: payload.sub }, include: { company: true } });
+    // A password change or reset signs out every session issued before it.
+    if (user?.sessionsValidAfter && (payload.iat ?? 0) * 1000 < user.sessionsValidAfter.getTime() - 1000) return null;
+    return user;
   } catch {
     return null;
   }

@@ -48,7 +48,10 @@ export function LoginForm({ initial = "RENTER", admin = false }: { initial?: Por
           <input name="email" type="email" autoComplete="email" required className="input" />
         </label>
         <label className="block">
-          <span className="label">Password</span>
+          <span className="label flex items-center justify-between">
+            Password
+            <Link href="/forgot-password" className="text-xs font-medium text-brand-600 hover:underline">Forgot password?</Link>
+          </span>
           <input name="password" type="password" autoComplete="current-password" required className="input" />
         </label>
         {state?.error && <p className="text-sm text-red-600">{state.error}</p>}

@@ -121,8 +121,13 @@ export async function updateCredentials(_: ActionState, form: FormData): Promise
 
   await db.user.update({
     where: { id: me.id },
-    data: { email, ...(newPassword ? { passwordHash: await bcrypt.hash(newPassword, 10) } : {}) },
+    data: {
+      email,
+      ...(newPassword ? { passwordHash: await bcrypt.hash(newPassword, 10), sessionsValidAfter: new Date() } : {}),
+    },
   });
+  // A new password signs out other devices; keep this one signed in.
+  if (newPassword) await createSession(me.id);
   if (me.isAdmin) {
     const changed = [email !== me.email && "email", newPassword && "password"].filter(Boolean).join(" and ");
     await audit(me.id, "admin.credentials_changed", "User", me.id, changed);

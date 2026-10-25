@@ -9,6 +9,7 @@ const RENTER_LINKS = [
   { href: "/explore", label: "Find a car" },
   { href: "/bookings", label: "My trips" },
   { href: "/account", label: "Account" },
+  { href: "/help", label: "Help" },
 ];
 
 const OWNER_LINKS = [
@@ -17,6 +18,7 @@ const OWNER_LINKS = [
   { href: "/bookings", label: "Bookings" },
   { href: "/driver", label: "Driver" },
   { href: "/account", label: "Account" },
+  { href: "/help", label: "Help" },
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {

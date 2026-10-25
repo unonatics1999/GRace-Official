@@ -12,6 +12,12 @@ const schema = z
     PAYMONGO_SECRET_KEY: z.string().optional(),
     PAYMONGO_WEBHOOK_SECRET: z.string().optional(),
     STORAGE_DIR: z.string().default("./storage"),
+    // Email via Resend (https://resend.com). Without a key, emails are simulated in development.
+    RESEND_API_KEY: z.string().optional(),
+    EMAIL_FROM: z.string().default("GRace Car Rental <no-reply@example.com>"),
+    // SMS via Semaphore (https://semaphore.co, Philippines). Without a key, SMS is simulated in development.
+    SEMAPHORE_API_KEY: z.string().optional(),
+    SMS_SENDER_NAME: z.string().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== "production") return;

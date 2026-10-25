@@ -53,7 +53,7 @@ other repository on this machine.
 2. Cancellation and refund policy.
 3. Who pays fuel, tolls, parking, driver meals and lodging.
 4. Damage cover: deposit, insurance partner, or owner's comprehensive.
-5. Email and/or SMS provider (also needed for password reset).
+5. Email and SMS providers: built for Resend (email) and Semaphore (PH SMS); the owner still needs accounts and keys.
 6. Payment window after approval (currently 24 h).
 7. LTFRB/DOT accreditation for rent-a-car with driver; NPC registration.
 8. Brand is GRace Car Rental. A small "Grace Car Rental" already operates in Quezon City (Facebook): confirm the name is free on DTI BNRS and IPOPHL before registering.
@@ -65,5 +65,5 @@ The logo is traced from the owner's own artwork (a 108 px image) and drawn as SV
 
 ## Not built yet
 
-Email/SMS notifications and password reset, live PayMongo testing, PostgreSQL run, S3 storage,
-automatic host payouts.
+Booking notifications by email/SMS (the sending service exists: `src/lib/notify.ts`), live PayMongo and
+Resend/Semaphore testing, PostgreSQL run, S3 storage, automatic host payouts.
