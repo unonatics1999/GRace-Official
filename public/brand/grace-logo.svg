@@ -3,6 +3,10 @@
   <rect width="300" height="300" fill="#ffffff"/>
   <path d="M172.7 87.1 A66 66 0 1 0 172.7 160.9" transform="translate(-7 -5)" fill="none" stroke="#ffb27a" stroke-width="32" stroke-linecap="round"/>
   <path d="M172.7 87.1 A66 66 0 1 0 172.7 160.9" fill="none" stroke="#ff6a00" stroke-width="32" stroke-linecap="round"/>
+  <line x1="118.0" y1="38.0" x2="118.0" y2="28.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
+  <line x1="118.0" y1="210.0" x2="118.0" y2="220.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
+  <line x1="32.0" y1="124.0" x2="22.0" y2="124.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
+  <line x1="250.0" y1="124.0" x2="260.0" y2="124.0" stroke="#111111" stroke-width="5" stroke-linecap="round"/>
   <text transform="translate(120 134) skewX(-10)" font-size="42" font-weight="800" letter-spacing="-1" fill="#111111">RACE</text>
-  <text transform="translate(153 262) skewX(-16)" text-anchor="middle" font-size="22" font-weight="700" letter-spacing="6" fill="#111111">CAR RENTALS</text>
+  <text transform="translate(153 268) skewX(-16)" text-anchor="middle" font-size="22" font-weight="700" letter-spacing="6" fill="#111111">CAR RENTALS</text>
 </svg>
