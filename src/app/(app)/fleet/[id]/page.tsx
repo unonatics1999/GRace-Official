@@ -70,7 +70,7 @@ export default async function FleetVehiclePage({
       <Link href="/fleet" className="text-sm text-stone-500 hover:text-stone-900">← My fleet</Link>
 
       {error === "incomplete" && <Banner tone="red">Finish the checklist before submitting.</Banner>}
-      {vehicle.blocked && <Banner tone="red">Downtime has hidden this listing. Contact support to have it reviewed.</Banner>}
+      {vehicle.blocked && <Banner tone="red">GRace has hidden this listing. Contact support to have it reviewed.</Banner>}
       {lapsed && <Banner tone="red">The registration or CTPL insurance has expired, so the listing is paused. Update the dates and upload the renewed papers.</Banner>}
       {vehicle.reviewStatus === "REJECTED" && vehicle.reviewNote && <Banner tone="red">Changes needed: {vehicle.reviewNote}</Banner>}
 
@@ -122,7 +122,7 @@ export default async function FleetVehiclePage({
         </section>
       )}
       {vehicle.reviewStatus === "SUBMITTED" && (
-        <Banner tone="amber">Under review. Downtime checks your papers within one business day. You&apos;ll see the result here.</Banner>
+        <Banner tone="amber">Under review. GRace checks your papers within one business day. You&apos;ll see the result here.</Banner>
       )}
 
       <section id="photos" className="card scroll-mt-24 p-6">
@@ -162,7 +162,7 @@ export default async function FleetVehiclePage({
 
       <section id="documents" className="card scroll-mt-24 p-6">
         <h2 className="font-semibold">Papers</h2>
-        <p className="text-sm text-stone-500">Downtime checks these against the plate and owner before approving.</p>
+        <p className="text-sm text-stone-500">GRace checks these against the plate and owner before approving.</p>
         <div className="mt-4">
           <DocumentChecklist requirements={VEHICLE_REQUIREMENTS} uploaded={vehicle.documents} upload={uploadVehicleDocument.bind(null, vehicle.id)} canUpload={canEdit} />
         </div>

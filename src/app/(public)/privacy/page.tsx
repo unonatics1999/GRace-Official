@@ -1,12 +1,12 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Privacy · Downtime" };
+export const metadata = { title: "Privacy · GRace Car Rentals" };
 
 export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy">
       <p>
-        Downtime processes personal information under the Data Privacy Act of 2012 (Republic Act No. 10173). This draft lists
+        GRace processes personal information under the Data Privacy Act of 2012 (Republic Act No. 10173). This draft lists
         what the app actually collects today; counsel and the Data Protection Officer finalise it.
       </p>
 
@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         <li>Account details: name, email, phone, address, city.</li>
         <li>Identity and licence details, and uploaded documents: government ID, selfie with ID, driver&apos;s licence, NBI clearance, business registration, OR/CR, insurance.</li>
         <li>Booking records, handoff photos, odometer and fuel readings, ratings and messages to support.</li>
-        <li>Payment status from PayMongo. Card and e-wallet details stay with PayMongo; Downtime never sees them.</li>
+        <li>Payment status from PayMongo. Card and e-wallet details stay with PayMongo; GRace never sees them.</li>
         <li>Login records (time and IP address) to prevent account takeover.</li>
       </ul>
 
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
 
       <h2>Who sees it</h2>
       <ul>
-        <li>Verification documents: you and Downtime reviewers only.</li>
+        <li>Verification documents: you and GRace reviewers only.</li>
         <li>The other party to a booking sees your name, and your phone number once the booking is paid.</li>
         <li>Service providers: PayMongo (payments) and our hosting provider.</li>
       </ul>

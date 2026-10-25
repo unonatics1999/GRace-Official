@@ -4,7 +4,7 @@ import { WEEKDAYS } from "./constants";
 import { today } from "./dates";
 
 /**
- * Listings anyone can see: approved by Downtime, switched on by the host, not hidden by an admin,
+ * Listings anyone can see: approved by GRace, switched on by the host, not hidden by an admin,
  * host account verified, registration and CTPL insurance still valid, and some availability set.
  */
 export function listableWhere(): Prisma.VehicleWhereInput {

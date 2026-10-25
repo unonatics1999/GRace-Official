@@ -28,7 +28,7 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <AdminHeader title="Vehicles" description="Every car on Downtime. Hidden listings can't be un-hidden by their owner.">
+      <AdminHeader title="Vehicles" description="Every car on GRace. Hidden listings can't be un-hidden by their owner.">
         <Link href="/admin/vehicles/new" className="btn-primary">+ New vehicle</Link>
       </AdminHeader>
       <FilterTabs
@@ -42,7 +42,7 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
           { value: "HIDDEN", label: "Hidden by admin" },
         ]}
       />
-      <Table head={["Vehicle", "Host", "Rate", "Downtime", "Bookings", "State", ""]} empty={vehicles.length === 0}>
+      <Table head={["Vehicle", "Host", "Rate", "GRace", "Bookings", "State", ""]} empty={vehicles.length === 0}>
         {vehicles.map((v) => {
           const live = v.reviewStatus === "APPROVED" && v.active && !v.blocked && v.company.status === "VERIFIED" && v.windows.length > 0;
           return (

@@ -47,7 +47,7 @@ export async function updateContact(_: ActionState, form: FormData): Promise<Act
   });
   invalidateListings();
   revalidatePath("/account");
-  return { ok: backToReview ? "Saved. Your name changed, so Downtime will check it against your ID again." : "Saved. You can book with a driver now." };
+  return { ok: backToReview ? "Saved. Your name changed, so GRace will check it against your ID again." : "Saved. You can book with a driver now." };
 }
 
 const licence = {
@@ -97,7 +97,7 @@ export async function updateVerification(_: ActionState, form: FormData): Promis
   invalidateListings();
   revalidatePath("/account");
   return {
-    ok: backToReview ? "Saved. Your ID details changed, so Downtime will review them again." : "Saved. Upload the documents below if you haven't yet.",
+    ok: backToReview ? "Saved. Your ID details changed, so GRace will review them again." : "Saved. Upload the documents below if you haven't yet.",
   };
 }
 

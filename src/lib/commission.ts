@@ -1,9 +1,9 @@
-// How Downtime earns on every booking, and how a booking's price is built. Pure functions;
+// How GRace earns on every booking, and how a booking's price is built. Pure functions;
 // the rates come from admin settings (src/lib/settings.ts).
 //
 // Renter pays:  vehicle + driver + renter service fee
 // Host gets:    vehicle + driver − host commission
-// Downtime earns the renter fee plus the host commission.
+// GRace earns the renter fee plus the host commission.
 //
 // Host commission = the vehicle category's base rate, reduced for well-rated drivers:
 // the better the driver's rating, the more of each booking the host keeps.

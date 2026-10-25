@@ -11,7 +11,7 @@ const renterSteps = [
   ["Pay safely, then go", "GCash, Maya or card through PayMongo. Photo checklist at pick-up and return."],
 ];
 const hostSteps = [
-  ["Apply with your car", "OR/CR, CTPL and photos. Downtime checks everything before you go live."],
+  ["Apply with your car", "OR/CR, CTPL and photos. GRace checks everything before you go live."],
   ["Drive it yourself, if you like", "Add your professional licence and NBI clearance to earn the driver fee too."],
   ["Earn on your free days", "Choose the days it's available. Better ratings mean a lower commission."],
 ];
@@ -20,15 +20,15 @@ const comparison = [
   ["Who you rent from", "A rental company", "Unknown individuals", "Owners verified by ID, OR/CR and CTPL"],
   ["Driver", "Extra, often a stranger", "Rarely offered", "The owner, with a pro licence and NBI clearance"],
   ["Car condition record", "Paper form", "Varies", "Timestamped photos, both sides confirm"],
-  ["Payment", "Cash deposit", "Bank transfer to a stranger", "GCash, Maya, card, held by Downtime"],
+  ["Payment", "Cash deposit", "Bank transfer to a stranger", "GCash, Maya, card, held by GRace"],
 ];
 
 const faqs = [
   ["Who can rent?", "Anyone with an account and a mobile number can book a car with a driver, with no ID needed. To drive yourself, verify your government ID and add a valid driver's licence. Businesses can book too."],
   ["Who drives if I book with a driver?", "The car's owner or their approved driver. Every driver holds an LTO Professional licence and has submitted an NBI clearance, and you can see their rating before you book."],
   ["How do I pay?", "After the owner approves your request, you pay through PayMongo with GCash, Maya, cards or QR Ph. Your booking is confirmed the moment payment goes through."],
-  ["What if something gets damaged?", "Both sides photograph the car at pick-up and return, and the other side confirms. If something's wrong, report it in the booking and Downtime support steps in. The owner's payout is held until it's resolved."],
-  ["What does it cost to list my car?", "Listing is free. Downtime takes a commission from each booking, and it gets lower as your driver rating goes up."],
+  ["What if something gets damaged?", "Both sides photograph the car at pick-up and return, and the other side confirms. If something's wrong, report it in the booking and GRace support steps in. The owner's payout is held until it's resolved."],
+  ["What does it cost to list my car?", "Listing is free. GRace takes a commission from each booking, and it gets lower as your driver rating goes up."],
 ];
 
 export default async function Home() {
@@ -88,7 +88,7 @@ export default async function Home() {
           <div className="flex items-end justify-between gap-4">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Available now</h2>
-              <p className="mt-1 text-stone-500">Owner-listed, Downtime-checked.</p>
+              <p className="mt-1 text-stone-500">Owner-listed, GRace-checked.</p>
             </div>
             <Link href="/explore" className="hidden text-sm font-medium text-brand-600 hover:underline sm:block">View all →</Link>
           </div>
@@ -105,7 +105,7 @@ export default async function Home() {
             <p className="font-mono text-sm text-brand-600">WITH DRIVER</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">The best driver for a car is the person who owns it.</h2>
             <p className="mt-3 text-stone-600">
-              Owners know their car, take care of it, and earn more when they drive well. Every driver on Downtime holds an LTO Professional licence, has an NBI clearance on file, and carries a public rating from real trips.
+              Owners know their car, take care of it, and earn more when they drive well. Every driver on GRace holds an LTO Professional licence, has an NBI clearance on file, and carries a public rating from real trips.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-stone-700">
               <li className="flex gap-3"><span className="text-brand-600">●</span> Airport runs, out-of-town trips, events, client visits</li>
@@ -166,7 +166,7 @@ export default async function Home() {
 
       {/* Comparison */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Why Downtime</h2>
+        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Why GRace</h2>
         <div className="mt-8 overflow-x-auto rounded-2xl border border-stone-200">
           <table className="w-full min-w-[680px] text-left text-sm">
             <thead className="bg-stone-50 text-stone-500">
@@ -174,7 +174,7 @@ export default async function Home() {
                 <th className="px-5 py-3 font-medium"></th>
                 <th className="px-5 py-3 font-medium">Rent-a-car shops</th>
                 <th className="px-5 py-3 font-medium">Facebook rentals</th>
-                <th className="px-5 py-3 font-semibold text-brand-700">Downtime</th>
+                <th className="px-5 py-3 font-semibold text-brand-700">GRace</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">

@@ -33,7 +33,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "Booking a car",
     question: "Can I cancel a booking? Will I get a refund?",
     answer:
-      "You can cancel from the booking page any time before pick-up. If you hadn't paid yet, nothing is charged. If you had paid, Downtime refunds it to your original payment method, usually within 5–10 business days. Detailed cancellation fees are still being finalised; contact support for a specific case.",
+      "You can cancel from the booking page any time before pick-up. If you hadn't paid yet, nothing is charged. If you had paid, GRace refunds it to your original payment method, usually within 5–10 business days. Detailed cancellation fees are still being finalised; contact support for a specific case.",
   },
   {
     id: "who-drives",
@@ -61,7 +61,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "Self-drive",
     question: "What do I need for self-drive?",
     answer:
-      "A verified ID and a driver's licence that's valid through your return date. Go to Account → Verify your identity, enter your ID and licence details and upload a photo of your ID. Downtime checks it within one business day.",
+      "A verified ID and a driver's licence that's valid through your return date. Go to Account → Verify your identity, enter your ID and licence details and upload a photo of your ID. GRace checks it within one business day.",
   },
   {
     id: "which-ids",
@@ -74,18 +74,18 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "Self-drive",
     question: "What if the car gets damaged?",
     answer:
-      "The photo checklist at pick-up and return records the car's condition, and both sides confirm it. If something's wrong, report it on the booking page (Something wrong?) and Downtime support steps in; the owner's payout is held until it's resolved. Deposit and insurance rules are still being finalised.",
+      "The photo checklist at pick-up and return records the car's condition, and both sides confirm it. If something's wrong, report it on the booking page (Something wrong?) and GRace support steps in; the owner's payout is held until it's resolved. Deposit and insurance rules are still being finalised.",
   },
   {
     id: "payment-methods",
     category: "Payments",
     question: "How can I pay?",
-    answer: "Online through PayMongo: GCash, Maya, credit or debit card, and QR Ph. Your booking is confirmed as soon as the payment goes through. Downtime never sees your card or e-wallet details.",
+    answer: "Online through PayMongo: GCash, Maya, credit or debit card, and QR Ph. Your booking is confirmed as soon as the payment goes through. GRace never sees your card or e-wallet details.",
   },
   {
     id: "fees",
     category: "Payments",
-    question: "What fees does Downtime charge?",
+    question: "What fees does GRace charge?",
     answer:
       "Renters pay a service fee shown in the price breakdown before you book (currently 10%). Owners pay a commission from each booking that gets lower as their driver rating goes up.",
   },
@@ -94,7 +94,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "Listing your car",
     question: "How do I list my car?",
     answer:
-      "Sign up as a car owner (or choose List your car from your account). Add the car's details, at least 3 photos, your LTO OR and CR and CTPL insurance, and the days it's available. Verify your ID, then submit for review. Downtime approves listings within one business day.",
+      "Sign up as a car owner (or choose List your car from your account). Add the car's details, at least 3 photos, your LTO OR and CR and CTPL insurance, and the days it's available. Verify your ID, then submit for review. GRace approves listings within one business day.",
   },
   {
     id: "car-rules",
@@ -114,7 +114,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "Listing your car",
     question: "When do I get paid?",
     answer:
-      "After the return checklist is confirmed, your earnings (car and driver fees minus Downtime's commission) go into the weekly payout to the GCash or bank account in your payout details. A payout is held while a reported issue is open.",
+      "After the return checklist is confirmed, your earnings (car and driver fees minus GRace's commission) go into the weekly payout to the GCash or bank account in your payout details. A payout is held while a reported issue is open.",
   },
   {
     id: "commission-tiers",

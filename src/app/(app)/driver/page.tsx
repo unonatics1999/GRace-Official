@@ -11,7 +11,7 @@ import { DRIVER_REQUIREMENTS, VEHICLE_RULES } from "@/lib/requirements";
 import { requireOwner } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
 
-export const metadata = { title: "Driver profile · Downtime" };
+export const metadata = { title: "Driver profile · GRace Car Rentals" };
 
 const STATUS_TONE: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-800",
@@ -36,7 +36,7 @@ export default async function DriverPage() {
         <div>
           <h1 className="page-title">Driver profile</h1>
           <p className="mt-1 text-sm text-stone-500">
-            Drive your own car for renters who book with a driver. Higher ratings mean Downtime takes a smaller commission.
+            Drive your own car for renters who book with a driver. Higher ratings mean GRace takes a smaller commission.
           </p>
         </div>
         {driver && <span className={`badge ${STATUS_TONE[driver.status]}`}>{DRIVER_STATUS[driver.status as keyof typeof DRIVER_STATUS]}</span>}

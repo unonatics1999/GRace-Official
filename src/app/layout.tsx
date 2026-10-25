@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Downtime — rent a car, or the car and its driver",
+  title: "GRace Car Rentals — rent a car, or the car and its driver",
   description: "Rent cars from verified owners in Metro Manila, self-drive or with the owner as driver. Pay with GCash, Maya or card.",
 };
 

@@ -45,7 +45,7 @@ export default async function AdminOverview() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Gross booking value" value={formatCents(gmv)} hint="Paid bookings, what renters paid" />
-        <Stat label="Downtime revenue" value={formatCents(revenue)} hint="Service fees + host commission" />
+        <Stat label="GRace revenue" value={formatCents(revenue)} hint="Service fees + host commission" />
         <Stat label="Verified accounts" value={companyCount("VERIFIED")} hint={`${companyCount("PENDING")} waiting for review`} />
         <Stat label="Live listings" value={`${liveListings} of ${totalVehicles}`} hint="Visible in search right now" />
       </div>

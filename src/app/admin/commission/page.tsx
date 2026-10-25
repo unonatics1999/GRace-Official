@@ -27,7 +27,7 @@ export default async function CommissionPage() {
     <>
       <AdminHeader
         title="Commission"
-        description="What Downtime earns per booking. Changes apply to new requests only; existing bookings keep the rates they were quoted."
+        description="What GRace earns per booking. Changes apply to new requests only; existing bookings keep the rates they were quoted."
       />
       <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
         <section className="card p-6">

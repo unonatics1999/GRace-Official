@@ -74,7 +74,7 @@ export function DocumentChecklist({
           </label>
         </ActionForm>
       )}
-      <p className="text-xs text-stone-400">Files are visible only to you and Downtime reviewers.</p>
+      <p className="text-xs text-stone-400">Files are visible only to you and GRace reviewers.</p>
     </div>
   );
 }

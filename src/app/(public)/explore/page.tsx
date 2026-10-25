@@ -11,7 +11,7 @@ import { getCommissionSettings } from "@/lib/settings";
 
 type Search = { type?: string; city?: string; start?: string; end?: string };
 
-export const metadata = { title: "Explore vehicles · Downtime" };
+export const metadata = { title: "Explore vehicles · GRace Car Rentals" };
 
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<Search> }) {
   const query = await searchParams;

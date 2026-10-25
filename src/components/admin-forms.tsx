@@ -63,7 +63,7 @@ export function AccountForm({ action, account: c, withOwner, submitLabel }: { ac
   );
 }
 
-/** A login: belongs to an account, or is a Downtime admin. */
+/** A login: belongs to an account, or is a GRace admin. */
 export function UserForm({
   action,
   user: u,
@@ -95,7 +95,7 @@ export function UserForm({
       </div>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="isAdmin" defaultChecked={u?.isAdmin} className="accent-[#1f5139]" />
-        Downtime admin (full access to this console)
+        GRace admin (full access to this console)
       </label>
       <Field
         label={creating ? "Temporary password" : "Reset password (leave blank to keep)"}

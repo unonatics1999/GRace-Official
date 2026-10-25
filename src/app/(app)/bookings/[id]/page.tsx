@@ -201,7 +201,7 @@ export default async function BookingPage({
             <Card title={booking.status === "EXPIRED" ? "Payment window closed" : booking.status === "DECLINED" ? "Declined by the owner" : "Cancelled"}>
               <p className="text-sm text-stone-600">
                 {paidPayment?.refundNeeded
-                  ? "This booking was paid, so Downtime will refund it to the original payment method within 5–10 business days."
+                  ? "This booking was paid, so GRace will refund it to the original payment method within 5–10 business days."
                   : "No payment was taken for this booking."}
                 {!isHost && <> <Link href="/explore" className="font-medium text-brand-600 underline">Find another vehicle</Link>.</>}
               </p>
@@ -213,10 +213,10 @@ export default async function BookingPage({
               {booking.issue && (
                 <div className="mb-4 whitespace-pre-line rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
                   {booking.issue}
-                  <p className="mt-2 text-xs">{booking.issueResolvedAt ? `Resolved ${displayDateTime(booking.issueResolvedAt)}` : "Open: Downtime support is on it."}</p>
+                  <p className="mt-2 text-xs">{booking.issueResolvedAt ? `Resolved ${displayDateTime(booking.issueResolvedAt)}` : "Open: GRace support is on it."}</p>
                 </div>
               )}
-              <ActionForm action={reportIssue.bind(null, booking.id)} submitLabel="Report to Downtime" className="space-y-3">
+              <ActionForm action={reportIssue.bind(null, booking.id)} submitLabel="Report to GRace" className="space-y-3">
                 <textarea name="issue" rows={2} maxLength={1000} required className="input" placeholder="Damage, late return, no-show, a dispute about fuel…" />
               </ActionForm>
             </Card>
@@ -230,7 +230,7 @@ export default async function BookingPage({
               {booking.driverCents > 0 && <Row label="Driver" value={formatCents(booking.driverCents)} />}
               {isHost ? (
                 <>
-                  <Row label={`Downtime commission (${formatBps(booking.hostCommissionBps)})`} value={`−${formatCents(booking.hostFeeCents)}`} />
+                  <Row label={`GRace commission (${formatBps(booking.hostCommissionBps)})`} value={`−${formatCents(booking.hostFeeCents)}`} />
                   <Total label="Your payout" value={formatCents(hostPayout)} />
                   <p className="text-xs text-stone-500">
                     {booking.payout

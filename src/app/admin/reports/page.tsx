@@ -7,7 +7,7 @@ import { buildReport, change, pickGranularity, resolveRange, type Breakdown } fr
 import { requireAdmin } from "@/lib/session";
 import { formatCents } from "@/lib/util";
 
-export const metadata = { title: "Earnings report · Downtime" };
+export const metadata = { title: "Earnings report · GRace Car Rentals" };
 
 const PRESETS: [string, string][] = [
   ["7d", "Last 7 days"],
@@ -119,7 +119,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <Money label="Collected from renters" value={cash.collectedCents} />
           <Money label="Refunded" value={-cash.refundedCents} />
           <Money label="Paid to owners" value={-cash.paidOutCents} />
-          <Money label="Held by Downtime" value={cash.heldCents} strong />
+          <Money label="Held by GRace" value={cash.heldCents} strong />
           <Money label={`Owed to owners (${cash.owedCount})`} value={cash.owedCents} note={cash.onHoldCount ? `+ ${formatCents(cash.onHoldCents)} on hold` : undefined} />
           <Money label={`Refunds to send (${cash.refundsPendingCount})`} value={cash.refundsPendingCents} />
         </dl>

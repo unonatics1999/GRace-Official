@@ -50,7 +50,7 @@ export function HelpAssistant() {
       <div className="flex items-center gap-3 border-b border-stone-100 bg-brand-900 px-5 py-4 text-white">
         <span className="grid h-9 w-9 place-items-center rounded-full bg-lime text-sm font-bold text-brand-900">AI</span>
         <div>
-          <p className="font-semibold">Ask Downtime</p>
+          <p className="font-semibold">Ask GRace</p>
           <p className="text-xs text-brand-100">Instant answers from our help articles</p>
         </div>
       </div>

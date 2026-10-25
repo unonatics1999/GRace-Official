@@ -91,14 +91,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <CompanyStatusBadge status={status} />
             {status === "PENDING" ? (
               owner ? (
-                <>Verify your ID so Downtime can approve your car. <Link href="/account?verify=1" className="font-medium underline">Verify</Link></>
+                <>Verify your ID so GRace can approve your car. <Link href="/account?verify=1" className="font-medium underline">Verify</Link></>
               ) : (
                 <>You can book with a driver now, no ID needed. Verify your ID only if you want to drive yourself. <Link href="/account?verify=1" className="font-medium underline">Verify</Link></>
               )
             ) : status === "SUSPENDED" ? (
-              "Your account is suspended: listings are hidden and booking is paused. Contact Downtime support."
+              "Your account is suspended: listings are hidden and booking is paused. Contact GRace support."
             ) : (
-              "We couldn't verify your account. Check your documents or contact Downtime support."
+              "We couldn't verify your account. Check your documents or contact GRace support."
             )}
           </div>
         </div>

@@ -9,7 +9,7 @@ export function SiteHeader({ user }: { user: SessionUser | null }) {
   return (
     <header className="sticky top-0 z-30 border-b border-stone-200/80 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
-        <Link href="/" aria-label="Downtime home">
+        <Link href="/" aria-label="GRace home">
           <Logo className="text-lg" />
         </Link>
         <nav className="hidden items-center gap-1 text-sm md:flex">
@@ -98,7 +98,7 @@ export function SiteFooter() {
           ]}
         />
         <FooterColumn
-          title="Downtime"
+          title="GRace"
           links={[
             ["How it works", "/#how"],
             ["Help center", "/help"],
@@ -108,7 +108,7 @@ export function SiteFooter() {
         />
       </div>
       <div className="border-t border-stone-100 py-5 text-center text-xs text-stone-400">
-        © {new Date().getFullYear()} Downtime · MVP
+        © {new Date().getFullYear()} GRace · MVP
       </div>
     </footer>
   );

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HelpAssistant } from "@/components/HelpAssistant";
 import { HELP_ARTICLES, HELP_CATEGORIES, searchHelp } from "@/lib/help-content";
 
-export const metadata = { title: "Help center · Downtime" };
+export const metadata = { title: "Help center · GRace Car Rentals" };
 
 export default async function HelpPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
@@ -44,7 +44,7 @@ export default async function HelpPage({ searchParams }: { searchParams: Promise
           <section className="rounded-2xl bg-stone-50 p-6">
             <h2 className="font-semibold">Still need help?</h2>
             <p className="mt-1 text-sm text-stone-600">
-              For a problem with a specific booking, open it under My trips or Bookings and use <strong>Something wrong?</strong>. Downtime
+              For a problem with a specific booking, open it under My trips or Bookings and use <strong>Something wrong?</strong>. GRace
               support replies there. For anything else, email support.
             </p>
             <Link href="/explore" className="btn-secondary mt-4">Back to the cars</Link>

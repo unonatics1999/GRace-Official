@@ -97,7 +97,7 @@ export async function resolveIssue(bookingId: string, _: ActionState, form: Form
   await db.$transaction([
     db.booking.update({
       where: { id: bookingId },
-      data: { issue: `${booking.issue}\n\n[Downtime support] ${resolution.slice(0, 1000)}`, issueResolvedAt: new Date() },
+      data: { issue: `${booking.issue}\n\n[GRace support] ${resolution.slice(0, 1000)}`, issueResolvedAt: new Date() },
     }),
     db.payout.updateMany({ where: { bookingId, status: "ON_HOLD" }, data: { status: "PENDING" } }),
   ]);

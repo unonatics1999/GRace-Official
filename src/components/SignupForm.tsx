@@ -65,7 +65,7 @@ export function SignupForm({ initial = "RENTER" }: { initial?: AccountType }) {
       <p className="text-xs text-stone-500">
         {accountType === "RENTER"
           ? "Booking with a driver needs only your mobile number. An ID is needed only for self-drive."
-          : "Next you'll add your car's details, photos and papers. Downtime reviews every listing before it goes live."}
+          : "Next you'll add your car's details, photos and papers. GRace reviews every listing before it goes live."}
       </p>
     </form>
   );

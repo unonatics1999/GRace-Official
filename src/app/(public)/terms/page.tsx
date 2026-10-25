@@ -1,14 +1,14 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Terms · Downtime" };
+export const metadata = { title: "Terms · GRace Car Rentals" };
 
 export default function TermsPage() {
   return (
     <LegalPage title="Terms of Use">
-      <p>These terms describe how Downtime works. The headings below are the points counsel needs to finalise.</p>
+      <p>These terms describe how GRace works. The headings below are the points counsel needs to finalise.</p>
 
-      <h2>1. What Downtime is</h2>
-      <p>Downtime is a marketplace connecting vehicle owners (&ldquo;hosts&rdquo;) with people and businesses who rent them (&ldquo;renters&rdquo;), with or without the owner as driver. Downtime is not the owner of listed vehicles.</p>
+      <h2>1. What GRace is</h2>
+      <p>GRace is a marketplace connecting vehicle owners (&ldquo;hosts&rdquo;) with people and businesses who rent them (&ldquo;renters&rdquo;), with or without the owner as driver. GRace is not the owner of listed vehicles.</p>
 
       <h2>2. Accounts and verification</h2>
       <ul>
@@ -25,8 +25,8 @@ export default function TermsPage() {
 
       <h2>4. Bookings, payment and cancellation</h2>
       <ul>
-        <li>A request becomes a booking when the host approves and the renter pays through Downtime&apos;s payment partner.</li>
-        <li>Downtime charges renters a service fee and takes a commission from the host, both shown before you confirm.</li>
+        <li>A request becomes a booking when the host approves and the renter pays through GRace&apos;s payment partner.</li>
+        <li>GRace charges renters a service fee and takes a commission from the host, both shown before you confirm.</li>
         <li>Cancellation and refund rules: <strong>to be defined</strong> (e.g. full refund up to 48 hours before pick-up).</li>
       </ul>
 
@@ -38,7 +38,7 @@ export default function TermsPage() {
       </ul>
 
       <h2>6. Disputes</h2>
-      <p>Report problems in the booking. Downtime may hold a host&apos;s payout while a dispute is open.</p>
+      <p>Report problems in the booking. GRace may hold a host&apos;s payout while a dispute is open.</p>
 
       <h2>7. Liability, governing law</h2>
       <p>To be completed by counsel. Philippine law applies.</p>

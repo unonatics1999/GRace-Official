@@ -47,7 +47,7 @@ export async function updateVehicle(vehicleId: string, _: ActionState, form: For
   });
   invalidateListings();
   revalidatePath(`/fleet/${v.id}`);
-  return { ok: legalChange && v.reviewStatus === "APPROVED" ? "Saved. Plate or model changed, so Downtime will review it again." : "Saved." };
+  return { ok: legalChange && v.reviewStatus === "APPROVED" ? "Saved. Plate or model changed, so GRace will review it again." : "Saved." };
 }
 
 export async function uploadVehiclePhotos(vehicleId: string, form: FormData): Promise<ActionState> {
@@ -100,7 +100,7 @@ export async function uploadVehicleDocument(vehicleId: string, _: ActionState, f
   return { ok: `${DOCUMENT_TYPES[docType]} uploaded.` };
 }
 
-/** Sends a draft (or a vehicle with changes requested) to Downtime for review. */
+/** Sends a draft (or a vehicle with changes requested) to GRace for review. */
 export async function submitVehicleForReview(vehicleId: string): Promise<void> {
   const owned = await ownVehicle(vehicleId);
   if (!owned) return;

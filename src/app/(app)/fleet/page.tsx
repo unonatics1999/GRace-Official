@@ -8,7 +8,7 @@ import { describeDowntime, vehicleTitle } from "@/lib/listings";
 import { requireOwner } from "@/lib/session";
 import { canManageFleet, formatCents } from "@/lib/util";
 
-export const metadata = { title: "My fleet · Downtime" };
+export const metadata = { title: "My fleet · GRace Car Rentals" };
 
 export default async function FleetPage() {
   const me = await requireOwner();
@@ -24,7 +24,7 @@ export default async function FleetPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="page-title">My fleet</h1>
-          <p className="mt-1 text-sm text-stone-500">Each vehicle is reviewed by Downtime before it goes live.</p>
+          <p className="mt-1 text-sm text-stone-500">Each vehicle is reviewed by GRace before it goes live.</p>
         </div>
         {canManageFleet(me.role) && <Link href="/fleet/new" className="btn-primary">List a vehicle</Link>}
       </div>
@@ -41,7 +41,7 @@ export default async function FleetPage() {
           {vehicles.map((v) => {
             const lapsed = v.registrationExpiry < now || v.insuranceExpiry < now;
             const status = v.blocked
-              ? { label: "Hidden by Downtime", tone: "bg-red-100 text-red-700" }
+              ? { label: "Hidden by GRace", tone: "bg-red-100 text-red-700" }
               : lapsed
                 ? { label: "Papers expired", tone: "bg-red-100 text-red-700" }
                 : v.reviewStatus !== "APPROVED"

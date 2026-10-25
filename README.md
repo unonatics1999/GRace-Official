@@ -1,7 +1,7 @@
-# Downtime
+# GRace Car Rentals
 
 A Philippine car-rental marketplace. Verified owners list their cars for the days they don't use them;
-individuals and businesses rent them **self-drive** or **with the owner as driver**. Downtime earns a
+individuals and businesses rent them **self-drive** or **with the owner as driver**. GRace earns a
 renter service fee plus a host commission on every booking, and the commission drops as the driver's
 rating rises.
 
@@ -23,11 +23,11 @@ any time with `npm run db:seed`.
 | --- | --- |
 | Renter with a licence (self-drive) | Ana Santos |
 | Business renter | Mabilis Logistics Inc. |
-| Your own fleet: Vios black, L300 | Downtime Fleet |
+| Your own fleet: Vios black, L300 | GRace Fleet |
 | Partner owner: Avanza, Veloz | Reyes Transport Services |
 | Owner-driver: Vios metallic blue | Carlo Mendoza |
 | Unverified renter: can book with driver, not self-drive | Paolo Garcia |
-| Downtime staff | admin account → sign in at `/staff-login` (not linked anywhere) |
+| GRace staff | admin account → sign in at `/staff-login` (not linked anywhere) |
 
 Without PayMongo keys, payments are **simulated** in development: "Pay" confirms the booking at once.
 

@@ -53,7 +53,7 @@ export async function requireUser(): Promise<SessionUser> {
   return user;
 }
 
-/** A member of a business. Downtime admins have no company and are sent to /admin. */
+/** A member of a business. GRace admins have no company and are sent to /admin. */
 export async function requireCompanyUser(): Promise<CompanyUser> {
   const user = await requireUser();
   if (!user.company) redirect("/admin");

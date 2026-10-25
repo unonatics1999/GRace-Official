@@ -23,7 +23,7 @@ export async function addMember(_: ActionState, form: FormData): Promise<ActionS
   const email = normalizeEmail(parsed.data.email);
 
   if (await db.user.findUnique({ where: { email } })) {
-    return { error: "That email already has a Downtime account." };
+    return { error: "That email already has a GRace account." };
   }
   await db.user.create({
     data: {

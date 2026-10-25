@@ -159,7 +159,7 @@ export async function payForBooking(bookingId: string): Promise<void> {
     secretKey: PAYMONGO_SECRET_KEY!,
     amountCents,
     name: `${vehicleTitle(booking.vehicle)} · ${booking.days} day${booking.days === 1 ? "" : "s"}${booking.mode === "WITH_DRIVER" ? " with driver" : ""}`,
-    description: `Downtime booking ${booking.id} (${formatCents(amountCents)})`,
+    description: `GRace booking ${booking.id} (${formatCents(amountCents)})`,
     referenceNumber: booking.id,
     successUrl: `${APP_URL}/bookings/${booking.id}?paid=1`,
     cancelUrl: `${APP_URL}/bookings/${booking.id}`,
@@ -213,5 +213,5 @@ export async function reportIssue(bookingId: string, _: ActionState, form: FormD
   ]);
   invalidateListings();
   revalidatePath(`/bookings/${booking.id}`);
-  return { ok: "Reported. Downtime support will contact both companies." };
+  return { ok: "Reported. GRace support will contact both companies." };
 }

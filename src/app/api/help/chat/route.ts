@@ -5,9 +5,9 @@ import { helpKnowledgeBase, searchHelp } from "@/lib/help-content";
 // Help-center assistant. Answers only from the help articles, streams plain text back.
 // Without Anthropic credentials (ANTHROPIC_API_KEY), it answers with the closest articles instead.
 
-const SYSTEM_PROMPT = `You are the help assistant for Downtime, a Philippine car-rental marketplace where verified owners rent out their cars, either self-drive or with the owner as driver.
+const SYSTEM_PROMPT = `You are the help assistant for GRace, a Philippine car-rental marketplace where verified owners rent out their cars, either self-drive or with the owner as driver.
 
-Answer questions from renters and car owners using only the help articles below. Keep answers short and friendly: two to four sentences, plain words, peso amounts as ₱. If the articles don't cover the question, or it's about a specific booking, payment or account problem, say you're not sure and suggest contacting Downtime support from the help page; never guess at policies, prices or legal requirements. Don't ask for or repeat passwords, ID numbers or card details. Reply in the language the user writes in (English, Filipino or Taglish).
+Answer questions from renters and car owners using only the help articles below. Keep answers short and friendly: two to four sentences, plain words, peso amounts as ₱. If the articles don't cover the question, or it's about a specific booking, payment or account problem, say you're not sure and suggest contacting GRace support from the help page; never guess at policies, prices or legal requirements. Don't ask for or repeat passwords, ID numbers or card details. Reply in the language the user writes in (English, Filipino or Taglish).
 
 # Help articles
 
@@ -37,7 +37,7 @@ function rateLimited(ip: string): boolean {
 function fallbackAnswer(question: string): string {
   const matches = searchHelp(question);
   if (matches.length === 0) {
-    return "I couldn't find an article about that. Please contact Downtime support from the help page and we'll get back to you.";
+    return "I couldn't find an article about that. Please contact GRace support from the help page and we'll get back to you.";
   }
   return `Here's what I found:\n\n${matches.map((a) => `**${a.question}**\n${a.answer}`).join("\n\n")}`;
 }
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
         stream.on("text", (delta) => controller.enqueue(encoder.encode(delta)));
         const final = await stream.finalMessage();
         if (final.stop_reason === "refusal") {
-          controller.enqueue(encoder.encode("\n\nI can't help with that one. Please contact Downtime support."));
+          controller.enqueue(encoder.encode("\n\nI can't help with that one. Please contact GRace support."));
         }
       } catch (error) {
         console.error("help chat failed", error instanceof Anthropic.APIError ? `${error.status} ${error.message}` : error);

@@ -11,7 +11,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   return (
     <div className="grid min-h-screen bg-white lg:grid-cols-2">
       <div className="flex flex-col px-4 py-8 sm:px-10">
-        <Link href="/" aria-label="Downtime home">
+        <Link href="/" aria-label="GRace home">
           <Logo className="text-lg" />
         </Link>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">{children}</div>

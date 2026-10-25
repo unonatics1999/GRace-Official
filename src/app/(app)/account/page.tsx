@@ -10,7 +10,7 @@ import { BUSINESS_REQUIREMENTS, INDIVIDUAL_REQUIREMENTS, missingDocuments } from
 import { requireCompanyUser } from "@/lib/session";
 import { canManageTeam } from "@/lib/util";
 
-export const metadata = { title: "Account · Downtime" };
+export const metadata = { title: "Account · GRace Car Rentals" };
 
 const GOV_IDS = ["PhilSys National ID", "Passport", "Driver's licence", "UMID", "SSS ID", "Postal ID", "PRC ID"];
 
@@ -31,7 +31,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
     <div className="mx-auto max-w-3xl space-y-8">
       {welcome && (
         <div className="rounded-2xl bg-brand-900 p-6 text-white">
-          <p className="text-lg font-semibold">Welcome to Downtime, {me.name.split(" ")[0]}.</p>
+          <p className="text-lg font-semibold">Welcome to GRace, {me.name.split(" ")[0]}.</p>
           <p className="mt-1 text-sm text-brand-100">
             {c.phone ? "You're all set to book a car with a driver." : "Add your mobile number and you can book a car with a driver right away."} No ID needed for that.
           </p>
@@ -90,7 +90,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
           <ol className="grid gap-2 text-sm sm:grid-cols-3">
             <Step n={1} done={Boolean(individual ? c.govIdNumber : c.registrationNo) && Boolean(c.address)} text="Enter your ID details" />
             <Step n={2} done={missing.length === 0} text={individual ? "Upload a photo of your ID" : "Upload your business papers"} />
-            <Step n={3} done={verified} text="Downtime checks it (1 business day)" />
+            <Step n={3} done={verified} text="GRace checks it (1 business day)" />
           </ol>
 
           {isOwner && (

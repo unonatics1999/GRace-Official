@@ -115,7 +115,7 @@ export default async function ListingPage({
             <div>
               <p className="font-semibold">Owned by {vehicle.company.name}</p>
               <p className="text-sm text-stone-500">
-                Verified {ACCOUNT_KINDS[vehicle.company.kind as AccountKind].toLowerCase()} · on Downtime since {memberSince} ·{" "}
+                Verified {ACCOUNT_KINDS[vehicle.company.kind as AccountKind].toLowerCase()} · on GRace since {memberSince} ·{" "}
                 {ownerListings} vehicle{ownerListings === 1 ? "" : "s"}
               </p>
             </div>
@@ -141,9 +141,9 @@ export default async function ListingPage({
                   <p className="font-semibold text-stone-900">{driver.user.name}</p>
                   <p className="text-stone-500">
                     LTO professional licence · {driver.yearsExperience} years driving
-                    {rating !== null ? ` · ${rating.toFixed(1)}★ from ${driver.ratingCount} trips` : " · new on Downtime"}
+                    {rating !== null ? ` · ${rating.toFixed(1)}★ from ${driver.ratingCount} trips` : " · new on GRace"}
                   </p>
-                  <p className="mt-1 text-stone-500">NBI clearance checked by Downtime.</p>
+                  <p className="mt-1 text-stone-500">NBI clearance checked by GRace.</p>
                 </div>
               </div>
             </section>
@@ -176,7 +176,7 @@ export default async function ListingPage({
           </section>
 
           <section className="rounded-2xl bg-stone-50 p-6">
-            <h2 className="font-semibold">Checked by Downtime</h2>
+            <h2 className="font-semibold">Checked by GRace</h2>
             <ul className="mt-3 grid gap-2 text-sm text-stone-600 sm:grid-cols-2">
               <li>✓ LTO OR/CR matches plate</li>
               <li>✓ Registration and CTPL insurance current</li>

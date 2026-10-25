@@ -12,7 +12,7 @@ const PORTALS: { value: Portal; label: string; title: string; hint: string }[] =
   { value: "RENTER", label: "Renter", title: "Log in to rent a car", hint: "Book a car, with or without a driver." },
   { value: "OWNER", label: "Car owner", title: "Log in to your cars", hint: "Manage your listings, bookings and earnings." },
 ];
-const ADMIN = { value: "ADMIN" as const, label: "Admin", title: "Staff sign-in", hint: "Downtime administrators only." };
+const ADMIN = { value: "ADMIN" as const, label: "Admin", title: "Staff sign-in", hint: "GRace administrators only." };
 
 /** Renter and car-owner tabs. The admin variant (no tabs) is only rendered on the unlinked staff page. */
 export function LoginForm({ initial = "RENTER", admin = false }: { initial?: Portal; admin?: boolean }) {
@@ -57,7 +57,7 @@ export function LoginForm({ initial = "RENTER", admin = false }: { initial?: Por
 
       {portal !== "ADMIN" && (
         <p className="mt-6 text-sm text-stone-500">
-          New to Downtime?{" "}
+          New to GRace?{" "}
           <Link href={`/signup${portal === "OWNER" ? "?as=owner" : ""}`} className="font-medium text-brand-600">
             {portal === "OWNER" ? "List your car" : "Create an account"}
           </Link>

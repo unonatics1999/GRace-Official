@@ -1,4 +1,4 @@
-// Philippine documents Downtime checks before a vehicle, driver or account goes live.
+// Philippine documents GRace checks before a vehicle, driver or account goes live.
 // These are the platform's own listing rules; they are not legal advice. Operating rent-a-car
 // with driver commercially may also need LTFRB/DOT accreditation; confirm with counsel.
 

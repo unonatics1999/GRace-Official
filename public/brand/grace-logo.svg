@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470 96" role="img" aria-label="GRace Car Rentals">
+  <!-- Full lockup on light backgrounds: G+Race mark, "Race" in heavy italic, "CAR RENTALS" as a plain word. -->
+  <defs>
+    <linearGradient id="gl-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f5139"/>
+      <stop offset="1" stop-color="#0f2a1d"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(8 8) scale(1.25)">
+    <rect width="64" height="64" rx="15" fill="url(#gl-bg)"/>
+    <path d="M7 25.5h7M5 32h8M7 38.5h7" stroke="#c6f135" stroke-width="2.6" stroke-linecap="round" opacity="0.55"/>
+    <path d="M45.3 20.2 A16.5 16.5 0 1 0 50.6 34 H37.5" fill="none" stroke="#c6f135" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M50.6 34 L58 34" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="2.2 3.2"/>
+  </g>
+  <!-- "Race": continues the G -->
+  <text x="100" y="62" font-family="Geist, 'Segoe UI', Inter, Arial, sans-serif" font-size="54" font-weight="800" font-style="italic" letter-spacing="-1.5" fill="#0f2a1d">Race</text>
+  <!-- lime racing stripe under "Race" -->
+  <path d="M104 74 H226" stroke="#c6f135" stroke-width="6" stroke-linecap="round"/>
+  <path d="M232 74 H244" stroke="#c6f135" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+  <path d="M250 74 H256" stroke="#c6f135" stroke-width="6" stroke-linecap="round" opacity="0.35"/>
+  <!-- "CAR RENTALS": the plain word -->
+  <text x="250" y="61" font-family="Geist, 'Segoe UI', Inter, Arial, sans-serif" font-size="22" font-weight="600" letter-spacing="5" fill="#1f5139">CAR RENTALS</text>
+</svg>

@@ -19,7 +19,7 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <AdminHeader title="Users" description="Everyone with a Downtime login.">
+      <AdminHeader title="Users" description="Everyone with a GRace login.">
         <form className="flex flex-wrap gap-2">
           <Link href="/admin/users/new" className="btn-primary">+ New user</Link>
           <input name="q" defaultValue={q ?? ""} placeholder="Search name, email or company" className="input w-64" />

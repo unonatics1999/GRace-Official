@@ -44,7 +44,7 @@ async function main() {
   await db.company.deleteMany();
   await db.setting.deleteMany();
 
-  await db.user.create({ data: { email: "admin@downtime.test", name: "Downtime Admin", passwordHash, isAdmin: true } });
+  await db.user.create({ data: { email: "admin@downtime.test", name: "GRace Admin", passwordHash, isAdmin: true } });
 
   /** A verified host account whose owner is also an approved driver. */
   async function host(opts: {
@@ -91,7 +91,7 @@ async function main() {
   }
 
   // Your own fleet (the platform owner hosting too) plus two partner owners.
-  const own = await host({ kind: "BUSINESS", name: "Downtime Fleet", city: "Quezon City", email: "fleet@downtime.test", person: "Fleet Manager", ratingSum: 147, ratingCount: 30, years: 8 });
+  const own = await host({ kind: "BUSINESS", name: "GRace Fleet", city: "Quezon City", email: "fleet@downtime.test", person: "Fleet Manager", ratingSum: 147, ratingCount: 30, years: 8 });
   const reyes = await host({ kind: "BUSINESS", name: "Reyes Transport Services", city: "Pasig", email: "mark@reyestransport.test", person: "Mark Reyes", ratingSum: 46, ratingCount: 10, years: 6 });
   const carlo = await host({ kind: "INDIVIDUAL", name: "Carlo Mendoza", city: "Makati", email: "carlo@mendoza.test", person: "Carlo Mendoza", ratingSum: 13, ratingCount: 3, years: 3 });
 

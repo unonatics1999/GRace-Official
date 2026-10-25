@@ -16,8 +16,8 @@ export function bookingEligibility(
   mode: "SELF_DRIVE" | "WITH_DRIVER",
   returnDay: Date,
 ): Eligibility {
-  if (account.status === "SUSPENDED") return { ok: false, reason: "Your account is suspended. Contact Downtime support." };
-  if (account.status === "REJECTED") return { ok: false, reason: "Your account was not approved. Contact Downtime support." };
+  if (account.status === "SUSPENDED") return { ok: false, reason: "Your account is suspended. Contact GRace support." };
+  if (account.status === "REJECTED") return { ok: false, reason: "Your account was not approved. Contact GRace support." };
 
   if (!account.phone) return { ok: false, reason: "Add a mobile number so the owner can reach you." };
   if (mode === "WITH_DRIVER") return { ok: true };

@@ -12,7 +12,7 @@ export default async function NewUser({ searchParams }: { searchParams: Promise<
   return (
     <>
       <Link href="/admin/users" className="text-sm text-stone-500 hover:text-stone-900">← Users</Link>
-      <AdminHeader title="New user" description="Add a login to an existing account, or create another Downtime admin." />
+      <AdminHeader title="New user" description="Add a login to an existing account, or create another GRace admin." />
       <div className="card max-w-2xl p-6">
         <UserForm
           action={adminCreateUser}

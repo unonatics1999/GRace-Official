@@ -1,4 +1,4 @@
-// The heart of Downtime: a vehicle can be rented for a period only if every day of it
+// The heart of GRace: a vehicle can be rented for a period only if every day of it
 // falls inside one of the host's downtime windows AND no confirmed booking overlaps it.
 // Pure functions, no database, so the rule is easy to test.
 
