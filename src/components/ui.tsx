@@ -10,18 +10,17 @@ export function Field({ label, ...input }: { label: string } & InputHTMLAttribut
   );
 }
 
-/** The G+Race icon: orange C closed into a G by RACE. */
+/** The GRace logo (the owner's artwork). */
 export function GraceMark({ className = "h-10 w-10" }: { className?: string }) {
-  // eslint-disable-next-line @next/next/no-img-element -- static brand SVG
-  return <img src="/brand/grace-mark.svg" alt="" aria-hidden="true" className={className} />;
+  // eslint-disable-next-line @next/next/no-img-element -- static brand image
+  return <img src="/brand/grace-logo.png" alt="" aria-hidden="true" className={className} />;
 }
 
-/** Brand lockup: the icon with "Car Rentals" underneath. */
-export function Logo({ className = "", tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
+/** Brand logo for headers. */
+export function Logo({ className = "" }: { className?: string; tone?: "light" | "dark" }) {
   return (
-    <span className={`inline-flex flex-col items-center leading-none ${className}`} aria-label="GRace Car Rentals">
+    <span className={`inline-flex leading-none ${className}`} aria-label="GRace Car Rentals">
       <GraceMark className="h-14 w-14" />
-      <span className={`-mt-1 -skew-x-[16deg] text-[10px] font-bold uppercase tracking-[0.22em] ${tone === "dark" ? "text-white" : "text-[#111111]"}`}>Car Rentals</span>
     </span>
   );
 }

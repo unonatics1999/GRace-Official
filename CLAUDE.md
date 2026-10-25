@@ -61,8 +61,7 @@ other repository on this machine.
 
 ## Brand
 
-Logo files in `public/brand/`: `grace-logo.svg` (square, mark with CAR RENTAL below) and `grace-mark.svg` (icon); `GraceMark` and `Logo` in `src/components/ui.tsx`;
-browser icon `src/app/icon.svg`. White background; orange `#ff6a00` C with a light-orange echo, closed into a G by black RACE; black italic CAR RENTALS below. Owner's reference sketch on white, plus four black clock lines (3 o'clock just past RACE). Text uses the embedded Geist font (OFL).
+The logo is the owner's own artwork, used as-is: `public/brand/grace-logo.png` (also `src/app/icon.png`), rendered by `GraceMark` and `Logo` in `src/components/ui.tsx`. Do not redraw it. It is only 108x107 px; replace it with the owner's high-resolution original when available.
 
 ## Not built yet
 
