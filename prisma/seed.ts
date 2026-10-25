@@ -2,6 +2,10 @@
 // renters and an applicant waiting for review. Every demo account uses the password below.
 // Never run this against production.
 
+import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
+import { copyFile, mkdir, readFile, rm, stat } from "node:fs/promises";
+import path from "node:path";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -242,7 +246,58 @@ async function main() {
     },
   });
 
+  await attachSeedPhotos();
+
   console.log(`Seeded demo data. Every demo account's password is "${DEMO_PASSWORD}".`);
+}
+
+// Representative photos (Wikimedia Commons, CC BY-SA 4.0) from prisma/seed-photos, fetched with
+// `node scripts/import-commons-photos.mjs`. Cover first; credits shown on every listing.
+const SEED_PHOTOS: Record<string, { key: string; order: number[] }> = {
+  "NDT 1023": { key: "vios-black", order: [1, 2, 3, 5, 4] },
+  "NCM 4471": { key: "vios-blue", order: [1, 2, 3, 4, 5] },
+  "NRT 2290": { key: "avanza-black", order: [1, 2, 4, 3, 5] },
+  "NRT 3105": { key: "veloz-black", order: [3, 1, 2, 4, 5] },
+  "NDT 7788": { key: "l300-white", order: [4, 3, 2, 1, 5] },
+};
+
+type Credit = { file: string; author: string; licence: string; source: string };
+
+async function attachSeedPhotos() {
+  const creditsFile = path.resolve("prisma/seed-photos/credits.json");
+  if (!existsSync(creditsFile)) {
+    console.log("No seed photos found; listings will use artwork. Run: node scripts/import-commons-photos.mjs");
+    return;
+  }
+  const credits: Credit[] = JSON.parse(await readFile(creditsFile, "utf8"));
+  const storage = path.resolve(process.env.STORAGE_DIR ?? "./storage");
+  await rm(path.join(storage, "vehicles"), { recursive: true, force: true });
+
+  for (const [plate, { key, order }] of Object.entries(SEED_PHOTOS)) {
+    const vehicle = await db.vehicle.findFirst({ where: { plateNumber: plate } });
+    if (!vehicle) continue;
+    for (const [position, n] of order.entries()) {
+      const file = `${key}/${String(n).padStart(2, "0")}.jpg`;
+      const credit = credits.find((c) => c.file === file);
+      if (!credit) continue;
+      const storageKey = `vehicles/${vehicle.id}/${randomUUID()}.jpg`;
+      await mkdir(path.join(storage, path.dirname(storageKey)), { recursive: true });
+      await copyFile(path.resolve("prisma/seed-photos", file), path.join(storage, storageKey));
+      const { size } = await stat(path.join(storage, storageKey));
+      await db.vehiclePhoto.create({
+        data: {
+          vehicleId: vehicle.id,
+          storageKey,
+          contentType: "image/jpeg",
+          sizeBytes: size,
+          position,
+          representative: true,
+          credit: `${credit.author}, ${credit.licence}`,
+          sourceUrl: credit.source,
+        },
+      });
+    }
+  }
 }
 
 main()

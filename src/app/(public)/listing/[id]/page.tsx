@@ -83,7 +83,24 @@ export default async function ListingPage({
 
       <div className="mt-6">
         {vehicle.photos.length > 0 ? (
-          <Gallery photos={vehicle.photos.map((p) => ({ id: p.id, url: photoUrl(p.id) }))} alt={title} />
+          <>
+            <Gallery
+              photos={vehicle.photos.map((p) => ({
+                id: p.id,
+                url: photoUrl(p.id),
+                representative: p.representative,
+                credit: p.credit,
+                sourceUrl: p.sourceUrl,
+              }))}
+              alt={title}
+            />
+            {vehicle.photos.some((p) => p.representative) && (
+              <p className="mt-2 text-xs text-stone-500">
+                Representative photos of a {vehicle.make} {vehicle.model}, not this exact car. You&apos;ll see the actual car in the
+                pick-up photo checklist. Photos from Wikimedia Commons; credits on each photo.
+              </p>
+            )}
+          </>
         ) : (
           <VehicleArt type={vehicle.type} seed={vehicle.id} colorHex={vehicle.colorHex} className="aspect-[16/7] rounded-3xl ring-1 ring-black/5" />
         )}

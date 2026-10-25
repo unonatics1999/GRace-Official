@@ -2,7 +2,14 @@ import { VehicleArt } from "@/components/VehicleArt";
 import { photoUrl } from "@/lib/listings";
 
 type Props = {
-  vehicle: { id: string; type: string; colorHex: string; make: string; model: string; photos?: { id: string }[] };
+  vehicle: {
+    id: string;
+    type: string;
+    colorHex: string;
+    make: string;
+    model: string;
+    photos?: { id: string; representative?: boolean; credit?: string }[];
+  };
   className?: string;
 };
 
@@ -18,7 +25,13 @@ export function VehicleImage({ vehicle, className = "" }: Props) {
         alt={`${vehicle.make} ${vehicle.model}`}
         className="absolute inset-0 h-full w-full object-cover"
         loading="lazy"
+        title={cover.credit ? `Photo: ${cover.credit}` : undefined}
       />
+      {cover.representative && (
+        <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white">
+          Representative photo
+        </span>
+      )}
     </div>
   );
 }

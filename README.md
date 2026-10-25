@@ -61,6 +61,14 @@ One process tops out around 40 pages/s (≈ 2,400 page views a minute); latency 
 serve more, run several instances behind a load balancer on PostgreSQL. In-memory caches and the help-chat rate limit
 are per instance.
 
+## Car photos
+
+The five launch listings use representative photos of each model from Wikimedia Commons (CC BY-SA 4.0), stored in
+`prisma/seed-photos/` with credits in `credits.json` and `ATTRIBUTION.md`; the seed attaches them. Every listing shows
+"Representative photo", the photographer and the licence link. Replace them by uploading real photos of the actual
+cars on each car's page (My cars → the car → Photos; the first photo is the cover). To re-fetch:
+`node scripts/import-commons-photos.mjs`.
+
 ## How a booking works
 
 1. **Request.** The renter picks dates and self-drive or with driver. Price and commission are snapshotted.

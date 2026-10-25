@@ -144,6 +144,11 @@ model VehiclePhoto {
   sizeBytes   Int
   // Lowest first; position 0 is the cover photo.
   position    Int      @default(0)
+  // A licensed photo of the same model, not the actual car (e.g. from Wikimedia Commons).
+  representative Boolean @default(false)
+  // Attribution the licence requires, e.g. "Ethan Llamas, CC BY-SA 4.0", and the source page.
+  credit      String   @default("")
+  sourceUrl   String   @default("")
   createdAt   DateTime @default(now())
 }
 
