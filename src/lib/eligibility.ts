@@ -1,6 +1,6 @@
-// Who may book what. With a driver, no ID is needed: the owner drives, so only a phone number is
-// required to coordinate pick-up. Self-drive needs a verified account (ID checked) and a driver's
-// licence valid through the return date. Used by the listing page and enforced again on the server.
+// Who may book what. Every booking needs a mobile number to coordinate pick-up; with a driver, that
+// is all (no ID). Self-drive also needs a verified account (ID checked) and a driver's licence valid
+// through the return date. Used by the listing page and enforced again on the server.
 
 export type RenterAccount = {
   status: string;
@@ -19,10 +19,8 @@ export function bookingEligibility(
   if (account.status === "SUSPENDED") return { ok: false, reason: "Your account is suspended. Contact Downtime support." };
   if (account.status === "REJECTED") return { ok: false, reason: "Your account was not approved. Contact Downtime support." };
 
-  if (mode === "WITH_DRIVER") {
-    if (!account.phone) return { ok: false, reason: "Add a mobile number so your driver can reach you." };
-    return { ok: true };
-  }
+  if (!account.phone) return { ok: false, reason: "Add a mobile number so the owner can reach you." };
+  if (mode === "WITH_DRIVER") return { ok: true };
 
   if (account.status !== "VERIFIED") {
     return { ok: false, reason: "Self-drive needs a verified ID. Upload it on your account, or book with a driver (no ID needed)." };

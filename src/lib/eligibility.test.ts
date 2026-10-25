@@ -11,8 +11,9 @@ describe("bookingEligibility", () => {
     expect(bookingEligibility(unverified, "WITH_DRIVER", d("2026-11-02")).ok).toBe(true);
   });
 
-  it("needs a phone number for a with-driver booking", () => {
+  it("needs a mobile number for any booking", () => {
     expect(bookingEligibility({ ...unverified, phone: "" }, "WITH_DRIVER", d("2026-11-02")).ok).toBe(false);
+    expect(bookingEligibility({ ...verified, phone: "" }, "SELF_DRIVE", d("2026-11-02")).ok).toBe(false);
   });
 
   it("refuses self-drive without a verified ID", () => {

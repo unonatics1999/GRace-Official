@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { clientIp, loginBlocked, recordLogin } from "@/lib/rate-limit";
 import { createSession, destroySession } from "@/lib/session";
 import { firstError, normalizeEmail, type ActionState } from "@/lib/util";
@@ -12,6 +13,7 @@ const signupSchema = z.object({
   kind: z.enum(["INDIVIDUAL", "BUSINESS"], { message: "Choose personal or business." }),
   companyName: z.string().trim().default(""),
   city: z.string().trim().min(2, "Enter your city."),
+  phone: z.string().trim().default(""),
   name: z.string().trim().min(2, "Enter your full name."),
   email: z.string().trim().email("Enter a valid email."),
   password: z.string().min(10, "Use at least 10 characters for your password."),
@@ -22,6 +24,8 @@ export async function signup(_: ActionState, form: FormData): Promise<ActionStat
   const parsed = signupSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { kind, companyName, city, name, password } = parsed.data;
+  const phone = parsed.data.phone ? normalizePhone(parsed.data.phone) : "";
+  if (phone === null) return { error: PHONE_HINT };
   if (kind === "BUSINESS" && companyName.length < 2) return { error: "Enter your registered business name." };
   const email = normalizeEmail(parsed.data.email);
 
@@ -35,7 +39,7 @@ export async function signup(_: ActionState, form: FormData): Promise<ActionStat
       name,
       passwordHash: await bcrypt.hash(password, 10),
       role: "OWNER",
-      company: { create: { kind, name: kind === "BUSINESS" ? companyName : name, city } },
+      company: { create: { kind, name: kind === "BUSINESS" ? companyName : name, city, phone } },
     },
   });
   await createSession(user.id);

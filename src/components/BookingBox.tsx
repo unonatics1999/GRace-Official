@@ -14,7 +14,9 @@ type Props = {
   driverDailyRateCents: number;
   renterFeeBps: number;
   selfDrive: { offered: boolean; eligible: boolean; reason?: string };
-  withDriver: { offered: boolean; driverName?: string; reason?: string };
+  withDriver: { offered: boolean; driverName?: string };
+  /** No mobile number on the account yet: ask for it here. */
+  needsPhone?: boolean;
   minDate: string;
   defaultStart?: string;
   defaultEnd?: string;
@@ -49,7 +51,6 @@ export function BookingBox(props: Props) {
         })
       : null;
   const selfDriveBlocked = mode === "SELF_DRIVE" && !props.selfDrive.eligible;
-  const driverBlocked = mode === "WITH_DRIVER" && !!props.withDriver.reason;
 
   return (
     <form action={action} className="space-y-4">
@@ -76,11 +77,7 @@ export function BookingBox(props: Props) {
           No ID needed.
         </p>
       )}
-      {driverBlocked && (
-        <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-          {props.withDriver.reason} <Link href="/account" className="font-medium underline">Add it</Link>
-        </p>
-      )}
+
       {selfDriveBlocked && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
           {props.selfDrive.reason} <Link href="/account" className="font-medium underline">Go to your account</Link>
@@ -117,6 +114,22 @@ export function BookingBox(props: Props) {
         </label>
       </div>
 
+      {props.needsPhone && !selfDriveBlocked && (
+        <label className="block">
+          <span className="label">Your mobile number</span>
+          <input
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            required
+            placeholder="0917 123 4567"
+            className="input"
+          />
+          <span className="mt-1 block text-xs text-stone-500">So {mode === "WITH_DRIVER" ? "your driver" : "the owner"} can reach you. Saved to your account.</span>
+        </label>
+      )}
+
       <textarea
         name="note"
         rows={2}
@@ -125,7 +138,7 @@ export function BookingBox(props: Props) {
         placeholder={mode === "WITH_DRIVER" ? "Pick-up point, destination and itinerary" : "What's the trip for? (optional)"}
       />
 
-      <Submit disabled={selfDriveBlocked || driverBlocked} />
+      <Submit disabled={selfDriveBlocked} />
       <p className="text-center text-xs text-stone-500">The owner confirms first. You pay by GCash, Maya or card after that.</p>
 
       {state?.error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{state.error}</p>}

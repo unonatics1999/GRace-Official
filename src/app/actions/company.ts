@@ -10,24 +10,45 @@ import {
   INDIVIDUAL_REQUIREMENTS,
   type DocumentType,
 } from "@/lib/requirements";
+import { PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { requireCompanyUser } from "@/lib/session";
 import { saveDocument } from "@/lib/uploads";
 import { canManageTeam, firstError, type ActionState } from "@/lib/util";
 
-const phone = z
-  .string()
-  .trim()
-  .regex(/^(\+63|0)\d{9,10}$/, "Enter a PH number, e.g. 09171234567 or +639171234567.");
 const optionalDay = z
   .string()
   .default("")
   .refine((v) => v === "" || parseDay(v) !== null, "Enter a valid date.");
 
-const common = {
-  name: z.string().trim().min(2, "Enter the name."),
-  city: z.string().trim().min(2, "Enter your city."),
-  address: z.string().trim().min(5, "Enter the address.").max(300),
-  phone,
+const contactSchema = z.object({
+  name: z.string().trim().min(2, "Enter your name."),
+  phone: z.string().default(""),
+  city: z.string().trim().max(80).default(""),
+});
+
+/**
+ * Name, mobile number and city: all a renter needs to book with a driver. No ID involved.
+ * Renaming a verified account sends it back to review, since the name must match the ID.
+ */
+export async function updateContact(_: ActionState, form: FormData): Promise<ActionState> {
+  const me = await requireCompanyUser();
+  if (!canManageTeam(me.role)) return { error: "Only an owner can edit the account." };
+  const parsed = contactSchema.safeParse(Object.fromEntries(form));
+  if (!parsed.success) return { error: firstError(parsed.error) };
+  const phone = normalizePhone(parsed.data.phone);
+  if (!phone) return { error: PHONE_HINT };
+
+  const c = me.company;
+  const backToReview = parsed.data.name !== c.name && c.status === "VERIFIED";
+  await db.company.update({
+    where: { id: c.id },
+    data: { name: parsed.data.name, phone, city: parsed.data.city || c.city, ...(backToReview ? { status: "PENDING" } : {}) },
+  });
+  revalidatePath("/account");
+  return { ok: backToReview ? "Saved. Your name changed, so Downtime will check it against your ID again." : "Saved. You can book with a driver now." };
+}
+
+const licence = {
   licenceNo: z
     .string()
     .trim()
@@ -35,17 +56,18 @@ const common = {
     .default("")
     .refine((v) => v === "" || /^[A-Z]\d{2}-\d{2}-\d{6}$/.test(v), "Enter the licence number as printed, e.g. N01-23-456789."),
   licenceExpiry: optionalDay,
+  address: z.string().trim().min(5, "Enter your address as on your ID.").max(300),
   payoutDetails: z.string().trim().max(300).default(""),
 };
 
 const individualSchema = z.object({
-  ...common,
+  ...licence,
   govIdType: z.string().trim().min(3, "Pick the ID you're using."),
   govIdNumber: z.string().trim().min(4, "Enter the ID number.").max(40),
 });
 
 const businessSchema = z.object({
-  ...common,
+  ...licence,
   registrationNo: z.string().trim().min(4, "Enter your DTI, SEC or CDA registration number.").max(40),
   tin: z
     .string()
@@ -53,10 +75,10 @@ const businessSchema = z.object({
     .regex(/^\d{3}-?\d{3}-?\d{3}(-?\d{3,5})?$/, "Enter your TIN, e.g. 123-456-789-000."),
 });
 
-/** Owners keep the verification details current. Changing identity details sends a verified account back to review. */
-export async function updateAccountProfile(_: ActionState, form: FormData): Promise<ActionState> {
+/** Identity details, needed only for self-drive or to list a car. Changes send a verified account back to review. */
+export async function updateVerification(_: ActionState, form: FormData): Promise<ActionState> {
   const me = await requireCompanyUser();
-  if (!canManageTeam(me.role)) return { error: "Only an owner can edit the account profile." };
+  if (!canManageTeam(me.role)) return { error: "Only an owner can edit verification details." };
   const c = me.company;
   const parsed = (c.kind === "INDIVIDUAL" ? individualSchema : businessSchema).safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
@@ -65,14 +87,14 @@ export async function updateAccountProfile(_: ActionState, form: FormData): Prom
   if (rest.licenceNo && !licenceExpiry) return { error: "Add your licence expiry date." };
   const data = { ...rest, licenceExpiry: licenceExpiry ? parseDay(licenceExpiry) : null };
 
-  const identityKeys = c.kind === "INDIVIDUAL" ? (["name", "govIdNumber"] as const) : (["name", "registrationNo", "tin"] as const);
+  const identityKeys = c.kind === "INDIVIDUAL" ? (["govIdNumber", "licenceNo"] as const) : (["registrationNo", "tin", "licenceNo"] as const);
   const identityChanged = identityKeys.some((k) => (data as Record<string, unknown>)[k] !== c[k]);
   const backToReview = identityChanged && c.status === "VERIFIED";
 
   await db.company.update({ where: { id: c.id }, data: { ...data, ...(backToReview ? { status: "PENDING" } : {}) } });
   revalidatePath("/account");
   return {
-    ok: backToReview ? "Saved. Your identity details changed, so Downtime will review your account again." : "Profile saved.",
+    ok: backToReview ? "Saved. Your ID details changed, so Downtime will review them again." : "Saved. Upload the documents below if you haven't yet.",
   };
 }
 

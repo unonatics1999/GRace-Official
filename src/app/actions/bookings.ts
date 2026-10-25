@@ -7,6 +7,7 @@ import { hostCommissionBps, priceBooking } from "@/lib/commission";
 import { parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { bookingEligibility } from "@/lib/eligibility";
+import { PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { env, paymentsSimulated } from "@/lib/env";
 import { canApproveOrDecline, canPay, canRenterCancel, paymentDeadline } from "@/lib/lifecycle";
 import { lockVehicle } from "@/lib/locks";
@@ -38,8 +39,17 @@ export async function requestBooking(_: ActionState, form: FormData): Promise<Ac
 
   if (mode === "WITH_DRIVER" && !driverBookable(vehicle)) return { error: "This vehicle isn't available with a driver." };
   if (mode === "SELF_DRIVE" && !vehicle.selfDriveAllowed) return { error: "This vehicle is only available with a driver." };
+  // A renter without a number on file types it in the booking box; save it with the request.
+  let account = me.company;
+  const typedPhone = String(form.get("phone") ?? "").trim();
+  if (!account.phone && typedPhone) {
+    const phone = normalizePhone(typedPhone);
+    if (!phone) return { error: PHONE_HINT };
+    account = await db.company.update({ where: { id: account.id }, data: { phone } });
+  }
+
   // With a driver needs no ID; self-drive needs a verified ID and a valid licence.
-  const eligible = bookingEligibility(me.company, mode, end);
+  const eligible = bookingEligibility(account, mode, end);
   if (!eligible.ok) return { error: eligible.reason };
   // Registration and insurance must stay valid for the whole rental.
   if (vehicle.registrationExpiry < end || vehicle.insuranceExpiry < end) {

@@ -37,6 +37,7 @@ export function SignupForm() {
       {kind === "BUSINESS" && <Input label="Registered business name" name="companyName" autoComplete="organization" required />}
       <Input label="Full name" name="name" autoComplete="name" required />
       <Input label="City" name="city" placeholder="e.g. Quezon City" required />
+      <Input label="Mobile number" name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0917 123 4567" />
       <Input label="Email" name="email" type="email" autoComplete="email" required />
       <Input label="Password" name="password" type="password" autoComplete="new-password" minLength={10} required />
 

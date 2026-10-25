@@ -48,8 +48,9 @@ export default async function ListingPage({
   // With a driver needs no ID; self-drive needs a verified ID and licence (re-checked on the server
   // against the actual return date).
   const renter = user?.company;
-  const selfCheck = renter ? bookingEligibility(renter, "SELF_DRIVE", today()) : null;
-  const driverCheck = renter ? bookingEligibility(renter, "WITH_DRIVER", today()) : null;
+  // The phone can be typed in the booking box, so check eligibility as if it were on file.
+  const withPhone = renter ? { ...renter, phone: renter.phone || "pending" } : null;
+  const selfCheck = withPhone ? bookingEligibility(withPhone, "SELF_DRIVE", today()) : null;
   const selfDrive = {
     offered: vehicle.selfDriveAllowed,
     eligible: selfCheck?.ok ?? false,
@@ -208,11 +209,8 @@ export default async function ListingPage({
                   driverDailyRateCents={vehicle.driverDailyRateCents}
                   renterFeeBps={settings.renterFeeBps}
                   selfDrive={selfDrive}
-                  withDriver={{
-                    offered: withDriver,
-                    driverName: driver?.user.name,
-                    reason: driverCheck && !driverCheck.ok ? driverCheck.reason : undefined,
-                  }}
+                  withDriver={{ offered: withDriver, driverName: driver?.user.name }}
+                  needsPhone={!renter?.phone}
                   minDate={formatDay(today())}
                   defaultStart={parseDay(query.start) ? query.start : undefined}
                   defaultEnd={parseDay(query.end) ? query.end : undefined}
