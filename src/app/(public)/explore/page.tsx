@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { ListingCard } from "@/components/ListingCard";
 import { SearchBar } from "@/components/SearchBar";
-import { BLOCKING_STATUSES, checkAvailability } from "@/lib/availability";
+import { checkAvailability } from "@/lib/availability";
 import { priceBooking } from "@/lib/commission";
 import { VEHICLE_TYPES } from "@/lib/constants";
 import { formatDay, parseDay } from "@/lib/dates";
-import { db } from "@/lib/db";
-import { listableWhere, listingInclude } from "@/lib/listings";
-import { expireOverdueBookings } from "@/lib/payments";
+import { getLiveListings } from "@/lib/listing-cache";
 import { currentUser } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
 
@@ -24,18 +22,14 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   const end = parseDay(query.end);
   const dated = Boolean(start && end && end >= start);
 
-  await expireOverdueBookings();
-  const settings = await getCommissionSettings();
-  const vehicles = await db.vehicle.findMany({
-    where: {
-      ...listableWhere(),
-      ...(type ? { type } : {}),
-      ...(city ? { city: { contains: city } } : {}),
-      ...(user?.companyId ? { companyId: { not: user.companyId } } : {}),
-    },
-    include: { ...listingInclude, bookings: { where: { status: { in: BLOCKING_STATUSES } } } },
-    orderBy: { dailyRateCents: "asc" },
-  });
+  const [settings, live] = await Promise.all([getCommissionSettings(), getLiveListings()]);
+  const cityLower = city?.toLowerCase();
+  const vehicles = live.filter(
+    (v) =>
+      (!type || v.type === type) &&
+      (!cityLower || v.city.toLowerCase().includes(cityLower)) &&
+      v.companyId !== user?.companyId,
+  );
 
   type Result = { vehicle: (typeof vehicles)[number]; totalCents?: number; days?: number };
   const results = vehicles.flatMap((v): Result[] => {

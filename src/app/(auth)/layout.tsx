@@ -2,11 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { VehicleArt } from "@/components/VehicleArt";
 import { Logo } from "@/components/ui";
-import { currentUser } from "@/lib/session";
+import { currentUser, homeFor } from "@/lib/session";
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
-  if (user) redirect(user.isAdmin ? "/admin" : "/dashboard");
+  if (user) redirect(homeFor(user));
 
   return (
     <div className="grid min-h-screen bg-white lg:grid-cols-2">

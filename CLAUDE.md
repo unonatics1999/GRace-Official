@@ -23,8 +23,12 @@ other repository on this machine.
 - **Payments:** PayMongo hosted checkout; simulated in development when no key is set. Host payouts are
   manual (bank/GCash), recorded by admin.
 - **Differentiator built first:** the photo handoff checklist at pick-up and return.
-- **Photos:** the owner wants real photos of the actual cars, uploaded through the fleet page. Never use
-  stock or scraped images.
+- **Photos:** real photos of the actual cars, uploaded through the fleet page. Never scrape Google Images or use
+  unlicensed stock. Freely licensed (e.g. Wikimedia Commons CC BY-SA) photos only with attribution and a
+  "representative photo" label, and only with the owner's go-ahead.
+- **Logins:** Renter and Car owner on `/login`; admins only on the unlinked `/staff-login`; `/admin` 404s for others.
+- **Admin CRUD:** accounts, users, vehicles. Bookings and payments are never hard-deleted (audit trail).
+- **Help center:** `/help`, AI answers grounded only in `src/lib/help-content.ts` (keep it in sync with policy).
 
 ## Conventions
 

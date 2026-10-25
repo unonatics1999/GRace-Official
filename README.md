@@ -27,9 +27,39 @@ any time with `npm run db:seed`.
 | Partner owner: Avanza, Veloz | Reyes Transport Services |
 | Owner-driver: Vios metallic blue | Carlo Mendoza |
 | Unverified renter: can book with driver, not self-drive | Paolo Garcia |
-| Downtime staff | admin account → `/admin` |
+| Downtime staff | admin account → sign in at `/staff-login` (not linked anywhere) |
 
 Without PayMongo keys, payments are **simulated** in development: "Pay" confirms the booking at once.
+
+## Logins
+
+- **Renter** and **Car owner** sign in on `/login` (two tabs) and land on their own home and menu. Sign-up asks
+  "Rent a car" or "List my car"; a renter can switch to owner any time.
+- **Admin** signs in only at `/staff-login`, which nothing links to. `/admin` returns 404 to everyone else.
+- Change email or password: menu → Email & password (admins: Admin → My sign-in).
+- Production admin: `ADMIN_EMAIL=… ADMIN_PASSWORD=… npm run admin:create` (creates or resets one).
+
+## Help center
+
+`/help` lists the help articles in [`src/lib/help-content.ts`](src/lib/help-content.ts) and has an AI assistant
+(Claude Opus 5.5, prompt-cached, answers only from those articles). Set `ANTHROPIC_API_KEY` to turn on AI; without
+it the assistant replies with the closest articles.
+
+## Load test
+
+`npm run load-test` against a production build (`npm run build`, then `npx next start -p 3200`). Results on the
+development laptop (one Node process, SQLite, 30 s per scenario):
+
+| Scenario | Throughput | Median | p95 | Errors |
+| --- | --- | --- | --- | --- |
+| 100 visitors browsing at once | 38 req/s | 2.6 s | 4.3 s | 0 |
+| 50 signed-in users | 42 req/s | 1.1 s | 2.1 s | 0 |
+| 30 logins at the same moment | — | 2.5 s | 2.6 s | 0 |
+| 20 conflicting approvals for one car | — | 0.18 s | 0.23 s | 0 (exactly 1 approved) |
+
+One process tops out around 40 pages/s (≈ 2,400 page views a minute); latency above is queueing at that cap. To
+serve more, run several instances behind a load balancer on PostgreSQL. In-memory caches and the help-chat rate limit
+are per instance.
 
 ## How a booking works
 

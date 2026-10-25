@@ -5,13 +5,13 @@ import { REVIEW_STATUS } from "@/lib/constants";
 import { today } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { describeDowntime, vehicleTitle } from "@/lib/listings";
-import { requireCompanyUser } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { canManageFleet, formatCents } from "@/lib/util";
 
 export const metadata = { title: "My fleet · Downtime" };
 
 export default async function FleetPage() {
-  const me = await requireCompanyUser();
+  const me = await requireOwner();
   const vehicles = await db.vehicle.findMany({
     where: { companyId: me.companyId },
     include: { windows: true, photos: { orderBy: { position: "asc" } } },

@@ -16,7 +16,9 @@ const ACTIVE = ["REQUESTED", "AWAITING_PAYMENT", "CONFIRMED", "IN_PROGRESS"];
 export default async function BookingsPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   const me = await requireCompanyUser();
   const { view } = await searchParams;
-  const hosting = view === "hosting";
+  const owner = me.company.accountType === "OWNER";
+  // Owners land on the bookings for their cars; renters only see their trips.
+  const hosting = owner && view !== "trips";
   await expireOverdueBookings();
 
   const bookings = await db.booking.findMany({
@@ -31,11 +33,13 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="page-title">Bookings</h1>
-        <div className="flex gap-1 rounded-xl bg-stone-200/60 p-1 text-sm">
-          <Tab href="/bookings" active={!hosting}>My trips</Tab>
-          <Tab href="/bookings?view=hosting" active={hosting}>Hosting</Tab>
-        </div>
+        <h1 className="page-title">{owner ? "Bookings" : "My trips"}</h1>
+        {owner && (
+          <div className="flex gap-1 rounded-xl bg-stone-200/60 p-1 text-sm">
+            <Tab href="/bookings" active={hosting}>For my cars</Tab>
+            <Tab href="/bookings?view=trips" active={!hosting}>Cars I rented</Tab>
+          </div>
+        )}
       </div>
 
       {needsYou > 0 && (

@@ -3,8 +3,7 @@ import { EarningsCalculator } from "@/components/EarningsCalculator";
 import { ListingCard, StarIcon, VerifiedIcon } from "@/components/ListingCard";
 import { SearchBar } from "@/components/SearchBar";
 import { VehicleArt } from "@/components/VehicleArt";
-import { db } from "@/lib/db";
-import { listableWhere, listingInclude } from "@/lib/listings";
+import { getLiveListings } from "@/lib/listing-cache";
 
 const renterSteps = [
   ["Pick a car and your dates", "Sedans for the city, 7-seaters for the family, an L300 for the move."],
@@ -33,12 +32,7 @@ const faqs = [
 ];
 
 export default async function Home() {
-  const featured = await db.vehicle.findMany({
-    where: listableWhere(),
-    include: listingInclude,
-    orderBy: { createdAt: "desc" },
-    take: 8,
-  });
+  const featured = [...(await getLiveListings())].sort((a, b) => +b.createdAt - +a.createdAt).slice(0, 8);
   const hero = featured.find((v) => v.type === "MPV") ?? featured[0];
 
   return (

@@ -6,6 +6,8 @@ import { BLOCKING_STATUSES, checkAvailability, isBlocking, overlaps } from "@/li
 import { hostCommissionBps, priceBooking } from "@/lib/commission";
 import { parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { withTxRetry } from "@/lib/db-retry";
+import { invalidateListings } from "@/lib/listing-cache";
 import { bookingEligibility } from "@/lib/eligibility";
 import { PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { env, paymentsSimulated } from "@/lib/env";
@@ -103,23 +105,32 @@ export async function respondToBooking(bookingId: string, decision: "APPROVE" | 
     await db.booking.update({ where: { id: booking.id }, data: { status: "DECLINED" } });
   } else {
     await expireOverdueBookings();
-    const approved = await db.$transaction(async (tx) => {
-      await lockVehicle(tx, booking.vehicleId);
-      const others = await tx.booking.findMany({
-        where: { vehicleId: booking.vehicleId, id: { not: booking.id }, status: { in: BLOCKING_STATUSES } },
-      });
-      if (others.some((o) => isBlocking(o) && overlaps(o.startDate, o.endDate, booking.startDate, booking.endDate))) {
-        return false;
-      }
-      const now = new Date();
-      await tx.booking.update({
-        where: { id: booking.id },
-        data: { status: "AWAITING_PAYMENT", approvedAt: now, paymentDueAt: paymentDeadline(now, booking.startDate) },
-      });
-      return true;
-    });
+    let approved: boolean;
+    try {
+      approved = await withTxRetry(() =>
+        db.$transaction(async (tx) => {
+          await lockVehicle(tx, booking.vehicleId);
+          const others = await tx.booking.findMany({
+            where: { vehicleId: booking.vehicleId, id: { not: booking.id }, status: { in: BLOCKING_STATUSES } },
+          });
+          if (others.some((o) => isBlocking(o) && overlaps(o.startDate, o.endDate, booking.startDate, booking.endDate))) {
+            return false;
+          }
+          const now = new Date();
+          await tx.booking.update({
+            where: { id: booking.id },
+            data: { status: "AWAITING_PAYMENT", approvedAt: now, paymentDueAt: paymentDeadline(now, booking.startDate) },
+          });
+          return true;
+        }),
+      );
+    } catch (error) {
+      console.error("approve failed after retries", error);
+      redirect(`/bookings/${booking.id}?error=busy`);
+    }
     if (!approved) redirect(`/bookings/${booking.id}?error=clash`);
   }
+  invalidateListings();
   revalidatePath("/bookings");
   revalidatePath(`/bookings/${booking.id}`);
 }
@@ -176,6 +187,7 @@ export async function cancelBooking(bookingId: string): Promise<void> {
     db.booking.update({ where: { id: booking.id }, data: { status: "CANCELLED" } }),
     db.payment.updateMany({ where: { bookingId: booking.id, status: "PAID" }, data: { refundNeeded: true } }),
   ]);
+  invalidateListings();
   revalidatePath("/bookings");
   revalidatePath(`/bookings/${booking.id}`);
 }
@@ -199,6 +211,7 @@ export async function reportIssue(bookingId: string, _: ActionState, form: FormD
     }),
     db.payout.updateMany({ where: { bookingId: booking.id, status: "PENDING" }, data: { status: "ON_HOLD" } }),
   ]);
+  invalidateListings();
   revalidatePath(`/bookings/${booking.id}`);
   return { ok: "Reported. Downtime support will contact both companies." };
 }

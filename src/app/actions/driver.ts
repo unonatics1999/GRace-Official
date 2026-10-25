@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { invalidateListings } from "@/lib/listing-cache";
 import { DOCUMENT_TYPES, DRIVER_REQUIREMENTS, VEHICLE_RULES, type DocumentType } from "@/lib/requirements";
 import { requireCompanyUser } from "@/lib/session";
 import { saveDocument } from "@/lib/uploads";
@@ -45,6 +46,7 @@ export async function saveDriverProfile(_: ActionState, form: FormData): Promise
     // Owners drive their own vehicles by default.
     await db.vehicle.updateMany({ where: { companyId: me.companyId, driverId: null }, data: { driverId: driver.id } });
   }
+  invalidateListings();
   revalidatePath("/driver");
   return { ok: "Driver profile saved." };
 }
@@ -58,6 +60,7 @@ export async function uploadDriverDocument(_: ActionState, form: FormData): Prom
   const saved = await saveDocument(form.get("file"), `documents/drivers/${driver.id}`, DOCUMENT_TYPES[docType]);
   if (!saved.ok) return { error: saved.error };
   await db.document.create({ data: { driverId: driver.id, docType, ...saved.file } });
+  invalidateListings();
   revalidatePath("/driver");
   return { ok: `${DOCUMENT_TYPES[docType]} uploaded.` };
 }

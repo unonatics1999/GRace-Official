@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Company, User } from "@prisma/client";
 import { db } from "./db";
 import { env } from "./env";
@@ -60,8 +60,22 @@ export async function requireCompanyUser(): Promise<CompanyUser> {
   return user as CompanyUser;
 }
 
+/** The admin area 404s for everyone else, so it doesn't advertise that it exists. */
 export async function requireAdmin(): Promise<SessionUser> {
-  const user = await requireUser();
-  if (!user.isAdmin) redirect("/dashboard");
+  const user = await currentUser();
+  if (!user?.isAdmin) notFound();
+  return user;
+}
+
+/** Where each kind of account lands after logging in. */
+export function homeFor(user: { isAdmin: boolean; company: { accountType: string } | null }): string {
+  if (user.isAdmin) return "/admin";
+  return user.company?.accountType === "OWNER" ? "/dashboard" : "/bookings";
+}
+
+/** Car-owner pages (dashboard, fleet, driver). Renters are offered to become an owner instead. */
+export async function requireOwner(): Promise<CompanyUser> {
+  const user = await requireCompanyUser();
+  if (user.company.accountType !== "OWNER") redirect("/become-owner");
   return user;
 }

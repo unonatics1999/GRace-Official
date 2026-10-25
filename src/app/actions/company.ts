@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { parseDay } from "@/lib/dates";
 import { db } from "@/lib/db";
+import { invalidateListings } from "@/lib/listing-cache";
 import {
   BUSINESS_REQUIREMENTS,
   DOCUMENT_TYPES,
@@ -44,6 +45,7 @@ export async function updateContact(_: ActionState, form: FormData): Promise<Act
     where: { id: c.id },
     data: { name: parsed.data.name, phone, city: parsed.data.city || c.city, ...(backToReview ? { status: "PENDING" } : {}) },
   });
+  invalidateListings();
   revalidatePath("/account");
   return { ok: backToReview ? "Saved. Your name changed, so Downtime will check it against your ID again." : "Saved. You can book with a driver now." };
 }
@@ -92,6 +94,7 @@ export async function updateVerification(_: ActionState, form: FormData): Promis
   const backToReview = identityChanged && c.status === "VERIFIED";
 
   await db.company.update({ where: { id: c.id }, data: { ...data, ...(backToReview ? { status: "PENDING" } : {}) } });
+  invalidateListings();
   revalidatePath("/account");
   return {
     ok: backToReview ? "Saved. Your ID details changed, so Downtime will review them again." : "Saved. Upload the documents below if you haven't yet.",
@@ -107,6 +110,7 @@ export async function uploadAccountDocument(_: ActionState, form: FormData): Pro
   const saved = await saveDocument(form.get("file"), `documents/accounts/${me.companyId}`, DOCUMENT_TYPES[docType]);
   if (!saved.ok) return { error: saved.error };
   await db.document.create({ data: { companyId: me.companyId, docType, ...saved.file } });
+  invalidateListings();
   revalidatePath("/account");
   return { ok: `${DOCUMENT_TYPES[docType]} uploaded.` };
 }

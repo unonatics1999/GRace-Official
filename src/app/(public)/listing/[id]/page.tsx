@@ -5,12 +5,11 @@ import { BookingBox } from "@/components/BookingBox";
 import { Gallery } from "@/components/Gallery";
 import { StarIcon, VerifiedIcon } from "@/components/ListingCard";
 import { VehicleArt } from "@/components/VehicleArt";
-import { BLOCKING_STATUSES } from "@/lib/availability";
 import { averageRating } from "@/lib/commission";
 import { ACCOUNT_KINDS, FUEL_TYPES, TRANSMISSIONS, VEHICLE_TYPES, type AccountKind, type VehicleType } from "@/lib/constants";
 import { formatDay, parseDay, today } from "@/lib/dates";
-import { db } from "@/lib/db";
-import { describeDowntime, driverBookable, equipmentTags, listableWhere, listingInclude, photoUrl, vehicleTitle } from "@/lib/listings";
+import { getLiveListings } from "@/lib/listing-cache";
+import { describeDowntime, driverBookable, equipmentTags, photoUrl, vehicleTitle } from "@/lib/listings";
 import { bookingEligibility } from "@/lib/eligibility";
 import { currentUser } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
@@ -25,17 +24,11 @@ export default async function ListingPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const [user, settings] = await Promise.all([currentUser(), getCommissionSettings()]);
+  const [user, settings, live] = await Promise.all([currentUser(), getCommissionSettings(), getLiveListings()]);
 
-  const vehicle = await db.vehicle.findFirst({
-    where: { id, ...listableWhere() },
-    include: {
-      ...listingInclude,
-      company: { include: { _count: { select: { vehicles: true } } } },
-      bookings: { where: { status: { in: BLOCKING_STATUSES } } },
-    },
-  });
+  const vehicle = live.find((v) => v.id === id);
   if (!vehicle) notFound();
+  const ownerListings = live.filter((v) => v.companyId === vehicle.companyId).length;
 
   const title = vehicleTitle(vehicle);
   const tags = equipmentTags(vehicle.equipment);
@@ -106,7 +99,7 @@ export default async function ListingPage({
               <p className="font-semibold">Owned by {vehicle.company.name}</p>
               <p className="text-sm text-stone-500">
                 Verified {ACCOUNT_KINDS[vehicle.company.kind as AccountKind].toLowerCase()} · on Downtime since {memberSince} ·{" "}
-                {vehicle.company._count.vehicles} vehicle{vehicle.company._count.vehicles === 1 ? "" : "s"}
+                {ownerListings} vehicle{ownerListings === 1 ? "" : "s"}
               </p>
             </div>
           </section>

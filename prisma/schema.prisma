@@ -20,6 +20,8 @@ model Company {
   id             String     @id @default(cuid())
   // INDIVIDUAL | BUSINESS
   kind           String     @default("BUSINESS")
+  // RENTER (rents cars) | OWNER (lists cars; can also rent). Decides the home page and menu.
+  accountType    String     @default("RENTER")
   name           String
   city           String
   // PENDING | VERIFIED | REJECTED | SUSPENDED. Only VERIFIED accounts can book or list.

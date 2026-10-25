@@ -3,13 +3,13 @@ import { redirect } from "next/navigation";
 import { createVehicle } from "@/app/actions/vehicles";
 import { VehicleForm } from "@/components/VehicleForm";
 import { VEHICLE_RULES } from "@/lib/requirements";
-import { requireCompanyUser } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { canManageFleet } from "@/lib/util";
 
 export const metadata = { title: "List a vehicle · Downtime" };
 
 export default async function NewVehiclePage() {
-  const me = await requireCompanyUser();
+  const me = await requireOwner();
   if (!canManageFleet(me.role)) redirect("/fleet");
 
   return (

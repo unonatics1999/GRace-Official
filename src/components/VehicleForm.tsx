@@ -1,4 +1,5 @@
 import type { Vehicle } from "@prisma/client";
+import type { ReactNode } from "react";
 import { ActionForm } from "@/components/ActionForm";
 import { Field } from "@/components/ui";
 import { FUEL_TYPES, TRANSMISSIONS, VEHICLE_TYPES } from "@/lib/constants";
@@ -20,13 +21,16 @@ type Props = {
   vehicle?: Vehicle;
   defaultCity: string;
   submitLabel: string;
+  /** Extra fields shown first, e.g. the owner picker in the admin console. */
+  extra?: ReactNode;
 };
 
 /** Every listing field, grouped the way an owner reads their OR/CR. */
-export function VehicleForm({ action, vehicle: v, defaultCity, submitLabel }: Props) {
+export function VehicleForm({ action, vehicle: v, defaultCity, submitLabel, extra }: Props) {
   const peso = (cents?: number) => (cents ? String(cents / 100) : "");
   return (
     <ActionForm action={action} submitLabel={submitLabel} className="space-y-8">
+      {extra}
       <fieldset className="space-y-4">
         <legend className="text-sm font-semibold text-stone-900">Vehicle (as on the CR)</legend>
         <div className="grid gap-4 sm:grid-cols-3">

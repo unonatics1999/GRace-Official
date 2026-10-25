@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { setCompanyStatus } from "@/app/actions/admin";
 import { ActionButton, AdminHeader, FilterTabs, Table, Td } from "@/components/admin";
 import { CompanyStatusBadge } from "@/components/ui";
@@ -29,8 +30,10 @@ export default async function AdminCompanies({ searchParams }: { searchParams: P
     <>
       <AdminHeader
         title="Accounts"
-        description="Every renter and host account. New applications are reviewed under Applications."
-      />
+        description="Every renter and car-owner account. New applications are reviewed under Applications."
+      >
+        <Link href="/admin/companies/new" className="btn-primary">+ New account</Link>
+      </AdminHeader>
       <FilterTabs
         base="/admin/companies"
         current={filter}
@@ -43,8 +46,8 @@ export default async function AdminCompanies({ searchParams }: { searchParams: P
         {companies.map((c) => (
           <tr key={c.id} className="hover:bg-stone-50/60">
             <Td>
-              <p className="font-medium text-stone-900">{c.name}</p>
-              <p className="text-xs text-stone-500">{ACCOUNT_KINDS[c.kind as AccountKind]} · {c.city}</p>
+              <Link href={`/admin/companies/${c.id}`} className="font-medium text-brand-700 hover:underline">{c.name}</Link>
+              <p className="text-xs text-stone-500">{c.accountType === "OWNER" ? "Car owner" : "Renter"} · {ACCOUNT_KINDS[c.kind as AccountKind]} · {c.city}</p>
             </Td>
             <Td className="text-stone-600">{c.users[0]?.email ?? "—"}</Td>
             <Td>{c._count.users}</Td>

@@ -8,7 +8,7 @@ import { DRIVER_STATUS, VEHICLE_TYPES, type VehicleType } from "@/lib/constants"
 import { formatDay } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { DRIVER_REQUIREMENTS, VEHICLE_RULES } from "@/lib/requirements";
-import { requireCompanyUser } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { getCommissionSettings } from "@/lib/settings";
 
 export const metadata = { title: "Driver profile · Downtime" };
@@ -21,7 +21,7 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function DriverPage() {
-  const me = await requireCompanyUser();
+  const me = await requireOwner();
   const [driver, settings] = await Promise.all([
     db.driver.findUnique({ where: { userId: me.id }, include: { documents: { orderBy: { createdAt: "desc" } }, vehicles: true } }),
     getCommissionSettings(),

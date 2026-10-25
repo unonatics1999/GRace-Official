@@ -3,11 +3,11 @@ import { BookingStatusBadge, EmptyState, Stat } from "@/components/ui";
 import { displayDay } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { listableWhere, vehicleTitle } from "@/lib/listings";
-import { requireCompanyUser } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { formatCents } from "@/lib/util";
 
 export default async function DashboardPage() {
-  const me = await requireCompanyUser();
+  const me = await requireOwner();
   const companyId = me.companyId;
 
   const [vehicles, listed, incoming, outgoing, earned, recent] = await Promise.all([

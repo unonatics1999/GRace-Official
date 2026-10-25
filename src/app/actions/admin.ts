@@ -3,11 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
+import { invalidateListings } from "@/lib/listing-cache";
 import { requireAdmin } from "@/lib/session";
 import { commissionSchema, saveCommissionSettings } from "@/lib/settings";
 import { firstError, type ActionState } from "@/lib/util";
 
-const refresh = () => revalidatePath("/admin", "layout");
+const refresh = () => {
+  invalidateListings();
+  revalidatePath("/admin", "layout");
+};
 
 // ── Accounts ──────────────────────────────────────────────────────────────
 

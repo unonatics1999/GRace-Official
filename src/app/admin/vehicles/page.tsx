@@ -28,7 +28,9 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <AdminHeader title="Vehicles" description="Hide a listing that breaks the rules. Hosts can't un-hide it themselves." />
+      <AdminHeader title="Vehicles" description="Every car on Downtime. Hidden listings can't be un-hidden by their owner.">
+        <Link href="/admin/vehicles/new" className="btn-primary">+ New vehicle</Link>
+      </AdminHeader>
       <FilterTabs
         base="/admin/vehicles"
         current={filter}
@@ -49,7 +51,7 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
                 <div className="flex items-center gap-3">
                   <VehicleArt type={v.type} seed={v.id} colorHex={v.colorHex} className="h-10 w-14 shrink-0 rounded-md" />
                   <div>
-                    <p className="font-medium text-stone-900">{vehicleTitle(v)}</p>
+                    <Link href={`/admin/vehicles/${v.id}`} className="font-medium text-brand-700 hover:underline">{vehicleTitle(v)}</Link>
                     <p className="text-xs text-stone-500">{v.color} · {v.plateNumber} · {VEHICLE_TYPES[v.type as VehicleType]} · {v.city}</p>
                   </div>
                 </div>

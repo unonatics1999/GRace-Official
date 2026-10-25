@@ -75,6 +75,7 @@ export default async function BookingPage({
       {flags.paid && booking.status === "CONFIRMED" && <Note tone="green">Payment received. Your booking is confirmed.</Note>}
       {flags.paid && booking.status === "AWAITING_PAYMENT" && <Note tone="amber">We&apos;re waiting for PayMongo to confirm your payment. Refresh in a minute.</Note>}
       {flags.error === "clash" && <Note tone="red">Those dates were just taken by another approved booking, so this one can&apos;t be approved. Decline it.</Note>}
+      {flags.error === "busy" && <Note tone="amber">Lots happening on this car right now. Please try that again.</Note>}
       {flags.error === "payment" && <Note tone="red">This booking can&apos;t be paid now. The payment window may have closed.</Note>}
 
       <div className="flex flex-wrap items-start gap-5">

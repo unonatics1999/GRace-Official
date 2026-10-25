@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AdminHeader, Table, Td } from "@/components/admin";
 import { CompanyStatusBadge } from "@/components/ui";
 import { ROLES, type Role } from "@/lib/constants";
@@ -19,7 +20,8 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
   return (
     <>
       <AdminHeader title="Users" description="Everyone with a Downtime login.">
-        <form className="flex gap-2">
+        <form className="flex flex-wrap gap-2">
+          <Link href="/admin/users/new" className="btn-primary">+ New user</Link>
           <input name="q" defaultValue={q ?? ""} placeholder="Search name, email or company" className="input w-64" />
           <button className="btn-secondary">Search</button>
         </form>
@@ -27,7 +29,9 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
       <Table head={["Name", "Email", "Company", "Role", "Joined"]} empty={users.length === 0}>
         {users.map((u) => (
           <tr key={u.id} className="hover:bg-stone-50/60">
-            <Td className="font-medium text-stone-900">{u.name}</Td>
+            <Td>
+              <Link href={`/admin/users/${u.id}`} className="font-medium text-brand-700 hover:underline">{u.name}</Link>
+            </Td>
             <Td className="text-stone-600">{u.email}</Td>
             <Td>
               {u.company ? (

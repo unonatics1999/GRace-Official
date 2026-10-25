@@ -55,6 +55,7 @@ async function main() {
     const company = await db.company.create({
       data: {
         kind: opts.kind,
+        accountType: "OWNER",
         name: opts.name,
         city: opts.city,
         status: "VERIFIED",

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { MAX_PHOTO_BYTES, PHOTO_ANGLES, REQUIRED_PHOTO_ANGLES, type PhotoAngle } from "@/lib/constants";
 import { db } from "@/lib/db";
+import { invalidateListings } from "@/lib/listing-cache";
 import { canConfirmInspection, canStartPickup, canStartReturn, statusAfterConfirmed, type Party } from "@/lib/lifecycle";
 import { requireCompanyUser, type CompanyUser } from "@/lib/session";
 import { detectImageType, saveFile } from "@/lib/storage";
@@ -74,6 +75,7 @@ export async function submitInspection(bookingId: string, phase: "PICKUP" | "RET
       photos: { create: saved },
     },
   });
+  invalidateListings();
   revalidatePath(`/bookings/${booking.id}`);
   return { ok: "Checklist saved. The other company now confirms it." };
 }
@@ -117,5 +119,6 @@ export async function confirmInspection(inspectionId: string): Promise<void> {
       });
     }
   });
+  invalidateListings();
   revalidatePath(`/bookings/${booking.id}`);
 }

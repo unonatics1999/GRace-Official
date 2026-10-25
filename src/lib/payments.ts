@@ -1,5 +1,7 @@
 import { BLOCKING_STATUSES, isBlocking, overlaps } from "./availability";
 import { db } from "./db";
+import { withTxRetry } from "./db-retry";
+import { invalidateListings } from "./listing-cache";
 import { lockVehicle } from "./locks";
 
 /** Unpaid approvals past their deadline give their dates back. Cheap; run before reading bookings. */
@@ -16,10 +18,10 @@ export async function expireOverdueBookings(): Promise<void> {
  * is flagged for a refund instead.
  */
 export async function markPaymentPaid(paymentId: string): Promise<"confirmed" | "refund" | "already"> {
-  return db.$transaction(async (tx) => {
+  const result = await withTxRetry(() => db.$transaction(async (tx) => {
     const payment = await tx.payment.findUnique({ where: { id: paymentId }, include: { booking: true } });
     if (!payment) throw new Error(`Unknown payment ${paymentId}`);
-    if (payment.status === "PAID") return "already";
+    if (payment.status === "PAID") return "already" as const;
     await lockVehicle(tx, payment.booking.vehicleId);
 
     const now = new Date();
@@ -34,9 +36,11 @@ export async function markPaymentPaid(paymentId: string): Promise<"confirmed" | 
       where: { id: payment.id },
       data: { status: "PAID", paidAt: now, refundNeeded: !confirmable },
     });
-    if (!confirmable) return "refund";
+    if (!confirmable) return "refund" as const;
 
     await tx.booking.update({ where: { id: booking.id }, data: { status: "CONFIRMED", paidAt: now } });
-    return "confirmed";
-  });
+    return "confirmed" as const;
+  }));
+  invalidateListings();
+  return result;
 }

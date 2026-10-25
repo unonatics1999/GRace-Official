@@ -25,7 +25,7 @@ import { displayDay, formatDay, today } from "@/lib/dates";
 import { db } from "@/lib/db";
 import { photoUrl, vehicleTitle } from "@/lib/listings";
 import { VEHICLE_REQUIREMENTS, missingDocuments } from "@/lib/requirements";
-import { requireCompanyUser } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { canManageFleet, formatCents } from "@/lib/util";
 
 export default async function FleetVehiclePage({
@@ -37,7 +37,7 @@ export default async function FleetVehiclePage({
 }) {
   const { id } = await params;
   const { error } = await searchParams;
-  const me = await requireCompanyUser();
+  const me = await requireOwner();
   const vehicle = await db.vehicle.findFirst({
     where: { id, companyId: me.companyId },
     include: {
