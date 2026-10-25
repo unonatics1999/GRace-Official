@@ -10,18 +10,22 @@ export function Field({ label, ...input }: { label: string } & InputHTMLAttribut
   );
 }
 
-/** The G+Race icon: orange G with RACE as its crossbar and four clock lines, on a black tile. */
+/** The G+Race icon: an orange G with four clock lines. */
 export function GraceMark({ className = "h-10 w-10" }: { className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element -- static brand SVG
   return <img src="/brand/grace-mark.svg" alt="" aria-hidden="true" className={className} />;
 }
 
-/** Brand lockup: the G+Race icon with "Car Rental" underneath, together on one black badge. */
-export function Logo({ className = "" }: { className?: string; tone?: "light" | "dark" }) {
+/** Brand lockup: the G, then RACE with "Car Rental" underneath. */
+export function Logo({ className = "", tone = "light" }: { className?: string; tone?: "light" | "dark" }) {
+  const ink = tone === "dark" ? "text-white" : "text-[#141414]";
   return (
-    <span className={`inline-flex flex-col items-center rounded-md bg-[#0b0b0b] px-2.5 pt-1 pb-1.5 leading-none ${className}`} aria-label="GRace Car Rental">
-      <GraceMark className="h-9 w-9" />
-      <span className="mt-0.5 border-t border-[#ff6a00] pt-1 text-[8px] font-semibold uppercase tracking-[0.28em] text-white">Car Rental</span>
+    <span className={`inline-flex items-center gap-1.5 leading-none ${className}`} aria-label="GRace Car Rental">
+      <GraceMark className="h-12 w-12" />
+      <span className="flex flex-col">
+        <span className={`-skew-x-10 text-[28px] font-extrabold tracking-tight ${ink}`}>RACE</span>
+        <span className={`mt-1 border-t-2 border-[#ff6a00] pt-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${ink}`}>Car Rental</span>
+      </span>
     </span>
   );
 }
