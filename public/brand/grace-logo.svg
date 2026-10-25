@@ -5,6 +5,6 @@
   <line x1="140.0" y1="32.0" x2="140.0" y2="20.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
   <line x1="140.0" y1="212.0" x2="140.0" y2="224.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
   <line x1="50.0" y1="122.0" x2="38.0" y2="122.0" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
-  <text x="140" y="136" textLength="106" lengthAdjust="spacingAndGlyphs" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="900" font-style="italic" fill="#ffffff">RACE</text>
-  <text x="150" y="278" text-anchor="middle" textLength="236" lengthAdjust="spacing" font-family="'Segoe UI', Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff">CAR RENTAL</text>
+  <text x="140" y="136" font-family="'Segoe UI Black', 'Segoe UI', 'Arial Black', Arial, sans-serif" font-size="40" font-weight="900" font-style="italic" fill="#ffffff">RACE</text>
+  <text x="150" y="278" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5" fill="#ffffff">CAR RENTAL</text>
 </svg>
