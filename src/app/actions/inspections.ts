@@ -21,6 +21,8 @@ async function loadForParty(bookingId: string, me: CompanyUser) {
 
 /** Saves the pick-up or return checklist: odometer, fuel, notes and one photo per angle. */
 export async function submitInspection(bookingId: string, phase: "PICKUP" | "RETURN", form: FormData): Promise<ActionState> {
+  // Server actions can be called with any arguments, so the type annotation isn't enough.
+  if (phase !== "PICKUP" && phase !== "RETURN") return { error: "Unknown checklist." };
   const me = await requireCompanyUser();
   const loaded = await loadForParty(bookingId, me);
   if (!loaded) return { error: "Booking not found." };

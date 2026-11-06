@@ -43,6 +43,11 @@ other repository on this machine.
 - Local dev uses SQLite; production is PostgreSQL (switch steps in the README). Docker Desktop doesn't
   start on the owner's PC yet.
 - Run `npm test`, `npm run typecheck`, `npm run lint` and `npm run build` before committing.
+- Security rules (see README "Built-in safeguards"): every server action re-checks the caller and that the record
+  belongs to their company (server actions are callable with any arguments, so validate them at runtime); rate
+  limits use `ipFromHeaders` (`src/lib/client-ip.ts`), never the first `X-Forwarded-For` value; dev-only shortcuts
+  check `isLocalDevelopment()`; secrets (reset links) never go into the message log; new headers go in
+  `next.config.ts`.
 - Commits: Conventional Commits, under the user's git identity, with no `Co-Authored-By` or
   "Generated with" lines.
 - On Windows PowerShell 5.1, give the user commands one per line: `&&` doesn't work there.
@@ -58,6 +63,8 @@ other repository on this machine.
 7. LTFRB/DOT accreditation for rent-a-car with driver; NPC registration.
 8. Brand is GRace Car Rental. A small "Grace Car Rental" already operates in Quezon City (Facebook): confirm the name is free on DTI BNRS and IPOPHL before registering.
 9. PayMongo test keys for live checkout testing.
+10. Rating abuse: an owner could book their own car from a second renter account to inflate their driver rating
+    (lower commission). Consider counting only ratings from distinct, verified renters before applying a tier.
 
 ## Brand
 

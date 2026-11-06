@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { ipFromHeaders } from "@/lib/client-ip";
+import { overLimit } from "@/lib/memory-limit";
 import { helpKnowledgeBase, searchHelp } from "@/lib/help-content";
 
 // Help-center assistant. Answers only from the help articles, streams plain text back.
@@ -23,15 +25,22 @@ const bodySchema = z.object({
 // Per-IP limit: 20 questions per 10 minutes. In-memory, so it applies per server instance.
 const WINDOW_MS = 10 * 60 * 1000;
 const LIMIT = 20;
-const hits = new Map<string, number[]>();
+
+// Global cap on AI answers, so forged addresses can't run up the API bill. Past it, visitors still
+// get answers, from the article search instead of the AI.
+const AI_HOURLY_CAP = 300;
+let aiCalls: number[] = [];
 
 function rateLimited(ip: string): boolean {
+  return overLimit(`help:${ip}`, LIMIT, WINDOW_MS);
+}
+
+function aiBudgetLeft(): boolean {
   const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(ip, recent);
-  if (hits.size > 10_000) hits.clear();
-  return recent.length > LIMIT;
+  aiCalls = aiCalls.filter((t) => now - t < 3_600_000);
+  if (aiCalls.length >= AI_HOURLY_CAP) return false;
+  aiCalls.push(now);
+  return true;
 }
 
 function fallbackAnswer(question: string): string {
@@ -45,7 +54,7 @@ function fallbackAnswer(question: string): string {
 const client = new Anthropic();
 
 export async function POST(request: Request) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = ipFromHeaders(request.headers);
   if (rateLimited(ip)) return new Response("You're asking a lot of questions! Please wait a few minutes.", { status: 429 });
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
@@ -55,7 +64,7 @@ export async function POST(request: Request) {
   const { messages } = parsed.data;
   const question = messages.at(-1)!.content;
 
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
+  if ((!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) || !aiBudgetLeft()) {
     return new Response(fallbackAnswer(question), { headers: { "Content-Type": "text/plain; charset=utf-8", "X-Help-Mode": "articles" } });
   }
 
@@ -65,7 +74,8 @@ export async function POST(request: Request) {
       try {
         const stream = client.beta.messages.stream({
           model: "claude-opus-5-5",
-          max_tokens: 4000,
+          // Answers are two to four sentences.
+          max_tokens: 800,
           // Short help answers don't need deep reasoning.
           output_config: { effort: "low" },
           // If the model declines, the API retries on a suitable fallback model in the same call.

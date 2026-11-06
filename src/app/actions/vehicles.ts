@@ -40,14 +40,23 @@ export async function updateVehicle(vehicleId: string, _: ActionState, form: For
   const result = vehicleData(form);
   if ("error" in result) return { error: result.error };
   const v = owned.vehicle;
-  const legalChange = result.data.plateNumber !== v.plateNumber || result.data.make !== v.make || result.data.model !== v.model || result.data.year !== v.year;
+  // Anything that sets the commission category or the car's legal standing goes back to review.
+  const sameDay = (a: Date | null | undefined, b: Date | null | undefined) => (a?.getTime() ?? null) === (b?.getTime() ?? null);
+  const legalChange =
+    result.data.plateNumber !== v.plateNumber ||
+    result.data.make !== v.make ||
+    result.data.model !== v.model ||
+    result.data.year !== v.year ||
+    result.data.type !== v.type ||
+    !sameDay(result.data.registrationExpiry, v.registrationExpiry) ||
+    !sameDay(result.data.insuranceExpiry, v.insuranceExpiry);
   await db.vehicle.update({
     where: { id: v.id },
     data: { ...result.data, ...(legalChange && v.reviewStatus === "APPROVED" ? { reviewStatus: "SUBMITTED" } : {}) },
   });
   invalidateListings();
   revalidatePath(`/fleet/${v.id}`);
-  return { ok: legalChange && v.reviewStatus === "APPROVED" ? "Saved. Plate or model changed, so GRace will review it again." : "Saved." };
+  return { ok: legalChange && v.reviewStatus === "APPROVED" ? "Saved. Its legal details changed, so GRace will review it again." : "Saved." };
 }
 
 export async function uploadVehiclePhotos(vehicleId: string, form: FormData): Promise<ActionState> {

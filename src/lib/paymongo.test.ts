@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { verifyWebhookSignature } from "./paymongo";
+import { verifyWebhookSignature, webhookFresh } from "./paymongo";
 
 const secret = "whsk_test_secret";
 const body = '{"data":{"attributes":{"type":"checkout_session.payment.paid","livemode":false}}}';
@@ -24,5 +24,19 @@ describe("verifyWebhookSignature", () => {
     expect(verifyWebhookSignature(body.replace("false", "true"), header, secret, false)).toBe(false);
     expect(verifyWebhookSignature(body, header, "other", false)).toBe(false);
     expect(verifyWebhookSignature(body, null, secret, false)).toBe(false);
+  });
+});
+
+describe("webhookFresh", () => {
+  const now = 1_800_000_000;
+  it("accepts a recent timestamp", () => {
+    expect(webhookFresh(`t=${now - 60},te=abc`, now)).toBe(true);
+  });
+  it("refuses a replayed old event", () => {
+    expect(webhookFresh(`t=${now - 3600},te=abc`, now)).toBe(false);
+  });
+  it("refuses a missing timestamp", () => {
+    expect(webhookFresh("te=abc", now)).toBe(false);
+    expect(webhookFresh(null, now)).toBe(false);
   });
 });

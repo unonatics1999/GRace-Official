@@ -7,9 +7,10 @@ import { z } from "zod";
 import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { PHONE_HINT, normalizePhone } from "@/lib/phone";
+import { overLimit } from "@/lib/memory-limit";
 import { clientIp, loginBlocked, recordLogin } from "@/lib/rate-limit";
 import { createSession, destroySession, homeFor, requireCompanyUser, requireUser } from "@/lib/session";
-import { firstError, normalizeEmail, type ActionState } from "@/lib/util";
+import { canManageTeam, firstError, normalizeEmail, type ActionState } from "@/lib/util";
 
 const MIN_PASSWORD = 10;
 
@@ -25,7 +26,12 @@ const signupSchema = z.object({
   terms: z.literal("on", { message: "Agree to the Terms and Privacy Policy to continue." }),
 });
 
+// Compared against when the email has no account, so a login takes as long either way and its
+// timing doesn't reveal which emails are registered.
+const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
+
 export async function signup(_: ActionState, form: FormData): Promise<ActionState> {
+  if (overLimit(`signup:${await clientIp()}`, 5, 60 * 60 * 1000)) return { error: "Too many sign-ups from this network. Try again in an hour." };
   const parsed = signupSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { accountType, kind, companyName, city, name, password } = parsed.data;
@@ -70,7 +76,8 @@ export async function login(_: ActionState, form: FormData): Promise<ActionState
 
   const user = await db.user.findUnique({ where: { email }, include: { company: true } });
   // Same message either way, so the form doesn't reveal which emails have accounts.
-  if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
+  const passwordOk = await bcrypt.compare(parsed.data.password, user?.passwordHash ?? DUMMY_HASH);
+  if (!user || !passwordOk) {
     await recordLogin(email, ip, false);
     return { error: "Email or password is incorrect." };
   }
@@ -94,6 +101,7 @@ export async function logout(): Promise<void> {
 /** A renter starts listing cars. One account can do both. */
 export async function becomeOwner(): Promise<void> {
   const me = await requireCompanyUser();
+  if (!canManageTeam(me.role)) redirect("/account");
   await db.company.update({ where: { id: me.companyId }, data: { accountType: "OWNER" } });
   redirect("/fleet/new?welcome=1");
 }

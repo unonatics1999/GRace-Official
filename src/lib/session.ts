@@ -60,6 +60,7 @@ export async function requireUser(): Promise<SessionUser> {
 export async function requireCompanyUser(): Promise<CompanyUser> {
   const user = await requireUser();
   if (!user.company) redirect("/admin");
+  if (user.company.status === "SUSPENDED") redirect("/suspended");
   return user as CompanyUser;
 }
 
@@ -71,8 +72,9 @@ export async function requireAdmin(): Promise<SessionUser> {
 }
 
 /** Where each kind of account lands after logging in. */
-export function homeFor(user: { isAdmin: boolean; company: { accountType: string } | null }): string {
+export function homeFor(user: { isAdmin: boolean; company: { accountType: string; status?: string } | null }): string {
   if (user.isAdmin) return "/admin";
+  if (user.company && "status" in user.company && user.company.status === "SUSPENDED") return "/suspended";
   return user.company?.accountType === "OWNER" ? "/dashboard" : "/bookings";
 }
 

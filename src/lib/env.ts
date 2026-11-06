@@ -41,8 +41,14 @@ export function env(): Env {
   return cached;
 }
 
-/** Payments run against PayMongo when a key is set; otherwise (development only) they're simulated. */
-export function paymentsSimulated(): boolean {
+/** Development on this machine only: not production, and the app's address is localhost. */
+export function isLocalDevelopment(): boolean {
   const e = env();
-  return !e.PAYMONGO_SECRET_KEY && e.NODE_ENV !== "production";
+  if (e.NODE_ENV === "production") return false;
+  return ["localhost", "127.0.0.1", "[::1]"].includes(new URL(e.APP_URL).hostname);
+}
+
+/** Payments run against PayMongo when a key is set; otherwise (local development only) they're simulated. */
+export function paymentsSimulated(): boolean {
+  return !env().PAYMONGO_SECRET_KEY && isLocalDevelopment();
 }

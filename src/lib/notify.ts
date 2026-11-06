@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { env } from "./env";
+import { env, isLocalDevelopment } from "./env";
 
 // Sends email (Resend) and SMS (Semaphore) and records every attempt in the Message table.
 // Without a provider key, development simulates the send: it's logged and recorded as SIMULATED.
@@ -15,6 +15,8 @@ type Outgoing = {
   address: string;
   subject?: string;
   body: string;
+  /** What to keep in the message log instead of the body (for messages carrying a secret link). */
+  storedBody?: string;
   kind?: "ADMIN" | "PASSWORD_RESET";
 };
 
@@ -47,7 +49,7 @@ async function sendSms(to: string, text: string): Promise<SendResult> {
 }
 
 function simulated(channel: Channel, to: string, text: string): SendResult {
-  if (env().NODE_ENV === "production") {
+  if (!isLocalDevelopment()) {
     return { status: "FAILED", error: `${channel === "EMAIL" ? "RESEND_API_KEY" : "SEMAPHORE_API_KEY"} is not set.` };
   }
   console.log(`\n[simulated ${channel.toLowerCase()} to ${to}]\n${text}\n`);
@@ -69,7 +71,7 @@ export async function sendMessage(m: Outgoing): Promise<SendResult> {
       channel: m.channel,
       address: m.address,
       subject: m.subject ?? "",
-      body: m.body,
+      body: m.storedBody ?? m.body,
       kind: m.kind ?? "ADMIN",
       status: result.status,
       error: result.error,

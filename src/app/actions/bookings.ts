@@ -180,6 +180,7 @@ export async function payForBooking(bookingId: string): Promise<void> {
 /** Renter withdraws. A paid booking is flagged so support refunds it. */
 export async function cancelBooking(bookingId: string): Promise<void> {
   const me = await requireCompanyUser();
+  if (!canManageFleet(me.role)) return;
   const booking = await db.booking.findFirst({ where: { id: bookingId, renterCompanyId: me.companyId } });
   if (!booking || !canRenterCancel(booking)) return;
 

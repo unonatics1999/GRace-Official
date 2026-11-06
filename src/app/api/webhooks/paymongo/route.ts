@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { verifyWebhookSignature, type WebhookEvent } from "@/lib/paymongo";
+import { verifyWebhookSignature, webhookFresh, type WebhookEvent } from "@/lib/paymongo";
 import { markPaymentPaid } from "@/lib/payments";
 
 // PayMongo calls this when a checkout is paid. Register it in the PayMongo dashboard as
@@ -20,9 +20,14 @@ export async function POST(request: Request) {
   }
 
   const livemode = Boolean(event.data?.attributes?.livemode);
-  if (!verifyWebhookSignature(raw, request.headers.get("paymongo-signature"), secret, livemode)) {
+  const signature = request.headers.get("paymongo-signature");
+  if (!verifyWebhookSignature(raw, signature, secret, livemode)) {
     return new NextResponse("Invalid signature", { status: 401 });
   }
+  // A captured event replayed later is refused.
+  if (!webhookFresh(signature)) return new NextResponse("Stale event", { status: 401 });
+  // With live keys, test-mode events never mark anything paid.
+  if (env().PAYMONGO_SECRET_KEY?.startsWith("sk_live_") && !livemode) return NextResponse.json({ received: true, ignored: "test mode" });
 
   if (event.data.attributes.type === "checkout_session.payment.paid") {
     const sessionId = event.data.attributes.data.id;

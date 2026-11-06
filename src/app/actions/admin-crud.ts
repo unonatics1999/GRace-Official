@@ -169,7 +169,8 @@ export async function adminUpdateUser(userId: string, _: ActionState, form: Form
       role,
       isAdmin,
       companyId: isAdmin ? null : companyId,
-      ...(password ? { passwordHash: await bcrypt.hash(password, 10) } : {}),
+      // A password set by an admin also signs the user out everywhere.
+      ...(password ? { passwordHash: await bcrypt.hash(password, 10), sessionsValidAfter: new Date() } : {}),
     },
   });
   await audit(admin.id, "user.updated", "User", userId, [email, isAdmin && "admin", password && "password reset"].filter(Boolean).join(", "));

@@ -56,7 +56,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ kind: stri
     return new NextResponse(new Uint8Array(bytes), {
       headers: {
         "Content-Type": file.contentType,
-        "Cache-Control": file.isPublic ? "public, max-age=604800, stale-while-revalidate=86400" : "private, max-age=300",
+        "Cache-Control": file.isPublic ? "public, max-age=86400" : "private, max-age=300",
         "X-Content-Type-Options": "nosniff",
         "Content-Disposition": "inline",
       },

@@ -3,29 +3,52 @@ import { redirect } from "next/navigation";
 import { Logo } from "@/components/ui";
 import { currentUser, homeFor } from "@/lib/session";
 
+const POINTS = [
+  "Every owner and driver verified by GRace",
+  "One clear price, paid securely through PayMongo",
+  "Timestamped photos at every pick-up and return",
+];
+
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
   if (user) redirect(homeFor(user));
 
   return (
-    <div className="grid min-h-screen bg-white lg:grid-cols-2">
-      <div className="flex flex-col px-4 py-8 sm:px-10">
-        <Link href="/" aria-label="GRace home">
-          <Logo className="text-lg" />
+    <div className="grid min-h-screen bg-white lg:grid-cols-[1fr_1.1fr]">
+      <div className="flex flex-col px-6 py-8 sm:px-12">
+        <Link href="/" aria-label="GRace home" className="self-start">
+          <Logo />
         </Link>
-        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-10">{children}</div>
+        <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-12">{children}</div>
+        <p className="text-center text-xs text-stone-400">
+          © {new Date().getFullYear()} GRace Car Rental ·{" "}
+          <Link href="/terms" className="hover:text-stone-600">Terms</Link> ·{" "}
+          <Link href="/privacy" className="hover:text-stone-600">Privacy</Link> ·{" "}
+          <Link href="/help" className="hover:text-stone-600">Help</Link>
+        </p>
       </div>
-      <div className="relative hidden overflow-hidden bg-brand-900 lg:block">
-        <div className="absolute inset-x-12 top-1/2 -translate-y-1/2 space-y-8 text-white">
-          {/* eslint-disable-next-line @next/next/no-img-element -- static brand SVG */}
-          <img src="/brand/grace-logo.svg" alt="GRace Car Rental" className="h-56 w-auto" />
-          <div>
-            <p className="text-3xl font-semibold tracking-tight">Rent a car, or the car and its driver.</p>
-            <p className="mt-3 text-brand-100">
-              Verified owners, pro-licensed drivers, and a photo record of every handoff.
-            </p>
-          </div>
+
+      <div className="relative hidden flex-col justify-between bg-[#0b0b0b] p-14 text-white lg:flex">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-lime">GRace Car Rental</p>
+        <div className="max-w-md">
+          <p className="text-4xl font-semibold leading-tight tracking-tight">
+            Life&apos;s a race.
+            <br />
+            <span className="text-lime">Ride it with GRace.</span>
+          </p>
+          <p className="mt-5 text-lg leading-relaxed text-stone-400">
+            Rent a car from a verified owner, or book the owner as your professional driver.
+          </p>
+          <ul className="mt-10 space-y-4">
+            {POINTS.map((p) => (
+              <li key={p} className="flex items-center gap-3 text-sm text-stone-300">
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-lime/15 text-xs text-lime">✓</span>
+                {p}
+              </li>
+            ))}
+          </ul>
         </div>
+        <p className="text-sm text-stone-500">Mabilis ang buhay, panatag sa GRace.</p>
       </div>
     </div>
   );

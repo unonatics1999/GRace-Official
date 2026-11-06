@@ -73,6 +73,12 @@ export function verifyWebhookSignature(rawBody: string, header: string | null, s
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/** True when the signature's timestamp (seconds) is within `toleranceSec` of now. */
+export function webhookFresh(header: string | null, nowSec = Math.floor(Date.now() / 1000), toleranceSec = 300): boolean {
+  const t = Number(/(?:^|,)\s*t=(\d+)/.exec(header ?? "")?.[1]);
+  return Number.isFinite(t) && t > 0 && Math.abs(nowSec - t) <= toleranceSec;
+}
+
 export type WebhookEvent = {
   data: {
     attributes: {

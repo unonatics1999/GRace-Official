@@ -135,18 +135,38 @@ Set under **Admin → Commission**, saved in the database, and applied to new re
    the two functions in [`src/lib/storage.ts`](src/lib/storage.ts) with S3-compatible storage.
 5. **Run.** `docker build -t downtime .` then run with your env file; migrations run on start. Health check:
    `GET /api/health`.
-6. **Before launch.** Have counsel finish `/terms` and `/privacy` (both marked as drafts), register with the
+6. **Reverse proxy.** Run behind a proxy or host (Vercel, Nginx, a load balancer) that sets `X-Real-IP` or
+   appends the client address to `X-Forwarded-For`. Rate limits read the address the proxy sets, never the
+   one the visitor sends. Never expose `npm run dev` to the internet; production runs `next start` / Docker.
+7. **Email and SMS.** Set `RESEND_API_KEY`, `EMAIL_FROM` and `SEMAPHORE_API_KEY`; without them, production marks
+   messages Failed (password resets included).
+8. **Before launch.** Have counsel finish `/terms` and `/privacy` (both marked as drafts), register with the
    National Privacy Commission if required, and confirm whether rent-a-car with driver needs LTFRB/DOT accreditation.
 
 ## Built-in safeguards
 
-- Passwords: bcrypt; login lockout after 5 failed attempts per email (20 per IP) in 15 minutes.
-- Sessions: signed, HTTP-only cookies.
-- Uploads: real file type checked from the bytes, size-limited, served only to the owner, the other booking party or admins.
-- Bookings: a per-vehicle lock stops two approvals or payments for the same dates.
-- Payments: webhook signatures verified (HMAC-SHA256); handling is idempotent.
-- Admin: every admin decision and money action goes to an append-only audit log.
-- Security headers: frame denial, nosniff, referrer and permissions policies, HSTS in production.
+- **Passwords:** bcrypt. Login limits per 15 minutes: 5 failures per email from one address, 20 per address,
+  50 per email from everywhere. Logins take the same time whether or not the email exists.
+- **Password reset:** one-time link, 30 minutes, only its hash stored, never written to the message log; claimed
+  atomically. The reply is identical whether or not the account exists. A reset or password change signs out
+  every other session.
+- **Sessions:** signed (HS256), HTTP-only, SameSite=Lax, Secure in production; suspended accounts are locked out
+  of every action (`/suspended`).
+- **Rate limits:** sign-up (5 per hour per address), reset requests, and the help chat (20 per 10 minutes per
+  address, plus a global hourly cap on AI answers so the API bill can't be run up).
+- **Uploads:** real file type checked from the bytes (JPEG, PNG, WebP, PDF), size-limited, served only to the owner,
+  the other booking party or admins, under a sandboxed no-script policy.
+- **Re-review:** changing a car's plate, model, year, category or OR/CR/CTPL expiry, or an account's ID or licence
+  details, sends it back to GRace review. Payout-detail changes are audited and the owner is emailed.
+- **Bookings:** prices and commission computed on the server and snapshotted; a per-vehicle lock stops double
+  bookings; status changes follow `src/lib/lifecycle.ts`.
+- **Payments:** webhook signatures verified (HMAC-SHA256, timing-safe), events older than 5 minutes refused, test
+  events ignored with live keys; handling is idempotent.
+- **Dev shortcuts** (simulated payments, email/SMS, on-screen reset links) only work when the app runs on localhost.
+- **Admin:** hidden sign-in, 404 for everyone else, every decision and money action in an append-only audit log.
+- **Browser:** Content-Security-Policy (own scripts only, no framing, forms post only to us or PayMongo),
+  nosniff, frame denial, COOP, referrer and permissions policies, HSTS in production.
+- **Seed:** refuses to run against anything but a local SQLite file.
 
 ## Project layout
 

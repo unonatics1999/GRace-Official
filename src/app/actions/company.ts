@@ -14,6 +14,8 @@ import {
 import { PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { requireCompanyUser } from "@/lib/session";
 import { saveDocument } from "@/lib/uploads";
+import { audit } from "@/lib/audit";
+import { sendMessage } from "@/lib/notify";
 import { canManageTeam, firstError, type ActionState } from "@/lib/util";
 
 const optionalDay = z
@@ -90,10 +92,23 @@ export async function updateVerification(_: ActionState, form: FormData): Promis
   const data = { ...rest, licenceExpiry: licenceExpiry ? parseDay(licenceExpiry) : null };
 
   const identityKeys = c.kind === "INDIVIDUAL" ? (["govIdNumber", "licenceNo"] as const) : (["registrationNo", "tin", "licenceNo"] as const);
-  const identityChanged = identityKeys.some((k) => (data as Record<string, unknown>)[k] !== c[k]);
+  const expiryChanged = (data.licenceExpiry?.getTime() ?? null) !== (c.licenceExpiry?.getTime() ?? null);
+  const identityChanged = expiryChanged || identityKeys.some((k) => (data as Record<string, unknown>)[k] !== c[k]);
+  const payoutChanged = "payoutDetails" in data && (data as { payoutDetails?: string }).payoutDetails !== c.payoutDetails;
   const backToReview = identityChanged && c.status === "VERIFIED";
 
   await db.company.update({ where: { id: c.id }, data: { ...data, ...(backToReview ? { status: "PENDING" } : {}) } });
+  if (payoutChanged) {
+    // Payouts are sent by hand to whatever is on file, so a change is recorded and the owner is told.
+    await audit(me.id, "account.payout_details_changed", "Company", c.id);
+    await sendMessage({
+      toUserId: me.id,
+      channel: "EMAIL",
+      address: me.email,
+      subject: "Your GRace payout details were changed",
+      body: `Hi ${me.name},\n\nThe payout details on your GRace account were just changed. If you made this change, there's nothing to do.\n\nIf you didn't, reset your password right away and contact GRace support through the Help center.\n\nGRace Car Rental`,
+    });
+  }
   invalidateListings();
   revalidatePath("/account");
   return {

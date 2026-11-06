@@ -24,6 +24,9 @@ function day(offset: number): Date {
 const peso = (n: number) => n * 100;
 
 async function main() {
+  if (process.env.NODE_ENV === "production" || !process.env.DATABASE_URL?.startsWith("file:")) {
+    throw new Error("The demo seed wipes the database and creates demo logins. It only runs against a local SQLite file.");
+  }
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
 
   // Children before parents.
