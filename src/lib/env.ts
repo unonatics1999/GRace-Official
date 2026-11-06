@@ -12,6 +12,10 @@ const schema = z
     PAYMONGO_SECRET_KEY: z.string().optional(),
     PAYMONGO_WEBHOOK_SECRET: z.string().optional(),
     STORAGE_DIR: z.string().default("./storage"),
+    // Supabase Storage (live site): a PRIVATE bucket. Without these, files go to STORAGE_DIR.
+    SUPABASE_URL: z.string().url().optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    SUPABASE_BUCKET: z.string().default("grace-files"),
     // Email via Resend (https://resend.com). Without a key, emails are simulated in development.
     RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().default("GRace Car Rental <no-reply@example.com>"),

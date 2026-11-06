@@ -143,6 +143,26 @@ Set under **Admin → Commission**, saved in the database, and applied to new re
 8. **Before launch.** Have counsel finish `/terms` and `/privacy` (both marked as drafts), register with the
    National Privacy Commission if required, and confirm whether rent-a-car with driver needs LTFRB/DOT accreditation.
 
+## Free test site (Vercel + Supabase)
+
+A free demo deployment. Vercel's free plan is **non-commercial**: use it to test and show the site, and move to
+Vercel Pro (or a VPS) before taking real paid bookings. Local development keeps using SQLite; the build on Vercel
+switches to PostgreSQL automatically (`scripts/postgres-schema.mjs`, run by `npm run vercel-build`).
+
+1. **Supabase** (https://supabase.com, sign in with GitHub): New project, region **Singapore**, save the database
+   password. Then Storage → New bucket `grace-files`, **Private** (leave "Public bucket" off).
+2. **Fill `.env.production.local`** (already created locally with a generated `SESSION_SECRET`; never committed):
+   the Supabase pooler and direct connection strings, project URL and service_role key, and PayMongo **test** key.
+3. **Vercel** (https://vercel.com, sign in with GitHub): Add New → Project → import the GitHub repo. Before
+   deploying, Environment Variables → paste the whole `.env.production.local`. Deploy. Then set `APP_URL` to the
+   address Vercel gives you and redeploy.
+4. **First admin on the live database**: put your email and password in PowerShell, then `npm run live:admin`:
+   `$env:ADMIN_EMAIL="you@gmail.com"`, `$env:ADMIN_PASSWORD="a-long-password"`, `npm run live:admin`.
+5. **PayMongo webhook**: Developers → Webhooks → `<APP_URL>/api/webhooks/paymongo`, event
+   `checkout_session.payment.paid`; put its secret in Vercel as `PAYMONGO_WEBHOOK_SECRET` and redeploy.
+
+The live site starts empty (no demo accounts). List the launch cars through the site as a car owner.
+
 ## Built-in safeguards
 
 - **Passwords:** bcrypt. Login limits per 15 minutes: 5 failures per email from one address, 20 per address,

@@ -14,7 +14,9 @@
     "db:seed": "prisma db seed",
     "setup": "prisma migrate dev --name init && prisma db seed",
     "admin:create": "tsx scripts/create-admin.ts",
-    "load-test": "node scripts/load-test.mjs"
+    "load-test": "node scripts/load-test.mjs",
+    "vercel-build": "node scripts/postgres-schema.mjs && prisma generate --schema prisma/postgres/schema.prisma && prisma db push --schema prisma/postgres/schema.prisma --skip-generate && next build",
+    "live:admin": "node scripts/with-live-db.mjs tsx scripts/create-admin.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

@@ -49,3 +49,6 @@ next-env.d.ts
 # SQLite write-ahead log files
 /prisma/*.db-wal
 /prisma/*.db-shm
+
+# generated PostgreSQL copy of the schema (scripts/postgres-schema.mjs)
+/prisma/postgres
