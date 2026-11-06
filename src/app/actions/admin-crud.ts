@@ -14,7 +14,7 @@ import { db } from "@/lib/db";
 import { invalidateListings } from "@/lib/listing-cache";
 import { normalizePhone, PHONE_HINT } from "@/lib/phone";
 import { requireAdmin } from "@/lib/session";
-import { firstError, normalizeEmail, type ActionState } from "@/lib/util";
+import { firstError, normalizeEmail, type ActionState, formFields } from "@/lib/util";
 import { vehicleData } from "@/lib/vehicle-input";
 
 const refresh = () => {
@@ -43,7 +43,7 @@ const accountSchema = z.object({
 });
 
 function accountData(form: FormData) {
-  const parsed = accountSchema.safeParse(Object.fromEntries(form));
+  const parsed = accountSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) } as const;
   const { licenceExpiry, phone, ...rest } = parsed.data;
   const normalized = phone ? normalizePhone(phone) : "";
@@ -125,7 +125,7 @@ const userSchema = z.object({
 
 export async function adminCreateUser(_: ActionState, form: FormData): Promise<ActionState> {
   const admin = await requireAdmin();
-  const parsed = userSchema.safeParse(Object.fromEntries(form));
+  const parsed = userSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { name, role, companyId, isAdmin, password } = parsed.data;
   const email = normalizeEmail(parsed.data.email);
@@ -150,7 +150,7 @@ export async function adminCreateUser(_: ActionState, form: FormData): Promise<A
 
 export async function adminUpdateUser(userId: string, _: ActionState, form: FormData): Promise<ActionState> {
   const admin = await requireAdmin();
-  const parsed = userSchema.safeParse(Object.fromEntries(form));
+  const parsed = userSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { name, role, companyId, isAdmin, password } = parsed.data;
   const email = normalizeEmail(parsed.data.email);

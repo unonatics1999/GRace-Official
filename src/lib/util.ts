@@ -29,3 +29,19 @@ export function canManageFleet(role: string): boolean {
 export function canManageTeam(role: string): boolean {
   return role === "OWNER";
 }
+
+/** No legitimate text field is longer than this; the longest real one (an admin message) is 2,000. */
+export const MAX_FIELD_CHARS = 5000;
+
+/**
+ * Form fields as a plain object, for zod. Oversized text is cut down before validation, so a giant
+ * payload never reaches a schema, the database or a log. File fields are dropped (uploads read them
+ * with form.get/getAll).
+ */
+export function formFields(form: FormData): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of form.entries()) {
+    if (typeof value === "string" && key.length <= 100) out[key] = value.slice(0, MAX_FIELD_CHARS);
+  }
+  return out;
+}

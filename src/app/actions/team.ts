@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireCompanyUser } from "@/lib/session";
-import { canManageTeam, firstError, normalizeEmail, type ActionState } from "@/lib/util";
+import { canManageTeam, firstError, normalizeEmail, type ActionState, formFields } from "@/lib/util";
 
 const memberSchema = z.object({
   name: z.string().trim().min(2, "Enter their name."),
@@ -18,7 +18,7 @@ export async function addMember(_: ActionState, form: FormData): Promise<ActionS
   const me = await requireCompanyUser();
   if (!canManageTeam(me.role)) return { error: "Only an owner can add team members." };
 
-  const parsed = memberSchema.safeParse(Object.fromEntries(form));
+  const parsed = memberSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const email = normalizeEmail(parsed.data.email);
 

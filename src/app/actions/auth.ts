@@ -10,7 +10,7 @@ import { PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { overLimit } from "@/lib/memory-limit";
 import { clientIp, loginBlocked, recordLogin } from "@/lib/rate-limit";
 import { createSession, destroySession, homeFor, requireCompanyUser, requireUser } from "@/lib/session";
-import { canManageTeam, firstError, normalizeEmail, type ActionState } from "@/lib/util";
+import { canManageTeam, firstError, normalizeEmail, type ActionState, formFields } from "@/lib/util";
 
 const MIN_PASSWORD = 10;
 
@@ -32,7 +32,7 @@ const DUMMY_HASH = bcrypt.hashSync("not-a-real-password", 10);
 
 export async function signup(_: ActionState, form: FormData): Promise<ActionState> {
   if (overLimit(`signup:${await clientIp()}`, 5, 60 * 60 * 1000)) return { error: "Too many sign-ups from this network. Try again in an hour." };
-  const parsed = signupSchema.safeParse(Object.fromEntries(form));
+  const parsed = signupSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { accountType, kind, companyName, city, name, password } = parsed.data;
   const phone = parsed.data.phone ? normalizePhone(parsed.data.phone) : "";
@@ -65,7 +65,7 @@ const loginSchema = z.object({
 });
 
 export async function login(_: ActionState, form: FormData): Promise<ActionState> {
-  const parsed = loginSchema.safeParse(Object.fromEntries(form));
+  const parsed = loginSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
 
   const email = normalizeEmail(parsed.data.email);
@@ -116,7 +116,7 @@ const credentialsSchema = z.object({
 /** Change the sign-in email and/or password. Works for every account, including admins. */
 export async function updateCredentials(_: ActionState, form: FormData): Promise<ActionState> {
   const me = await requireUser();
-  const parsed = credentialsSchema.safeParse(Object.fromEntries(form));
+  const parsed = credentialsSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { currentPassword, newPassword, confirmPassword } = parsed.data;
   const email = normalizeEmail(parsed.data.email);

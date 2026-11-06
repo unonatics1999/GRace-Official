@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "security:test": "tsx scripts/security-test.ts",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",

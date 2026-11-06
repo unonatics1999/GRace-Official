@@ -11,7 +11,7 @@ import { isMobile, sendMessage } from "@/lib/notify";
 import { RESET_TTL_MS, hashResetToken, newResetToken, resetUsable } from "@/lib/password-reset";
 import { clientIp } from "@/lib/rate-limit";
 import { createSession, homeFor } from "@/lib/session";
-import { firstError, normalizeEmail, type ActionState } from "@/lib/util";
+import { firstError, normalizeEmail, type ActionState, formFields } from "@/lib/util";
 
 const MIN_PASSWORD = 10;
 const MAX_REQUESTS_PER_HOUR = 3;
@@ -28,7 +28,7 @@ const SENT = "If that account exists, we've sent a reset link. It works once and
 export type ResetRequestState = (NonNullable<ActionState> & { devLink?: string }) | undefined;
 
 export async function requestPasswordReset(_: ResetRequestState, form: FormData): Promise<ResetRequestState> {
-  const parsed = requestSchema.safeParse(Object.fromEntries(form));
+  const parsed = requestSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const email = normalizeEmail(parsed.data.email);
   // Separate from the login limiter, so failed logins can't block someone from resetting.
@@ -76,7 +76,7 @@ const resetSchema = z.object({
 });
 
 export async function resetPassword(_: ActionState, form: FormData): Promise<ActionState> {
-  const parsed = resetSchema.safeParse(Object.fromEntries(form));
+  const parsed = resetSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   if (parsed.data.password !== parsed.data.confirm) return { error: "The passwords don't match." };
 

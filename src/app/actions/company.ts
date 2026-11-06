@@ -16,7 +16,7 @@ import { requireCompanyUser } from "@/lib/session";
 import { saveDocument } from "@/lib/uploads";
 import { audit } from "@/lib/audit";
 import { sendMessage } from "@/lib/notify";
-import { canManageTeam, firstError, type ActionState } from "@/lib/util";
+import { canManageTeam, firstError, type ActionState, formFields } from "@/lib/util";
 
 const optionalDay = z
   .string()
@@ -36,7 +36,7 @@ const contactSchema = z.object({
 export async function updateContact(_: ActionState, form: FormData): Promise<ActionState> {
   const me = await requireCompanyUser();
   if (!canManageTeam(me.role)) return { error: "Only an owner can edit the account." };
-  const parsed = contactSchema.safeParse(Object.fromEntries(form));
+  const parsed = contactSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const phone = normalizePhone(parsed.data.phone);
   if (!phone) return { error: PHONE_HINT };
@@ -84,7 +84,7 @@ export async function updateVerification(_: ActionState, form: FormData): Promis
   const me = await requireCompanyUser();
   if (!canManageTeam(me.role)) return { error: "Only an owner can edit verification details." };
   const c = me.company;
-  const parsed = (c.kind === "INDIVIDUAL" ? individualSchema : businessSchema).safeParse(Object.fromEntries(form));
+  const parsed = (c.kind === "INDIVIDUAL" ? individualSchema : businessSchema).safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
 
   const { licenceExpiry, ...rest } = parsed.data;

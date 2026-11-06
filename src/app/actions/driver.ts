@@ -8,7 +8,7 @@ import { invalidateListings } from "@/lib/listing-cache";
 import { DOCUMENT_TYPES, DRIVER_REQUIREMENTS, VEHICLE_RULES, type DocumentType } from "@/lib/requirements";
 import { requireCompanyUser } from "@/lib/session";
 import { saveDocument } from "@/lib/uploads";
-import { firstError, type ActionState } from "@/lib/util";
+import { firstError, type ActionState, formFields } from "@/lib/util";
 
 const driverSchema = z.object({
   licenceNo: z
@@ -28,7 +28,7 @@ const driverSchema = z.object({
 /** Create or update the signed-in person's driver profile. Changes send it back to review. */
 export async function saveDriverProfile(_: ActionState, form: FormData): Promise<ActionState> {
   const me = await requireCompanyUser();
-  const parsed = driverSchema.safeParse(Object.fromEntries(form));
+  const parsed = driverSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const licenceExpiry = parseDay(parsed.data.licenceExpiry)!;
   if (licenceExpiry <= today()) return { error: "Your licence has expired. Renew it at LTO first." };

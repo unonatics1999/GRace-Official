@@ -6,7 +6,7 @@ import { audit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { isMobile, sendMessage, type SendResult } from "@/lib/notify";
 import { requireAdmin } from "@/lib/session";
-import { firstError, normalizeEmail, type ActionState } from "@/lib/util";
+import { firstError, normalizeEmail, type ActionState, formFields } from "@/lib/util";
 
 const schema = z.object({
   to: z.string().trim().min(1, "Choose who to message."),
@@ -24,7 +24,7 @@ function label(r: SendResult): string {
 /** Admin to user message by email, SMS or both. Every send is recorded and audited. */
 export async function sendAdminMessage(_: ActionState, form: FormData): Promise<ActionState> {
   const admin = await requireAdmin();
-  const parsed = schema.safeParse(Object.fromEntries(form));
+  const parsed = schema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) };
   const { channel, subject, body } = parsed.data;
 

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { FUEL_TYPES, TRANSMISSIONS, VEHICLE_TYPES, type VehicleType } from "./constants";
 import { parseDay, today } from "./dates";
 import { VEHICLE_RULES } from "./requirements";
-import { firstError } from "./util";
+import { firstError, formFields } from "./util";
 
 // Parses the vehicle form (owner's fleet page and the admin console share it).
 
@@ -38,7 +38,7 @@ const vehicleSchema = z.object({
 });
 
 export function vehicleData(form: FormData) {
-  const parsed = vehicleSchema.safeParse(Object.fromEntries(form));
+  const parsed = vehicleSchema.safeParse(formFields(form));
   if (!parsed.success) return { error: firstError(parsed.error) } as const;
   const v = parsed.data;
   if (!v.selfDriveAllowed && !v.withDriverAllowed) return { error: "Offer self-drive, with driver, or both." } as const;
